@@ -32,6 +32,7 @@ function WorkoutClientContent() {
     const [repCount, setRepCount] = useState(0);
     const [countdown, setCountdown] = useState(10);
     const [aiProgress, setAiProgress] = useState(0);
+    const [cameraError, setCameraError] = useState<string | null>(null);
 
     const videoRef    = useRef<HTMLVideoElement | null>(null);
     const canvasRef   = useRef<HTMLCanvasElement | null>(null);
@@ -42,7 +43,7 @@ function WorkoutClientContent() {
     const restTimerRef = useRef<NodeJS.Timeout | null>(null);
     const reqFrameRef = useRef<number>();
     const streamRef   = useRef<MediaStream | null>(null);
-    const poseStateRef = useRef<'up'|'down'>('up');
+    const poseStateRef = useRef<'top'|'bottom'>('top');
     const repRef      = useRef(0);
     const exRef       = useRef<Exercise | null>(null);
 
@@ -98,38 +99,47 @@ function WorkoutClientContent() {
     async function initWorkoutNet() {
         if (!videoRef.current || !canvasRef.current) return;
         setIsAiLoading(true);
-        await loadWorkoutModel();
+        setCameraError(null);
+
+        // 10s Fallback to prevent forever loading
+        const timeout = setTimeout(() => {
+            if (isAiLoading && !isAiReady) {
+                setIsAiLoading(false);
+                setCameraError("Camera timed out. Please ensure permissions are granted and refresh.");
+            }
+        }, 10000);
 
         try {
+            await loadWorkoutModel();
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
             videoRef.current.srcObject = stream;
             streamRef.current = stream;
             
-            const startAI = async () => {
+            // Wait for video to be ready manually to avoid race conditions
+            await new Promise((resolve) => {
                 if (videoRef.current) {
-                    setIsAiReady(true);
-                    setIsAiLoading(false);
-                    if (!reqFrameRef.current) {
-                        reqFrameRef.current = requestAnimationFrame(loopWorkoutNet);
-                    }
-                    try {
-                        await videoRef.current.play();
-                    } catch (e) {
-                         console.log("Play interrupted or waiting for user gesture...");
-                    }
+                    videoRef.current.onloadedmetadata = resolve;
+                    if (videoRef.current.readyState >= 2) resolve(true);
                 }
-            };
+            });
 
-            videoRef.current.onloadedmetadata = startAI;
-            videoRef.current.onloadeddata = startAI;
-            videoRef.current.oncanplay = startAI;
-            
-            if (videoRef.current.readyState >= 2) {
-                startAI();
+            if (videoRef.current) {
+                setIsAiReady(true);
+                if (!reqFrameRef.current) {
+                    reqFrameRef.current = requestAnimationFrame(loopWorkoutNet);
+                }
+                try {
+                    await videoRef.current.play();
+                } catch (e) {
+                     console.log("Autoplay blocked");
+                }
             }
         } catch (err) {
             console.error("Camera access denied or failed", err);
+            setCameraError("Camera access denied. Please allow camera permissions to use AI tracking.");
             setIsAiReady(false);
+        } finally {
+            clearTimeout(timeout);
             setIsAiLoading(false);
         }
     }
@@ -162,8 +172,9 @@ function WorkoutClientContent() {
 
     function drawSkeleton(ctx: CanvasRenderingContext2D, kp: any[], W: number, H: number) {
         ctx.strokeStyle = '#F49B33'; ctx.lineWidth = 3;
+        const confThreshold = 0.4;
         for (const [a, b] of CONNECTING_LINES) {
-            if ((kp[a]?.confidence||0) > 0.1 && (kp[b]?.confidence||0) > 0.1) {
+            if ((kp[a]?.confidence||0) > confThreshold && (kp[b]?.confidence||0) > confThreshold) {
                 ctx.beginPath();
                 ctx.moveTo((1 - kp[a].x) * W, kp[a].y * H); // Mirror the drawn points
                 ctx.lineTo((1 - kp[b].x) * W, kp[b].y * H);
@@ -172,7 +183,7 @@ function WorkoutClientContent() {
         }
         ctx.fillStyle = '#ffffff';
         for (const pt of kp) {
-            if ((pt.confidence||0) > 0.1) {
+            if ((pt.confidence||0) > confThreshold) {
                 ctx.beginPath();
                 ctx.arc((1 - pt.x) * W, pt.y * H, 5, 0, Math.PI*2);
                 ctx.fill();
@@ -184,20 +195,24 @@ function WorkoutClientContent() {
         const ex = exRef.current; if (!ex) return;
         const lHip = kp[WN.L_HIP], lKnee = kp[WN.L_KNEE];
         const lWrist = kp[WN.L_WRIST], nose = kp[WN.NOSE];
+        const confThreshold = 0.4;
 
-        if (['5','4','8','6'].includes(ex.id) && (lHip?.confidence||0) > 0.1 && (lKnee?.confidence||0) > 0.1) {
-            if (lHip.y > lKnee.y && poseStateRef.current === 'up')   { poseStateRef.current = 'down'; }
-            if (lHip.y < lKnee.y && poseStateRef.current === 'down') { poseStateRef.current = 'up'; repRef.current++; setRepCount(repRef.current); }
-        } else if (ex.id === '1' && (lWrist?.confidence||0) > 0.1 && (nose?.confidence||0) > 0.1) {
-            if (lWrist.y < nose.y && poseStateRef.current === 'up')   { poseStateRef.current = 'down'; repRef.current++; setRepCount(repRef.current); }
-            if (lWrist.y > nose.y && poseStateRef.current === 'down') { poseStateRef.current = 'up'; }
+        if (['5','4','8','6'].includes(ex.id) && (lHip?.confidence||0) > confThreshold && (lKnee?.confidence||0) > confThreshold) {
+            // Squat/Lunge Logic with Top/Bottom labels
+            if (lHip.y > lKnee.y && poseStateRef.current === 'top')   { poseStateRef.current = 'bottom'; }
+            if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+        } else if (ex.id === '1' && (lWrist?.confidence||0) > confThreshold && (nose?.confidence||0) > confThreshold) {
+            // Jumping Jack Logic
+            if (lWrist.y < nose.y && poseStateRef.current === 'top')   { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
+            if (lWrist.y > nose.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
         }
     }
 
-    // ── AI TOGGLE ─────────────────────────────────────────────
-    const prevAiRef = useRef(true);
+    // ── AI LIFECYCLE ─────────────────────────────────────────────
     useEffect(() => {
-        if (!aiEnabled && prevAiRef.current) {
+        if (aiEnabled) {
+            initWorkoutNet();
+        } else {
             if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
             if (reqFrameRef.current) cancelAnimationFrame(reqFrameRef.current);
             if (canvasRef.current) {
@@ -206,25 +221,18 @@ function WorkoutClientContent() {
             }
             setIsAiReady(false);
             setIsAiLoading(false);
-        } else if (aiEnabled && !prevAiRef.current) {
-            initWorkoutNet();
         }
-        prevAiRef.current = aiEnabled;
-    }, [aiEnabled]);
 
-    // ── CLEANUP ───────────────────────────────────────────────
-    useEffect(() => {
-        if (aiEnabled) initWorkoutNet();
         return () => {
             if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
             if (reqFrameRef.current) cancelAnimationFrame(reqFrameRef.current);
             if (timerRef.current) clearInterval(timerRef.current);
             if (restTimerRef.current) clearInterval(restTimerRef.current);
         };
-    }, []);
+    }, [aiEnabled]);
 
     const handleNext = () => {
-        setIsResting(false); repRef.current = 0; setRepCount(0); poseStateRef.current = 'up';
+        setIsResting(false); repRef.current = 0; setRepCount(0); poseStateRef.current = 'top';
         router.replace(`/track/workout?id=${queue[(currentIndex + 1) % queue.length].id}`);
     };
 
@@ -264,6 +272,18 @@ function WorkoutClientContent() {
                             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
                                 <div className="h-10 w-10 border-4 border-accent border-t-transparent rounded-full animate-spin mb-3" />
                                 <p className="text-xs font-bold text-accent uppercase tracking-widest">Loading AI Trainer...</p>
+                            </div>
+                        )}
+                        {cameraError && aiEnabled && (
+                            <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center p-6 text-center z-20">
+                                <div className="bg-red-500/20 text-red-500 p-4 rounded-2xl mb-4">
+                                    <Pause className="h-8 w-8 mx-auto mb-2" />
+                                    <p className="font-bold uppercase tracking-tight text-sm">Action Blocked</p>
+                                </div>
+                                <p className="text-white/80 text-xs mb-4 leading-relaxed">{cameraError}</p>
+                                <Button size="sm" variant="outline" className="border-white/10 text-white" onClick={() => initWorkoutNet()}>
+                                    TRY AGAIN
+                                </Button>
                             </div>
                         )}
                         {!aiEnabled && (

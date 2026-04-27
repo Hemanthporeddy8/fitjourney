@@ -3,10 +3,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
 
   webpack: (config, { isServer }) => {
@@ -38,13 +38,6 @@ const nextConfig: NextConfig = {
           { key: 'Cross-Origin-Opener-Policy',   value: 'same-origin'            },
           { key: 'Content-Type',                 value: 'application/octet-stream'},
           { key: 'Cache-Control',                value: 'public, max-age=86400'  },
-        ],
-      },
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy',   value: 'same-origin'  },
         ],
       },
     ];
