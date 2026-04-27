@@ -39,3 +39,7 @@ next-env.d.ts
 
 .genkit/*
 .env*
+backup_bulky/
+*.pth
+*.zip
+!results.zip

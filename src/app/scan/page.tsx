@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Camera, Upload, Sparkles, ArrowLeft, CircleDot, Utensils, Scale, Package, Save, RefreshCcw, Info, Edit3, CheckCircle, CalendarDays, Dumbbell, ListChecks, Trash2, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { estimateCaloriesFromPhoto, EstimateCaloriesFromPhotoOutput, EstimateCaloriesFromPhotoInput } from '@/ai/flows/estimate-calories-from-photo';
 import { runFoodInference, loadFoodModel, FoodInferenceResult } from '@/lib/food-engine';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
@@ -42,18 +41,21 @@ interface IngredientDetail {
   fats?: number;
 }
 
-interface SavedMeal extends Omit<EstimateCaloriesFromPhotoOutput, 'ingredientsBreakdown'> {
+interface SavedMeal {
+  foodName: string;
+  calories: number;
   timestamp: string;
   imageUrl?: string;
   ingredientsBreakdown?: IngredientDetail[];
-  contextualDietaryAdvice?: string[];
-  itemsToConsiderAvoidingInMeal?: string[];
+  dietaryClassification?: string[];
+  healthSummary?: string;
+  nutritionalScore?: number;
 }
 
 export default function CalorieScannerPage() {
   const [foodImageFile, setFoodImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [nutritionInfo, setNutritionInfo] = useState<EstimateCaloriesFromPhotoOutput | null>(null);
+  const [nutritionInfo, setNutritionInfo] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,8 +67,8 @@ export default function CalorieScannerPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
 
-  const [recentWoundInfo, setRecentWoundInfo] = useState<EstimateCaloriesFromPhotoInput['recentWoundInfo']>(undefined);
-  const [calmCycleInfo, setCalmCycleInfo] = useState<EstimateCaloriesFromPhotoInput['cycleCalmInfo']>(undefined);
+  const [recentWoundInfo, setRecentWoundInfo] = useState<any>(undefined);
+  const [calmCycleInfo, setCalmCycleInfo] = useState<any>(undefined);
 
   const [isEditingMealInfo, setIsEditingMealInfo] = useState(false);
   const [isManualMode, setIsManualMode] = useState(false);
@@ -158,7 +160,7 @@ export default function CalorieScannerPage() {
         setSelectedPredictionIndex(0); // Default to top match
         
         const topMatch = results[0];
-        const mappedResult: EstimateCaloriesFromPhotoOutput = {
+        const mappedResult: any = {
           foodName: topMatch.className,
           calories: topMatch.nutrients.calories,
           ingredientsBreakdown: [
