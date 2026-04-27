@@ -1,0 +1,3411 @@
+{
+  "almonds": {
+    "itemName": "Almonds",
+    "calories": 160,
+    "protein": 6,
+    "carbs": 6,
+    "fats": 14
+  },
+  "apple": {
+    "itemName": "Apple",
+    "calories": 95,
+    "protein": 1,
+    "carbs": 25,
+    "fats": 0
+  },
+  "apple-pie": {
+    "itemName": "Apple Pie",
+    "calories": 95,
+    "protein": 1,
+    "carbs": 25,
+    "fats": 0
+  },
+  "applesauce-unsweetened-canned": {
+    "itemName": "Applesauce Unsweetened Canned",
+    "calories": 95,
+    "protein": 1,
+    "carbs": 25,
+    "fats": 0
+  },
+  "apricots": {
+    "itemName": "Apricots",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "avocado": {
+    "itemName": "Avocado",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bacon-frying": {
+    "itemName": "Bacon Frying",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "baked-potato": {
+    "itemName": "Baked Potato",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "banana": {
+    "itemName": "Banana",
+    "calories": 105,
+    "protein": 1,
+    "carbs": 27,
+    "fats": 0
+  },
+  "beef": {
+    "itemName": "Beef",
+    "calories": 400,
+    "protein": 38,
+    "carbs": 0,
+    "fats": 25
+  },
+  "beef-filet": {
+    "itemName": "Beef Filet",
+    "calories": 400,
+    "protein": 38,
+    "carbs": 0,
+    "fats": 25
+  },
+  "beef-minced-only-meat": {
+    "itemName": "Beef Minced Only Meat",
+    "calories": 400,
+    "protein": 38,
+    "carbs": 0,
+    "fats": 25
+  },
+  "beef-sirloin-steak": {
+    "itemName": "Beef Sirloin Steak",
+    "calories": 400,
+    "protein": 38,
+    "carbs": 0,
+    "fats": 25
+  },
+  "beer": {
+    "itemName": "Beer",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "beetroot-steamed-without-addition-of-salt": {
+    "itemName": "Beetroot Steamed Without Addition Of Salt",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bell-pepper-red-raw": {
+    "itemName": "Bell Pepper Red Raw",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "berries": {
+    "itemName": "Berries",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "birchermuesli-prepared-no-sugar-added": {
+    "itemName": "Birchermuesli Prepared No Sugar Added",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "biscuits": {
+    "itemName": "Biscuits",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "black-olives": {
+    "itemName": "Black Olives",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "blueberries": {
+    "itemName": "Blueberries",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bolognaise-sauce": {
+    "itemName": "Bolognaise Sauce",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "braided-white-loaf": {
+    "itemName": "Braided White Loaf",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread": {
+    "itemName": "Bread",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-5-grain": {
+    "itemName": "Bread 5 Grain",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-black": {
+    "itemName": "Bread Black",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-french-white-flour": {
+    "itemName": "Bread French White Flour",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-fruit": {
+    "itemName": "Bread Fruit",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-grain": {
+    "itemName": "Bread Grain",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-half-white": {
+    "itemName": "Bread Half White",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-nut": {
+    "itemName": "Bread Nut",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-pita": {
+    "itemName": "Bread Pita",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-rye": {
+    "itemName": "Bread Rye",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-sourdough": {
+    "itemName": "Bread Sourdough",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-spelt": {
+    "itemName": "Bread Spelt",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-ticino": {
+    "itemName": "Bread Ticino",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-toast": {
+    "itemName": "Bread Toast",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-white": {
+    "itemName": "Bread White",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-whole-wheat": {
+    "itemName": "Bread Whole Wheat",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-wholemeal": {
+    "itemName": "Bread Wholemeal",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "bread-wholemeal-toast": {
+    "itemName": "Bread Wholemeal Toast",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "brioche": {
+    "itemName": "Brioche",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "broccoli": {
+    "itemName": "Broccoli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "brownie": {
+    "itemName": "Brownie",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "butter": {
+    "itemName": "Butter",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cake-chocolate": {
+    "itemName": "Cake Chocolate",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cappuccino": {
+    "itemName": "Cappuccino",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "caprese-salad-tomato-mozzarella": {
+    "itemName": "Caprese Salad Tomato Mozzarella",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "carrot-raw": {
+    "itemName": "Carrot Raw",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cashew-nut": {
+    "itemName": "Cashew Nut",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cauliflower": {
+    "itemName": "Cauliflower",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "celeriac": {
+    "itemName": "Celeriac",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cheese": {
+    "itemName": "Cheese",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cheese-for-raclette": {
+    "itemName": "Cheese For Raclette",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cherries": {
+    "itemName": "Cherries",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "chicken": {
+    "itemName": "Chicken",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "chicken-breast": {
+    "itemName": "Chicken Breast",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "chicken-curry-cream-coconut-milk-curry-spices-paste": {
+    "itemName": "Chicken Curry Cream Coconut Milk Curry Spices Paste",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "chicken-cut-into-stripes-only-meat": {
+    "itemName": "Chicken Cut Into Stripes Only Meat",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "chicken-leg": {
+    "itemName": "Chicken Leg",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "chickpeas": {
+    "itemName": "Chickpeas",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "chili-con-carne-prepared": {
+    "itemName": "Chili Con Carne Prepared",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "chips-french-fries": {
+    "itemName": "Chips French Fries",
+    "calories": 380,
+    "protein": 4,
+    "carbs": 48,
+    "fats": 18
+  },
+  "chocolate": {
+    "itemName": "Chocolate",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "chocolate-cookies": {
+    "itemName": "Chocolate Cookies",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "chocolate-mousse": {
+    "itemName": "Chocolate Mousse",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cocktail": {
+    "itemName": "Cocktail",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "coffee-with-caffeine": {
+    "itemName": "Coffee With Caffeine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cookies": {
+    "itemName": "Cookies",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "corn": {
+    "itemName": "Corn",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "corn-crisps": {
+    "itemName": "Corn Crisps",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cottage-cheese": {
+    "itemName": "Cottage Cheese",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "country-fries": {
+    "itemName": "Country Fries",
+    "calories": 380,
+    "protein": 4,
+    "carbs": 48,
+    "fats": 18
+  },
+  "couscous": {
+    "itemName": "Couscous",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "crepe-plain": {
+    "itemName": "Crepe Plain",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "crisp-bread-wasa": {
+    "itemName": "Crisp Bread Wasa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "crisps": {
+    "itemName": "Crisps",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "croissant": {
+    "itemName": "Croissant",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "croissant-with-chocolate-filling": {
+    "itemName": "Croissant With Chocolate Filling",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "crunch-muesli": {
+    "itemName": "Crunch Muesli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cucumber": {
+    "itemName": "Cucumber",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "cucumber-pickled": {
+    "itemName": "Cucumber Pickled",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "curry-vegetarian": {
+    "itemName": "Curry Vegetarian",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "dairy-ice-cream": {
+    "itemName": "Dairy Ice Cream",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "dark-chocolate": {
+    "itemName": "Dark Chocolate",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "dates": {
+    "itemName": "Dates",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "dried-meat": {
+    "itemName": "Dried Meat",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "egg": {
+    "itemName": "Egg",
+    "calories": 150,
+    "protein": 13,
+    "carbs": 1,
+    "fats": 10
+  },
+  "egg-scrambled-prepared": {
+    "itemName": "Egg Scrambled Prepared",
+    "calories": 150,
+    "protein": 13,
+    "carbs": 1,
+    "fats": 10
+  },
+  "eggplant": {
+    "itemName": "Eggplant",
+    "calories": 150,
+    "protein": 13,
+    "carbs": 1,
+    "fats": 10
+  },
+  "espresso-with-caffeine": {
+    "itemName": "Espresso With Caffeine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "fajita-bread-only": {
+    "itemName": "Fajita Bread Only",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "falafel-balls": {
+    "itemName": "Falafel Balls",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "fennel": {
+    "itemName": "Fennel",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "figs": {
+    "itemName": "Figs",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "fish": {
+    "itemName": "Fish",
+    "calories": 250,
+    "protein": 40,
+    "carbs": 0,
+    "fats": 8
+  },
+  "flakes-oat": {
+    "itemName": "Flakes Oat",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "focaccia": {
+    "itemName": "Focaccia",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "french-beans": {
+    "itemName": "French Beans",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "fruit-salad": {
+    "itemName": "Fruit Salad",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "fruit-tart": {
+    "itemName": "Fruit Tart",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "frying-sausage": {
+    "itemName": "Frying Sausage",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "glucose-drink-50g": {
+    "itemName": "Glucose Drink 50G",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "gluten-free-bread": {
+    "itemName": "Gluten Free Bread",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "goat-cheese-soft": {
+    "itemName": "Goat Cheese Soft",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "grapes": {
+    "itemName": "Grapes",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "greek-salad": {
+    "itemName": "Greek Salad",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "greek-yaourt-yahourt-yogourt-ou-yoghourt": {
+    "itemName": "Greek Yaourt Yahourt Yogourt Ou Yoghourt",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "green-asparagus": {
+    "itemName": "Green Asparagus",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "green-olives": {
+    "itemName": "Green Olives",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "grits-polenta-maize-flour": {
+    "itemName": "Grits Polenta Maize Flour",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "gruyere": {
+    "itemName": "Gruyere",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "guacamole": {
+    "itemName": "Guacamole",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ham-cooked": {
+    "itemName": "Ham Cooked",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ham-croissant": {
+    "itemName": "Ham Croissant",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ham-raw": {
+    "itemName": "Ham Raw",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "hamburger-bread-meat-ketchup": {
+    "itemName": "Hamburger Bread Meat Ketchup",
+    "calories": 550,
+    "protein": 25,
+    "carbs": 40,
+    "fats": 30
+  },
+  "hard-cheese": {
+    "itemName": "Hard Cheese",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "herbal-tea": {
+    "itemName": "Herbal Tea",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "honey": {
+    "itemName": "Honey",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "hummus": {
+    "itemName": "Hummus",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ice-tea": {
+    "itemName": "Ice Tea",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_adhirasam": {
+    "itemName": "Adhirasam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_aloo_gobi": {
+    "itemName": "Aloo Gobi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_aloo_matar": {
+    "itemName": "Aloo Matar",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_aloo_methi": {
+    "itemName": "Aloo Methi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_aloo_shimla_mirch": {
+    "itemName": "Aloo Shimla Mirch",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_aloo_tikki": {
+    "itemName": "Aloo Tikki",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_anarsa": {
+    "itemName": "Anarsa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_ariselu": {
+    "itemName": "Ariselu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_bandar_laddu": {
+    "itemName": "Bandar Laddu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_basundi": {
+    "itemName": "Basundi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_bhatura": {
+    "itemName": "Bhatura",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_bhindi_masala": {
+    "itemName": "Bhindi Masala",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_biryani": {
+    "itemName": "Biryani",
+    "calories": 650,
+    "protein": 25,
+    "carbs": 85,
+    "fats": 20
+  },
+  "indian80_boondi": {
+    "itemName": "Boondi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_butter_chicken": {
+    "itemName": "Butter Chicken",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "indian80_chak_hao_kheer": {
+    "itemName": "Chak Hao Kheer",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_cham_cham": {
+    "itemName": "Cham Cham",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_chana_masala": {
+    "itemName": "Chana Masala",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_chapati": {
+    "itemName": "Chapati",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_chhena_kheeri": {
+    "itemName": "Chhena Kheeri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_chicken_razala": {
+    "itemName": "Chicken Razala",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "indian80_chicken_tikka": {
+    "itemName": "Chicken Tikka",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "indian80_chicken_tikka_masala": {
+    "itemName": "Chicken Tikka Masala",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "indian80_chikki": {
+    "itemName": "Chikki",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_daal_baati_churma": {
+    "itemName": "Daal Baati Churma",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_daal_puri": {
+    "itemName": "Daal Puri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_dal_makhani": {
+    "itemName": "Dal Makhani",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "indian80_dal_tadka": {
+    "itemName": "Dal Tadka",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "indian80_dharwad_pedha": {
+    "itemName": "Dharwad Pedha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_doodhpak": {
+    "itemName": "Doodhpak",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_double_ka_meetha": {
+    "itemName": "Double Ka Meetha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_dum_aloo": {
+    "itemName": "Dum Aloo",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_gajar_ka_halwa": {
+    "itemName": "Gajar Ka Halwa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_gavvalu": {
+    "itemName": "Gavvalu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_ghevar": {
+    "itemName": "Ghevar",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_gulab_jamun": {
+    "itemName": "Gulab Jamun",
+    "calories": 150,
+    "protein": 2,
+    "carbs": 25,
+    "fats": 6
+  },
+  "indian80_imarti": {
+    "itemName": "Imarti",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_jalebi": {
+    "itemName": "Jalebi",
+    "calories": 200,
+    "protein": 1,
+    "carbs": 40,
+    "fats": 5
+  },
+  "indian80_kachori": {
+    "itemName": "Kachori",
+    "calories": 180,
+    "protein": 4,
+    "carbs": 20,
+    "fats": 10
+  },
+  "indian80_kadai_paneer": {
+    "itemName": "Kadai Paneer",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "indian80_kadhi_pakoda": {
+    "itemName": "Kadhi Pakoda",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_kajjikaya": {
+    "itemName": "Kajjikaya",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_kakinada_khaja": {
+    "itemName": "Kakinada Khaja",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_kalakand": {
+    "itemName": "Kalakand",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_karela_bharta": {
+    "itemName": "Karela Bharta",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_kofta": {
+    "itemName": "Kofta",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_kuzhi_paniyaram": {
+    "itemName": "Kuzhi Paniyaram",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_lassi": {
+    "itemName": "Lassi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_ledikeni": {
+    "itemName": "Ledikeni",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_litti_chokha": {
+    "itemName": "Litti Chokha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_lyangcha": {
+    "itemName": "Lyangcha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_maach_jhol": {
+    "itemName": "Maach Jhol",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_makki_di_roti_sarson_da_saag": {
+    "itemName": "Makki Di Roti Sarson Da Saag",
+    "calories": 80,
+    "protein": 3,
+    "carbs": 15,
+    "fats": 0.5
+  },
+  "indian80_malapua": {
+    "itemName": "Malapua",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_misi_roti": {
+    "itemName": "Misi Roti",
+    "calories": 80,
+    "protein": 3,
+    "carbs": 15,
+    "fats": 0.5
+  },
+  "indian80_misti_doi": {
+    "itemName": "Misti Doi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_modak": {
+    "itemName": "Modak",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_mysore_pak": {
+    "itemName": "Mysore Pak",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_naan": {
+    "itemName": "Naan",
+    "calories": 260,
+    "protein": 8,
+    "carbs": 45,
+    "fats": 10
+  },
+  "indian80_navrattan_korma": {
+    "itemName": "Navrattan Korma",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_palak_paneer": {
+    "itemName": "Palak Paneer",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "indian80_paneer_butter_masala": {
+    "itemName": "Paneer Butter Masala",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "indian80_phirni": {
+    "itemName": "Phirni",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_pithe": {
+    "itemName": "Pithe",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_poha": {
+    "itemName": "Poha",
+    "calories": 250,
+    "protein": 5,
+    "carbs": 45,
+    "fats": 8
+  },
+  "indian80_poornalu": {
+    "itemName": "Poornalu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_pootharekulu": {
+    "itemName": "Pootharekulu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_qubani_ka_meetha": {
+    "itemName": "Qubani Ka Meetha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_rabri": {
+    "itemName": "Rabri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_ras_malai": {
+    "itemName": "Ras Malai",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_rasgulla": {
+    "itemName": "Rasgulla",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_sandesh": {
+    "itemName": "Sandesh",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_shankarpali": {
+    "itemName": "Shankarpali",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_sheer_korma": {
+    "itemName": "Sheer Korma",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_sheera": {
+    "itemName": "Sheera",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_shrikhand": {
+    "itemName": "Shrikhand",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_sohan_halwa": {
+    "itemName": "Sohan Halwa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_sohan_papdi": {
+    "itemName": "Sohan Papdi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_sutar_feni": {
+    "itemName": "Sutar Feni",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian80_unni_appam": {
+    "itemName": "Unni Appam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_biryani": {
+    "itemName": "Biryani",
+    "calories": 650,
+    "protein": 25,
+    "carbs": 85,
+    "fats": 20
+  },
+  "indian_chole_bhature": {
+    "itemName": "Chole Bhature",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_dabeli": {
+    "itemName": "Dabeli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_dal": {
+    "itemName": "Dal",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "indian_dhokla": {
+    "itemName": "Dhokla",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_dosa": {
+    "itemName": "Dosa",
+    "calories": 170,
+    "protein": 4,
+    "carbs": 30,
+    "fats": 4
+  },
+  "indian_jalebi": {
+    "itemName": "Jalebi",
+    "calories": 200,
+    "protein": 1,
+    "carbs": 40,
+    "fats": 5
+  },
+  "indian_kathi": {
+    "itemName": "Kathi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_kofta": {
+    "itemName": "Kofta",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_naan": {
+    "itemName": "Naan",
+    "calories": 260,
+    "protein": 8,
+    "carbs": 45,
+    "fats": 10
+  },
+  "indian_pakora": {
+    "itemName": "Pakora",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "indian_paneer_tikka": {
+    "itemName": "Paneer Tikka",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "indian_pani_puri": {
+    "itemName": "Pani Puri",
+    "calories": 40,
+    "protein": 1,
+    "carbs": 8,
+    "fats": 1
+  },
+  "indian_pav_bhaji": {
+    "itemName": "Pav Bhaji",
+    "calories": 400,
+    "protein": 10,
+    "carbs": 60,
+    "fats": 15
+  },
+  "indian_vadapav": {
+    "itemName": "Vadapav",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "jam": {
+    "itemName": "Jam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "juice-apple": {
+    "itemName": "Juice Apple",
+    "calories": 95,
+    "protein": 1,
+    "carbs": 25,
+    "fats": 0
+  },
+  "juice-multifruit": {
+    "itemName": "Juice Multifruit",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "juice-orange": {
+    "itemName": "Juice Orange",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "kefir-drink": {
+    "itemName": "Kefir Drink",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ketchup": {
+    "itemName": "Ketchup",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "kiwi": {
+    "itemName": "Kiwi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "kolhrabi": {
+    "itemName": "Kolhrabi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "lasagne-meat-prepared": {
+    "itemName": "Lasagne Meat Prepared",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "latte-macchiato-with-caffeine": {
+    "itemName": "Latte Macchiato With Caffeine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "leaf-spinach": {
+    "itemName": "Leaf Spinach",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "leek": {
+    "itemName": "Leek",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "lemon": {
+    "itemName": "Lemon",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "lemon-cake": {
+    "itemName": "Lemon Cake",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "lentils": {
+    "itemName": "Lentils",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "lye-pretzel-soft": {
+    "itemName": "Lye Pretzel Soft",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mandarine": {
+    "itemName": "Mandarine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mango": {
+    "itemName": "Mango",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mashed-potatoes-prepared-with-full-fat-milk-with-butter": {
+    "itemName": "Mashed Potatoes Prepared With Full Fat Milk With Butter",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mayonnaise": {
+    "itemName": "Mayonnaise",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "milk": {
+    "itemName": "Milk",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "milk-chocolate": {
+    "itemName": "Milk Chocolate",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mixed-nuts": {
+    "itemName": "Mixed Nuts",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mixed-salad-chopped-without-sauce": {
+    "itemName": "Mixed Salad Chopped Without Sauce",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "mixed-vegetables": {
+    "itemName": "Mixed Vegetables",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mozzarella": {
+    "itemName": "Mozzarella",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "muesli": {
+    "itemName": "Muesli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "muffin": {
+    "itemName": "Muffin",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mushroom": {
+    "itemName": "Mushroom",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "mushrooms": {
+    "itemName": "Mushrooms",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "nectarine": {
+    "itemName": "Nectarine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "omelette-plain": {
+    "itemName": "Omelette Plain",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "orange": {
+    "itemName": "Orange",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pancakes": {
+    "itemName": "Pancakes",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "parmesan": {
+    "itemName": "Parmesan",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pasta": {
+    "itemName": "Pasta",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-hornli": {
+    "itemName": "Pasta Hornli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-in-butterfly-form-farfalle": {
+    "itemName": "Pasta In Butterfly Form Farfalle",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-in-conch-form": {
+    "itemName": "Pasta In Conch Form",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-linguini-parpadelle-tagliatelle": {
+    "itemName": "Pasta Linguini Parpadelle Tagliatelle",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-noodles": {
+    "itemName": "Pasta Noodles",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-penne": {
+    "itemName": "Pasta Penne",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-ravioli-stuffing": {
+    "itemName": "Pasta Ravioli Stuffing",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-spaghetti": {
+    "itemName": "Pasta Spaghetti",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-twist": {
+    "itemName": "Pasta Twist",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "pasta-wholemeal": {
+    "itemName": "Pasta Wholemeal",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 70,
+    "fats": 5
+  },
+  "peach": {
+    "itemName": "Peach",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "peanut": {
+    "itemName": "Peanut",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pear": {
+    "itemName": "Pear",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pie-plum-baked-with-cake-dough": {
+    "itemName": "Pie Plum Baked With Cake Dough",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pineapple": {
+    "itemName": "Pineapple",
+    "calories": 95,
+    "protein": 1,
+    "carbs": 25,
+    "fats": 0
+  },
+  "pistachio": {
+    "itemName": "Pistachio",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pizza-margherita-baked": {
+    "itemName": "Pizza Margherita Baked",
+    "calories": 750,
+    "protein": 28,
+    "carbs": 80,
+    "fats": 35
+  },
+  "pizza-with-ham-baked": {
+    "itemName": "Pizza With Ham Baked",
+    "calories": 750,
+    "protein": 28,
+    "carbs": 80,
+    "fats": 35
+  },
+  "pizza-with-ham-with-mushrooms-baked": {
+    "itemName": "Pizza With Ham With Mushrooms Baked",
+    "calories": 750,
+    "protein": 28,
+    "carbs": 80,
+    "fats": 35
+  },
+  "pizza-with-vegetables-baked": {
+    "itemName": "Pizza With Vegetables Baked",
+    "calories": 750,
+    "protein": 28,
+    "carbs": 80,
+    "fats": 35
+  },
+  "plums": {
+    "itemName": "Plums",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pomegranate": {
+    "itemName": "Pomegranate",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pork": {
+    "itemName": "Pork",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "porridge-prepared-with-partially-skimmed-milk": {
+    "itemName": "Porridge Prepared With Partially Skimmed Milk",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "potato-gnocchi": {
+    "itemName": "Potato Gnocchi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "potatoes-au-gratin-dauphinois-prepared": {
+    "itemName": "Potatoes Au Gratin Dauphinois Prepared",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "potatoes-steamed": {
+    "itemName": "Potatoes Steamed",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "praline": {
+    "itemName": "Praline",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "pumpkin": {
+    "itemName": "Pumpkin",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "quiche-with-cheese-baked-with-puff-pastry": {
+    "itemName": "Quiche With Cheese Baked With Puff Pastry",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "quiche-with-spinach-baked-with-cake-dough": {
+    "itemName": "Quiche With Spinach Baked With Cake Dough",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "quinoa": {
+    "itemName": "Quinoa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "raspberries": {
+    "itemName": "Raspberries",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ratatouille": {
+    "itemName": "Ratatouille",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "red-cabbage": {
+    "itemName": "Red Cabbage",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "red-radish": {
+    "itemName": "Red Radish",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "rice": {
+    "itemName": "Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "rice-basmati": {
+    "itemName": "Rice Basmati",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "rice-noodles-vermicelli": {
+    "itemName": "Rice Noodles Vermicelli",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "rice-whole-grain": {
+    "itemName": "Rice Whole Grain",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "risotto-without-cheese-cooked": {
+    "itemName": "Risotto Without Cheese Cooked",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "ristretto-with-caffeine": {
+    "itemName": "Ristretto With Caffeine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "roll-of-half-white-or-white-flour-with-large-void": {
+    "itemName": "Roll Of Half White Or White Flour With Large Void",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "roll-with-pieces-of-chocolate": {
+    "itemName": "Roll With Pieces Of Chocolate",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "rosti": {
+    "itemName": "Rosti",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "rusk-wholemeal": {
+    "itemName": "Rusk Wholemeal",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "salad-lambs-ear": {
+    "itemName": "Salad Lambs Ear",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "salad-leaf-salad-green": {
+    "itemName": "Salad Leaf Salad Green",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "salad-rocket": {
+    "itemName": "Salad Rocket",
+    "calories": 120,
+    "protein": 4,
+    "carbs": 10,
+    "fats": 6
+  },
+  "salami": {
+    "itemName": "Salami",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "salmon": {
+    "itemName": "Salmon",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "salmon-smoked": {
+    "itemName": "Salmon Smoked",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "salt-cake-vegetables-filled": {
+    "itemName": "Salt Cake Vegetables Filled",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "sausage": {
+    "itemName": "Sausage",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "savoury-puff-pastry": {
+    "itemName": "Savoury Puff Pastry",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aam_panna": {
+    "itemName": "Aam Panna",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aloo_gobi": {
+    "itemName": "Aloo Gobi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aloo_paratha": {
+    "itemName": "Aloo Paratha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aloo_posto": {
+    "itemName": "Aloo Posto",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aloo_sabzi": {
+    "itemName": "Aloo Sabzi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aloo_tikki": {
+    "itemName": "Aloo Tikki",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_appam": {
+    "itemName": "Appam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_aviyal": {
+    "itemName": "Aviyal",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_bajra_roti": {
+    "itemName": "Bajra Roti",
+    "calories": 80,
+    "protein": 3,
+    "carbs": 15,
+    "fats": 0.5
+  },
+  "scraped_barfi": {
+    "itemName": "Barfi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_besan_ladoo": {
+    "itemName": "Besan Ladoo",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_bhatura": {
+    "itemName": "Bhatura",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_bhel_puri": {
+    "itemName": "Bhel Puri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_biryani": {
+    "itemName": "Biryani",
+    "calories": 650,
+    "protein": 25,
+    "carbs": 85,
+    "fats": 20
+  },
+  "scraped_bisibelebath": {
+    "itemName": "Bisibelebath",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_bread_pakora": {
+    "itemName": "Bread Pakora",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_butter_chicken": {
+    "itemName": "Butter Chicken",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "scraped_chaas": {
+    "itemName": "Chaas",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_chaat": {
+    "itemName": "Chaat",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_chai": {
+    "itemName": "Chai",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_chana_dal": {
+    "itemName": "Chana Dal",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_chapati": {
+    "itemName": "Chapati",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_chicken_curry": {
+    "itemName": "Chicken Curry",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "scraped_chicken_tikka": {
+    "itemName": "Chicken Tikka",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "scraped_chikki": {
+    "itemName": "Chikki",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_chole": {
+    "itemName": "Chole",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_coconut_ladoo": {
+    "itemName": "Coconut Ladoo",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_coconut_rice": {
+    "itemName": "Coconut Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "scraped_curd_rice": {
+    "itemName": "Curd Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "scraped_dabeli": {
+    "itemName": "Dabeli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_dahi_puri": {
+    "itemName": "Dahi Puri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_dahi_vada": {
+    "itemName": "Dahi Vada",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_dal_baati_churma": {
+    "itemName": "Dal Baati Churma",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_dal_fry": {
+    "itemName": "Dal Fry",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_dal_makhani": {
+    "itemName": "Dal Makhani",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_dal_tadka": {
+    "itemName": "Dal Tadka",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_dhokla": {
+    "itemName": "Dhokla",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_dosa": {
+    "itemName": "Dosa",
+    "calories": 170,
+    "protein": 4,
+    "carbs": 30,
+    "fats": 4
+  },
+  "scraped_dum_aloo": {
+    "itemName": "Dum Aloo",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_egg_curry": {
+    "itemName": "Egg Curry",
+    "calories": 150,
+    "protein": 13,
+    "carbs": 1,
+    "fats": 10
+  },
+  "scraped_filter_coffee": {
+    "itemName": "Filter Coffee",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_fish_curry": {
+    "itemName": "Fish Curry",
+    "calories": 250,
+    "protein": 40,
+    "carbs": 0,
+    "fats": 8
+  },
+  "scraped_gajar_halwa": {
+    "itemName": "Gajar Halwa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_gulab_jamun": {
+    "itemName": "Gulab Jamun",
+    "calories": 150,
+    "protein": 2,
+    "carbs": 25,
+    "fats": 6
+  },
+  "scraped_halwa": {
+    "itemName": "Halwa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_hyderabadi_biryani": {
+    "itemName": "Hyderabadi Biryani",
+    "calories": 650,
+    "protein": 25,
+    "carbs": 85,
+    "fats": 20
+  },
+  "scraped_idli": {
+    "itemName": "Idli",
+    "calories": 60,
+    "protein": 2,
+    "carbs": 12,
+    "fats": 0
+  },
+  "scraped_imarti": {
+    "itemName": "Imarti",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_jalebi": {
+    "itemName": "Jalebi",
+    "calories": 200,
+    "protein": 1,
+    "carbs": 40,
+    "fats": 5
+  },
+  "scraped_jeera_rice": {
+    "itemName": "Jeera Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "scraped_kachori": {
+    "itemName": "Kachori",
+    "calories": 180,
+    "protein": 4,
+    "carbs": 20,
+    "fats": 10
+  },
+  "scraped_kadai_paneer": {
+    "itemName": "Kadai Paneer",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "scraped_kathi_roll": {
+    "itemName": "Kathi Roll",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_kerala_fish_curry": {
+    "itemName": "Kerala Fish Curry",
+    "calories": 250,
+    "protein": 40,
+    "carbs": 0,
+    "fats": 8
+  },
+  "scraped_khandvi": {
+    "itemName": "Khandvi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_kheer": {
+    "itemName": "Kheer",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_khichdi": {
+    "itemName": "Khichdi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_kofta": {
+    "itemName": "Kofta",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_kootu": {
+    "itemName": "Kootu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_korma": {
+    "itemName": "Korma",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_kosha_mangsho": {
+    "itemName": "Kosha Mangsho",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_kulfi": {
+    "itemName": "Kulfi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_laal_maas": {
+    "itemName": "Laal Maas",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_ladoo": {
+    "itemName": "Ladoo",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_lassi": {
+    "itemName": "Lassi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_lemon_rice": {
+    "itemName": "Lemon Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "scraped_luchi": {
+    "itemName": "Luchi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_machher_jhol": {
+    "itemName": "Machher Jhol",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_makki_ki_roti": {
+    "itemName": "Makki Ki Roti",
+    "calories": 80,
+    "protein": 3,
+    "carbs": 15,
+    "fats": 0.5
+  },
+  "scraped_malpua": {
+    "itemName": "Malpua",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_mango_lassi": {
+    "itemName": "Mango Lassi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_masala_dosa": {
+    "itemName": "Masala Dosa",
+    "calories": 170,
+    "protein": 4,
+    "carbs": 30,
+    "fats": 4
+  },
+  "scraped_masoor_dal": {
+    "itemName": "Masoor Dal",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_matar_paneer": {
+    "itemName": "Matar Paneer",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "scraped_medu_vada": {
+    "itemName": "Medu Vada",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_misal_pav": {
+    "itemName": "Misal Pav",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_mishti_doi": {
+    "itemName": "Mishti Doi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_modak": {
+    "itemName": "Modak",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_momos": {
+    "itemName": "Momos",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_moong_dal": {
+    "itemName": "Moong Dal",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_mushroom_curry": {
+    "itemName": "Mushroom Curry",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_mutton_curry": {
+    "itemName": "Mutton Curry",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_mysore_pak": {
+    "itemName": "Mysore Pak",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_naan": {
+    "itemName": "Naan",
+    "calories": 260,
+    "protein": 8,
+    "carbs": 45,
+    "fats": 10
+  },
+  "scraped_nihari": {
+    "itemName": "Nihari",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_nimbu_pani": {
+    "itemName": "Nimbu Pani",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_onion_pakora": {
+    "itemName": "Onion Pakora",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_palak_paneer": {
+    "itemName": "Palak Paneer",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "scraped_paneer_butter_masala": {
+    "itemName": "Paneer Butter Masala",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "scraped_paneer_tikka": {
+    "itemName": "Paneer Tikka",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "scraped_pani_puri": {
+    "itemName": "Pani Puri",
+    "calories": 40,
+    "protein": 1,
+    "carbs": 8,
+    "fats": 1
+  },
+  "scraped_papdi_chaat": {
+    "itemName": "Papdi Chaat",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_paratha": {
+    "itemName": "Paratha",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_pav_bhaji": {
+    "itemName": "Pav Bhaji",
+    "calories": 400,
+    "protein": 10,
+    "carbs": 60,
+    "fats": 15
+  },
+  "scraped_payasam": {
+    "itemName": "Payasam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_peda": {
+    "itemName": "Peda",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_pesarattu": {
+    "itemName": "Pesarattu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_poha": {
+    "itemName": "Poha",
+    "calories": 250,
+    "protein": 5,
+    "carbs": 45,
+    "fats": 8
+  },
+  "scraped_pongal": {
+    "itemName": "Pongal",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_prawn_curry": {
+    "itemName": "Prawn Curry",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_pulao": {
+    "itemName": "Pulao",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_puran_poli": {
+    "itemName": "Puran Poli",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_puri": {
+    "itemName": "Puri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_puttu": {
+    "itemName": "Puttu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_rabri": {
+    "itemName": "Rabri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_raita": {
+    "itemName": "Raita",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_raj_kachori": {
+    "itemName": "Raj Kachori",
+    "calories": 180,
+    "protein": 4,
+    "carbs": 20,
+    "fats": 10
+  },
+  "scraped_rajma": {
+    "itemName": "Rajma",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_rasam": {
+    "itemName": "Rasam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_rasgulla": {
+    "itemName": "Rasgulla",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_rogan_josh": {
+    "itemName": "Rogan Josh",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_rumali_roti": {
+    "itemName": "Rumali Roti",
+    "calories": 80,
+    "protein": 3,
+    "carbs": 15,
+    "fats": 0.5
+  },
+  "scraped_sabudana_khichdi": {
+    "itemName": "Sabudana Khichdi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_sambar": {
+    "itemName": "Sambar",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_samosa": {
+    "itemName": "Samosa",
+    "calories": 250,
+    "protein": 4,
+    "carbs": 25,
+    "fats": 15
+  },
+  "scraped_sandesh": {
+    "itemName": "Sandesh",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_sarson_ka_saag": {
+    "itemName": "Sarson Ka Saag",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_seekh_kebab": {
+    "itemName": "Seekh Kebab",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_sev_puri": {
+    "itemName": "Sev Puri",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_shahi_paneer": {
+    "itemName": "Shahi Paneer",
+    "calories": 350,
+    "protein": 15,
+    "carbs": 8,
+    "fats": 30
+  },
+  "scraped_shrikhand": {
+    "itemName": "Shrikhand",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_sundal": {
+    "itemName": "Sundal",
+    "calories": 200,
+    "protein": 12,
+    "carbs": 28,
+    "fats": 6
+  },
+  "scraped_tamarind_rice": {
+    "itemName": "Tamarind Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "scraped_tandoori_chicken": {
+    "itemName": "Tandoori Chicken",
+    "calories": 300,
+    "protein": 35,
+    "carbs": 0,
+    "fats": 15
+  },
+  "scraped_thandai": {
+    "itemName": "Thandai",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_thepla": {
+    "itemName": "Thepla",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_thoran": {
+    "itemName": "Thoran",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_thukpa": {
+    "itemName": "Thukpa",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_tomato_rice": {
+    "itemName": "Tomato Rice",
+    "calories": 200,
+    "protein": 4,
+    "carbs": 45,
+    "fats": 0
+  },
+  "scraped_undhiyu": {
+    "itemName": "Undhiyu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_upma": {
+    "itemName": "Upma",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_uttapam": {
+    "itemName": "Uttapam",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_vada_pav": {
+    "itemName": "Vada Pav",
+    "calories": 300,
+    "protein": 6,
+    "carbs": 40,
+    "fats": 12
+  },
+  "scraped_vangi_bath": {
+    "itemName": "Vangi Bath",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "scraped_vegetable_curry": {
+    "itemName": "Vegetable Curry",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "semi-hard-cheese": {
+    "itemName": "Semi Hard Cheese",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "smoothie": {
+    "itemName": "Smoothie",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "soft-cheese": {
+    "itemName": "Soft Cheese",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "soup-of-lentils-dahl-dhal": {
+    "itemName": "Soup Of Lentils Dahl Dhal",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "soup-pumpkin": {
+    "itemName": "Soup Pumpkin",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "soup-vegetable": {
+    "itemName": "Soup Vegetable",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "spaetzle": {
+    "itemName": "Spaetzle",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "spring-roll-fried": {
+    "itemName": "Spring Roll Fried",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "strawberries": {
+    "itemName": "Strawberries",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "sugar-melon": {
+    "itemName": "Sugar Melon",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "sushi": {
+    "itemName": "Sushi",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "sweet-potato": {
+    "itemName": "Sweet Potato",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "syrup-diluted-ready-to-drink": {
+    "itemName": "Syrup Diluted Ready To Drink",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "taboule-prepared-with-couscous": {
+    "itemName": "Taboule Prepared With Couscous",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tart": {
+    "itemName": "Tart",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tea": {
+    "itemName": "Tea",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tea-black": {
+    "itemName": "Tea Black",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tea-green": {
+    "itemName": "Tea Green",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tea-peppermint": {
+    "itemName": "Tea Peppermint",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tea-verveine": {
+    "itemName": "Tea Verveine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "thickened-cream-35": {
+    "itemName": "Thickened Cream 35",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tiramisu": {
+    "itemName": "Tiramisu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tofu": {
+    "itemName": "Tofu",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tomato-raw": {
+    "itemName": "Tomato Raw",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tomato-sauce": {
+    "itemName": "Tomato Sauce",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tomme": {
+    "itemName": "Tomme",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "tuna": {
+    "itemName": "Tuna",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "veal-sausage": {
+    "itemName": "Veal Sausage",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "vegetable-au-gratin-baked": {
+    "itemName": "Vegetable Au Gratin Baked",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "walnut": {
+    "itemName": "Walnut",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "water": {
+    "itemName": "Water",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "water-mineral": {
+    "itemName": "Water Mineral",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "water-with-lemon-juice": {
+    "itemName": "Water With Lemon Juice",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "watermelon-fresh": {
+    "itemName": "Watermelon Fresh",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "white-asparagus": {
+    "itemName": "White Asparagus",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "white-bread-with-butter-eggs-and-milk": {
+    "itemName": "White Bread With Butter Eggs And Milk",
+    "calories": 150,
+    "protein": 13,
+    "carbs": 1,
+    "fats": 10
+  },
+  "white-cabbage": {
+    "itemName": "White Cabbage",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "white-coffee-with-caffeine": {
+    "itemName": "White Coffee With Caffeine",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "wine-red": {
+    "itemName": "Wine Red",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "wine-rose": {
+    "itemName": "Wine Rose",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "wine-white": {
+    "itemName": "Wine White",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "witloof-chicory": {
+    "itemName": "Witloof Chicory",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "yaourt-yahourt-yogourt-ou-yoghourt-natural": {
+    "itemName": "Yaourt Yahourt Yogourt Ou Yoghourt Natural",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  },
+  "zucchini": {
+    "itemName": "Zucchini",
+    "calories": 350,
+    "protein": 12,
+    "carbs": 40,
+    "fats": 15
+  }
+}
