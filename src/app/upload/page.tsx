@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-// src/app/upload/page.tsx — WITH POSE GUIDE + BODY TYPE DETECTION
+// src/app/upload/page.tsx â€” WITH POSE GUIDE + BODY TYPE DETECTION
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
@@ -34,17 +34,17 @@ import {
   getGoalProgress, exportPDFReport, type StoredScan
 } from '@/lib/progress-tracker';
 
-// ── TYPES ─────────────────────────────────────────────────────
+// â”€â”€ TYPES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface PhotoEntry {
   id: string; date: string; url: string; scanResult?: ScanResult;
 }
 
-// ── SCAN MODE ─────────────────────────────────────────────────
+// â”€â”€ SCAN MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Added 3 primary poses for 360-degree coverage
 type ScanMode = 'front_view' | 'side_view' | 'back_view' | 'upper_body';
 
-// ── HELPERS ───────────────────────────────────────────────────
+// â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function getCategoryColor(cat: string): string {
   if (cat === 'Athlete')       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
@@ -62,13 +62,13 @@ function getConfidenceColor(display: number): string {
 }
 
 function getBodyTypeIcon(bodyType: BodyType): string {
-  if (bodyType === 'full_body')  return '🧍';
-  if (bodyType === 'upper_body') return '👕';
-  if (bodyType === 'lower_body') return '👖';
-  return '❓';
+  if (bodyType === 'full_body')  return 'ðŸ§';
+  if (bodyType === 'upper_body') return 'ðŸ‘•';
+  if (bodyType === 'lower_body') return 'ðŸ‘–';
+  return 'â“';
 }
 
-// ── POSE GUIDE OVERLAY ────────────────────────────────────────
+// â”€â”€ POSE GUIDE OVERLAY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Like KYC face verification but for body
 // Shows a silhouette that user aligns to
 
@@ -147,16 +147,16 @@ function PoseGuideOverlay({ mode }: { mode: ScanMode }) {
   );
 }
 
-// ── SCAN MODE SELECTOR ────────────────────────────────────────
+// â”€â”€ SCAN MODE SELECTOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ScanModeSelector({
   mode, onChange
 }: { mode: ScanMode; onChange: (m: ScanMode) => void }) {
   const modes: { id: ScanMode; icon: string; label: string; desc: string }[] = [
-    { id: 'front_view', icon: '🧍', label: 'Front View', desc: 'Standard scan' },
-    { id: 'side_view', icon: '🏃', label: 'Side Profile', desc: 'Detail logic' },
-    { id: 'back_view', icon: '🏃‍♂️', label: 'Back View',  desc: 'Symmetry' },
-    { id: 'upper_body', icon: '👕', label: 'Torso Only', desc: 'Head to waist' },
+    { id: 'front_view', icon: 'ðŸ§', label: 'Front View', desc: 'Standard scan' },
+    { id: 'side_view', icon: 'ðŸƒ', label: 'Side Profile', desc: 'Detail logic' },
+    { id: 'back_view', icon: 'ðŸƒâ€â™‚ï¸', label: 'Back View',  desc: 'Symmetry' },
+    { id: 'upper_body', icon: 'ðŸ‘•', label: 'Torso Only', desc: 'Head to waist' },
   ];
 
   return (
@@ -182,25 +182,25 @@ function ScanModeSelector({
   );
 }
 
-// ── PHOTO TIPS ────────────────────────────────────────────────
+// â”€â”€ PHOTO TIPS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const TIPS_FULL = [
-  '🧱 Plain wall or light background',
-  '💡 Light source facing you',
-  '👕 Fitted clothing or shorts',
-  '📏 Arms slightly away from body',
-  '📸 Full body — head & feet visible',
+  'ðŸ§± Plain wall or light background',
+  'ðŸ’¡ Light source facing you',
+  'ðŸ‘• Fitted clothing or shorts',
+  'ðŸ“ Arms slightly away from body',
+  'ðŸ“¸ Full body â€” head & feet visible',
 ];
 
 const TIPS_UPPER = [
-  '🧱 Plain wall or light background',
-  '💡 Light source facing you',
-  '👕 Remove or wear fitted top',
-  '📸 Head to waist fully visible',
-  '🎯 Fill 70% of frame height',
+  'ðŸ§± Plain wall or light background',
+  'ðŸ’¡ Light source facing you',
+  'ðŸ‘• Remove or wear fitted top',
+  'ðŸ“¸ Head to waist fully visible',
+  'ðŸŽ¯ Fill 70% of frame height',
 ];
 
-// ── MAIN COMPONENT ────────────────────────────────────────────
+// â”€â”€ MAIN COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function UploadPhotoPage() {
   const { toast } = useToast();
@@ -233,7 +233,7 @@ export default function UploadPhotoPage() {
   const [activeVideo, setActiveVideo]         = useState<string | null>(null);
   const [activeVideoTitle, setActiveVideoTitle] = useState('');
 
-  // ── AI FEEDBACK STATE ────────────────────────────────────
+  // â”€â”€ AI FEEDBACK STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [isVerifying, setIsVerifying] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [userCorrectedBf, setUserCorrectedBf] = useState<number | null>(null);
@@ -243,7 +243,7 @@ export default function UploadPhotoPage() {
   const weightKg = profile?.weightKg ?? 70;
   const goalBf   = profile?.goalBf   ?? 18;
 
-  // ── LOAD ──────────────────────────────────────────────────
+  // â”€â”€ LOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('fitjourney_body_photos') || '[]') as PhotoEntry[];
@@ -261,7 +261,7 @@ export default function UploadPhotoPage() {
     setPreviewUrl(null);
   }, [selectedDate, photos]);
 
-  // ── CAMERA ────────────────────────────────────────────────
+  // â”€â”€ CAMERA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const startCamera = useCallback(async () => {
     try {
       const s = await navigator.mediaDevices.getUserMedia({
@@ -290,7 +290,7 @@ export default function UploadPhotoPage() {
     stopCamera();
   }, [stopCamera]);
 
-  // ── SCAN ──────────────────────────────────────────────────
+  // â”€â”€ SCAN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleScan = async () => {
     if (!previewUrl) return;
     setIsAnalyzing(true);
@@ -325,8 +325,8 @@ export default function UploadPhotoPage() {
       localStorage.setItem('fitjourney_body_photos', JSON.stringify(updated));
 
       toast({
-        title: `${result.bf}% Body Fat · ${result.category}`,
-        description: `${result.bodyTypeLabel} · ${result.confLabel}`,
+        title: `${result.bf}% Body Fat Â· ${result.category}`,
+        description: `${result.bodyTypeLabel} Â· ${result.confLabel}`,
       });
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Scan Failed', description: err.message });
@@ -367,7 +367,7 @@ export default function UploadPhotoPage() {
     toast({ title: 'Photo deleted' });
   };
 
-  // ── RENDER ────────────────────────────────────────────────
+  // â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="flex flex-col min-h-screen bg-background pb-24">
 
@@ -378,7 +378,7 @@ export default function UploadPhotoPage() {
           <h1 className="font-bold text-lg">Body Progress</h1>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <ShieldCheck className="h-3 w-3 text-green-500" />
-            Photos stay on your device — always
+            Photos stay on your device â€” always
           </p>
         </div>
       </div>
@@ -452,18 +452,18 @@ export default function UploadPhotoPage() {
           </CardContent>
         </Card>
 
-        {/* ── SCAN MODE + CAMERA ────────────────────────── */}
+        {/* â”€â”€ SCAN MODE + CAMERA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">{format(selectedDate, 'MMMM d, yyyy')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
 
-            {/* Mode selector — only show if no result yet */}
+            {/* Mode selector â€” only show if no result yet */}
             {!scanResult && !previewUrl && (
               <>
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                  Body Scan Studio — Select Angle
+                  Body Scan Studio â€” Select Angle
                 </p>
                 <ScanModeSelector mode={scanMode} onChange={setScanMode} />
 
@@ -481,15 +481,15 @@ export default function UploadPhotoPage() {
                     <p className="text-xs font-semibold text-primary mb-2">
                        Guidance for {scanMode.replace('_', ' ')}
                     </p>
-                    <p className="text-xs text-muted-foreground">• Keep arms 20deg from body</p>
-                    <p className="text-xs text-muted-foreground">• Stand 6-8 feet away</p>
-                    <p className="text-xs text-muted-foreground">• Ensure head & feet are within corners</p>
+                    <p className="text-xs text-muted-foreground">â€¢ Keep arms 20deg from body</p>
+                    <p className="text-xs text-muted-foreground">â€¢ Stand 6-8 feet away</p>
+                    <p className="text-xs text-muted-foreground">â€¢ Ensure head & feet are within corners</p>
                   </div>
                 )}
               </>
             )}
 
-            {/* Camera STUDIO — Fullscreen Professional KYC View */}
+            {/* Camera STUDIO â€” Fullscreen Professional KYC View */}
             {showCamera && (
               <div className="fixed inset-0 z-[100] bg-black flex flex-col">
                 <div className="relative flex-1 group">
@@ -558,10 +558,10 @@ export default function UploadPhotoPage() {
                 className="w-full h-44 bg-secondary rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer gap-2"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="text-4xl">{scanMode === 'full_body' ? '🧍' : '👕'}</div>
+                <div className="text-4xl">{scanMode === 'full_body' ? 'ðŸ§' : 'ðŸ‘•'}</div>
                 <p className="text-muted-foreground text-sm font-medium">Upload or take photo</p>
                 <p className="text-xs text-muted-foreground">
-                  {scanMode === 'full_body' ? 'Full body — head to feet' : 'Upper body — head to waist'}
+                  {scanMode === 'full_body' ? 'Full body â€” head to feet' : 'Upper body â€” head to waist'}
                 </p>
               </div>
             )}
@@ -624,7 +624,7 @@ export default function UploadPhotoPage() {
           </CardContent>
         </Card>
 
-        {/* ── SCAN RESULTS ──────────────────────────────── */}
+        {/* â”€â”€ SCAN RESULTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {scanResult && (
           <Card className="border-primary/20">
             <CardHeader className="pb-2">
@@ -684,7 +684,7 @@ export default function UploadPhotoPage() {
                 <p className="font-medium">{scanResult.confLabel}</p>
                 {scanResult.bodyType === 'upper_body' && (
                   <p className="text-xs mt-1 text-muted-foreground">
-                    Upper body scan — switch to Full Body mode for more accurate hip/thigh analysis
+                    Upper body scan â€” switch to Full Body mode for more accurate hip/thigh analysis
                   </p>
                 )}
               </div>
@@ -723,7 +723,7 @@ export default function UploadPhotoPage() {
                 <span className="font-bold text-sm">
                   {scanResult.bf > goalBf
                     ? `${(scanResult.bf - goalBf).toFixed(1)}% to go`
-                    : '🎉 Goal reached!'}
+                    : 'ðŸŽ‰ Goal reached!'}
                 </span>
               </div>
 
@@ -732,7 +732,7 @@ export default function UploadPhotoPage() {
                 Export 30-Day Report (PDF)
               </Button>
 
-              {/* ── AI FEEDBACK LOOP (ACTIVE LEARNING) ───────────────── */}
+              {/* â”€â”€ AI FEEDBACK LOOP (ACTIVE LEARNING) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
               <div className="mt-4 pt-4 border-t border-dashed space-y-4">
                 <div className="flex items-center justify-between">
                    <div className="space-y-0.5">
@@ -762,13 +762,13 @@ export default function UploadPhotoPage() {
                              toast({ title: "Feedback Saved!", description: "AI performance marked as Good." });
                           }}
                         >
-                           👍
+                           ðŸ‘
                         </Button>
                         <Button 
                           variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full bg-secondary hover:bg-red-100 dark:hover:bg-red-900"
                           onClick={() => setIsVerifying(true)}
                         >
-                           👎
+                           ðŸ‘Ž
                         </Button>
                      </div>
                    )}
@@ -840,7 +840,7 @@ export default function UploadPhotoPage() {
           </Card>
         )}
 
-        {/* ── WORKOUTS ──────────────────────────────────── */}
+        {/* â”€â”€ WORKOUTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {recommendations.length > 0 && (
           <Card>
             <CardHeader className="pb-2">
@@ -849,7 +849,7 @@ export default function UploadPhotoPage() {
                 Today&apos;s Workouts
               </CardTitle>
               <CardDescription>
-                Based on {scanResult?.bf}% BF → targeting {goalBf}%
+                Based on {scanResult?.bf}% BF â†’ targeting {goalBf}%
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -862,7 +862,7 @@ export default function UploadPhotoPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm">{v.title}</p>
-                    <p className="text-xs text-muted-foreground">{v.duration} · ~{v.calories} cal</p>
+                    <p className="text-xs text-muted-foreground">{v.duration} Â· ~{v.calories} cal</p>
                     <p className="text-xs text-primary">{v.reason}</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -878,7 +878,7 @@ export default function UploadPhotoPage() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{activeVideoTitle}</CardTitle>
-                <Button onClick={() => setActiveVideo(null)} variant="ghost" size="sm">✕</Button>
+                <Button onClick={() => setActiveVideo(null)} variant="ghost" size="sm">âœ•</Button>
               </div>
             </CardHeader>
             <CardContent>

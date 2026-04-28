@@ -1,4 +1,4 @@
-
+﻿
 'use client';
 
 import React, { useState, ChangeEvent, useRef, useEffect } from 'react';
@@ -84,7 +84,7 @@ export default function CalorieScannerPage() {
   const [isOtherSelected, setIsOtherSelected] = useState(false);
 
   useEffect(() => {
-    // NOTE: Model loads lazily on first Analyze click — NOT here.
+    // NOTE: Model loads lazily on first Analyze click â€” NOT here.
     // Preloading a 41MB model on mount causes PC lag and unnecessary bandwidth.
 
     if (typeof window !== 'undefined') {

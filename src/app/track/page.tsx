@@ -1,4 +1,4 @@
-
+﻿
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense, useMemo, useCallback } from 'react';
@@ -308,7 +308,7 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                               </div>
                               <div className="flex-1">
                                  <p className="text-sm font-bold">{ex.name}</p>
-                                 <p className="text-[10px] text-muted-foreground">{ex.reps} • {ex.sets}</p>
+                                 <p className="text-[10px] text-muted-foreground">{ex.reps} â€¢ {ex.sets}</p>
                               </div>
                               <div className="text-right">
                                  <p className="text-xs font-black text-accent">~{ex.caloriesPerMinute * ex.durationMinutes} kcal</p>
