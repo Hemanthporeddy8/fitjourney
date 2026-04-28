@@ -77,7 +77,7 @@ export default function WoundHealPage() {
     if (!previewUrl || !selectedDate) return;
     setIsAnalyzing(true);
     try {
-      const analysis = await analyzeWoundOrDocument({ photoDataUri: previewUrl });
+      const analysis = await analyzeWoundOrDocument(previewUrl);
       setCurrentAnalysisResult(analysis);
       const newEntry = { id: Date.now().toString(), date: selectedDate.toISOString(), imageUrl: previewUrl, analysis };
       const updated = [newEntry, ...woundEntries.filter(e => !isSameDay(parseISO(e.date), selectedDate))];

@@ -14,15 +14,11 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { type ChartConfig } from "@/components/ui/chart";
 
-// Lazy load heavy chart components
-const ChartContainer = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartContainer), { ssr: false });
-const ChartTooltip = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltip), { ssr: false });
-const ChartTooltipContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltipContent), { ssr: false });
-const ChartLegend = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartLegend), { ssr: false });
-const ChartLegendContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartLegendContent), { ssr: false });
-const PieChart = dynamic(() => import("recharts").then(mod => mod.PieChart), { ssr: false });
-const Pie = dynamic(() => import("recharts").then(mod => mod.Pie), { ssr: false });
-const Cell = dynamic(() => import("recharts").then(mod => mod.Cell), { ssr: false });
+import { 
+  ChartContainer, ChartTooltip, ChartTooltipContent, 
+  ChartLegend, ChartLegendContent 
+} from "@/components/ui/chart";
+import { PieChart, Pie, Cell } from "recharts";
 
 interface CompletedBuddyActivity {
   id: string;
@@ -273,38 +269,40 @@ export default function BuddyActivityReportPage() {
                     </CardHeader>
                     <CardContent className="h-[350px] flex flex-col items-center justify-center p-4">
                         {aggregatedActivities.length > 0 && Object.keys(chartConfig).length > 0 ? (
-                        <ChartContainer config={chartConfig} className="mx-auto aspect-square h-full max-h-[300px] w-full">
-                            <PieChart>
-                                <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent indicator="dot" nameKey="totalCaloriesBurned" labelKey="name" hideLabel />}
-                                />
-                                <Pie
-                                data={aggregatedActivities}
-                                dataKey="totalCaloriesBurned"
-                                nameKey="name" 
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={80}
-                                innerRadius={50}
-                                strokeWidth={1}
-                                labelLine={false}
-                                label={({ name, percent }) => {
-                                    if (!percent || percent * 100 < 5) return null; 
-                                    return `${(percent * 100).toFixed(0)}%`;
-                                }}
-                                >
-                                {aggregatedActivities.map((entry) => (
-                                    <Cell
-                                    key={`cell-${entry.name}`}
-                                    fill={`var(--color-${entry.name})`}
-                                    className="stroke-background focus:outline-none"
-                                    />
-                                ))}
-                                </Pie>
-                            </PieChart>
-                             <ChartLegend content={<ChartLegendContent nameKey="name" />} className="mt-4 flex flex-wrap justify-center" />
-                        </ChartContainer>
+                        <div className="mx-auto aspect-square h-full max-h-[300px] w-full">
+                          <ChartContainer config={chartConfig}>
+                              <PieChart>
+                                  <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent indicator="dot" nameKey="totalCaloriesBurned" labelKey="name" hideLabel />}
+                                  />
+                                  <Pie
+                                    data={aggregatedActivities}
+                                    dataKey="totalCaloriesBurned"
+                                    nameKey="name" 
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    innerRadius={50}
+                                    strokeWidth={1}
+                                    labelLine={false}
+                                    label={({ name, percent }) => {
+                                        if (!percent || percent * 100 < 5) return null; 
+                                        return `${(percent * 100).toFixed(0)}%`;
+                                    }}
+                                  >
+                                    {aggregatedActivities.map((entry) => (
+                                        <Cell
+                                          key={`cell-${entry.name}`}
+                                          fill={`var(--color-${entry.name})`}
+                                          className="stroke-background focus:outline-none"
+                                        />
+                                    ))}
+                                  </Pie>
+                              </PieChart>
+                          </ChartContainer>
+                          <ChartLegend content={<ChartLegendContent nameKey="name" />} className="mt-4 flex flex-wrap justify-center" />
+                        </div>
                         ) : (
                         <p className="text-muted-foreground text-center">Not enough data to display chart.</p>
                         )}

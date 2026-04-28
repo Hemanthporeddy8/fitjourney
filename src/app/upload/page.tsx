@@ -558,10 +558,10 @@ export default function UploadPhotoPage() {
                 className="w-full h-44 bg-secondary rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer gap-2"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="text-4xl">{scanMode === 'full_body' ? '' : ''}</div>
+                <div className="text-4xl">{scanMode === 'front_view' ? '' : ''}</div>
                 <p className="text-muted-foreground text-sm font-medium">Upload or take photo</p>
                 <p className="text-xs text-muted-foreground">
-                  {scanMode === 'full_body' ? 'Full body  head to feet' : 'Upper body  head to waist'}
+                  {scanMode === 'front_view' ? 'Full body  head to feet' : 'Upper body  head to waist'}
                 </p>
               </div>
             )}

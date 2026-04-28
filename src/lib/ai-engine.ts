@@ -57,11 +57,11 @@ class CustomAIEngine {
     // Only run proprietary local engine if in the browser
     if (typeof window !== 'undefined') {
       const res = await runFoodInference(imageDataUri);
-      if (res) {
+      if (res && res.length > 0) {
         return { 
-          itemName: res.className, 
-          confidence: res.confidence,
-          nutrients: res.nutrients
+          itemName: res[0].className, 
+          confidence: res[0].confidence,
+          nutrients: res[0].nutrients
         };
       }
     }

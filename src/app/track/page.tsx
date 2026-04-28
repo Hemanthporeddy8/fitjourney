@@ -14,7 +14,17 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO, isSameDay, startOfDay } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { EstimateCaloriesFromPhotoOutput } from '@/ai/flows/estimate-calories-from-photo';
+// Local interface for food inference results
+export interface FoodMealResult {
+  itemName: string;
+  confidence: number;
+  nutrients?: {
+    calories: number;
+    protein: number;
+    fat: number;
+    carbs: number;
+  };
+}
 import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
 import { cn } from "@/lib/utils";
 import { type StoredScan } from '@/lib/progress-tracker';
@@ -41,9 +51,12 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
     return R * c;
 }
 
-interface SavedMeal extends EstimateCaloriesFromPhotoOutput {
-    timestamp: string;
-    imageUrl?: string;
+interface SavedMeal extends FoodMealResult {
+  date: string;
+  photoUrl?: string;
+  foodName: string;
+  calories: number;
+  timestamp: string;
 }
 
 interface TrackPageClientProps {

@@ -35,6 +35,7 @@ export interface ScanResult {
 //  SINGLETON SESSIONS 
 
 let sessionA: ort.InferenceSession | null = null;
+let sessionTargetB: ort.InferenceSession | null = null;
 let modelsAreLoaded = false;
 
 export async function loadModels(
@@ -42,21 +43,25 @@ export async function loadModels(
 ): Promise<void> {
   if (modelsAreLoaded && sessionA) return;
 
-  onProgress?.('Loading composition model...', 50);
+  onProgress?.('Loading composition model...', 40);
   sessionA = await ort.InferenceSession.create('/models/physiquenet_merged.onnx?v=2', {
     executionProviders: ['wasm'],
     graphOptimizationLevel: 'all',
   });
-  console.log(' PhysiqueNet loaded');
-  console.log('   inputs:', sessionA.inputNames);
-  console.log('   outputs:', sessionA.outputNames);
 
+  onProgress?.('Loading background removal model...', 70);
+  sessionTargetB = await ort.InferenceSession.create('/models/target_b.onnx', {
+    executionProviders: ['wasm'],
+    graphOptimizationLevel: 'all',
+  });
+
+  console.log(' PhysiqueNet loaded');
   modelsAreLoaded = true;
   onProgress?.('Models ready!', 100);
 }
 
 export function modelsLoaded(): boolean {
-  return modelsAreLoaded && sessionA !== null;
+  return modelsAreLoaded && sessionA !== null && sessionTargetB !== null;
 }
 
 //  IMAGE HELPERS 
@@ -252,14 +257,14 @@ async function runTargetB(canvas: HTMLCanvasElement): Promise<{
   }
 
   // FIXED: use actual input name from model, not hardcoded 'input'
-  const inputName  = sessionB!.inputNames[0];
-  const outputName = sessionB!.outputNames[0];
+  const inputName  = sessionTargetB!.inputNames[0];
+  const outputName = sessionTargetB!.outputNames[0];
   console.log(`[Target B] Using input="${inputName}" output="${outputName}"`);
 
   const feed: Record<string, ort.Tensor> = {};
   feed[inputName] = new ort.Tensor('float32', inp, [1, 3, 320, 320]);
 
-  const outMap  = await sessionB!.run(feed);
+  const outMap  = await sessionTargetB!.run(feed);
   const rawPred = outMap[outputName].data as Float32Array;
   const rawDims = outMap[outputName].dims;
   console.log(`[Target B] Output dims: [${rawDims.join(', ')}]`);
