@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, isSameDay, startOfDay } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import type { GenerateIdealBodyPlanOutput } from '@/ai/flows/generate-ideal-body-plan-flow';
+import { type IdealBodyPlanResult as GenerateIdealBodyPlanOutput } from '@/lib/ai-engine';
 
 const DEFAULT_TARGET_CALORIES = 250;
 const DEFAULT_POOL_LENGTH_METERS = 25;

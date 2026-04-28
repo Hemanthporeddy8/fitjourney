@@ -11,7 +11,7 @@ import { ArrowLeft, Upload, Camera as CameraIcon, Sparkles, Loader2, AlertCircle
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'; 
-import { analyzeWoundOrDocument, type AnalyzeWoundOrDocumentOutput } from '@/ai/flows/analyze-wound-document';
+import { analyzeWoundLocally as analyzeWoundOrDocument, type WoundAnalysisResult as AnalyzeWoundOrDocumentOutput } from '@/lib/wound-engine';
 import { format, parseISO, startOfDay, isSameDay } from 'date-fns';
 
 // Lazy load heavy Calendar component

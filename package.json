@@ -9,11 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@genkit-ai/googleai": "^0.5.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "genkit": "^0.5.5",
     "lucide-react": "^0.395.0",
     "next": "15.2.8",
     "onnxruntime-web": "1.18.0",
