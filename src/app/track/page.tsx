@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format, parseISO, isSameDay, startOfDay } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { EstimateCaloriesFromPhotoOutput } from '@/ai/flows/estimate-calories-from-photo';
-import { suggestedExercises, type Exercise } from '@/lib/exercise-data.tsx';
+import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
 import { cn } from "@/lib/utils";
 import { type StoredScan } from '@/lib/progress-tracker';
 import { type FitProfile } from '@/lib/progress-tracker';
