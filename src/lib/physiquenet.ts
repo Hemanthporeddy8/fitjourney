@@ -35,7 +35,6 @@ export interface ScanResult {
 // ── SINGLETON SESSIONS ────────────────────────────────────────
 
 let sessionA: ort.InferenceSession | null = null;
-let sessionB: ort.InferenceSession | null = null;
 let modelsAreLoaded = false;
 
 export async function loadModels(
@@ -43,22 +42,7 @@ export async function loadModels(
 ): Promise<void> {
   if (modelsAreLoaded && sessionA) return;
 
-  try {
-    onProgress?.('Loading background removal model...', 20);
-    sessionB = await ort.InferenceSession.create('/models/target_b.onnx?v=2', {
-      executionProviders: ['wasm'],
-      graphOptimizationLevel: 'all',
-    });
-    // Log actual input/output names for debugging
-    console.log('✅ Target B loaded');
-    console.log('   inputs:', sessionB.inputNames);
-    console.log('   outputs:', sessionB.outputNames);
-  } catch (e) {
-    console.warn('⚠️ Target B failed to load, using bypass mode:', e);
-    sessionB = null;
-  }
-
-  onProgress?.('Loading composition model...', 60);
+  onProgress?.('Loading composition model...', 50);
   sessionA = await ort.InferenceSession.create('/models/physiquenet_merged.onnx?v=2', {
     executionProviders: ['wasm'],
     graphOptimizationLevel: 'all',
@@ -479,19 +463,11 @@ export async function scanBody(
   const rawCanvas = await loadImageToCanvas(imageDataUrl);
   console.log(`[Scan] Image: ${rawCanvas.width}×${rawCanvas.height}`);
 
-  // Step 1: Background removal
-  let composited: HTMLCanvasElement;
-  let mCanvas: HTMLCanvasElement;
-
-  if (sessionB) {
-    onProgress?.('Isolating physique (PoNet)...');
-    const r = await runTargetB(rawCanvas);
-    composited = r.composited; mCanvas = r.mCanvas;
-  } else {
-    onProgress?.('Analyzing image structure...');
-    const r = buildBypassMask(rawCanvas);
-    composited = r.composited; mCanvas = r.mCanvas;
-  }
+  // Step 1: Background analysis (Bypass mode)
+  onProgress?.('Analyzing image structure...');
+  const r = buildBypassMask(rawCanvas);
+  const composited = r.composited; 
+  const mCanvas = r.mCanvas;
 
   // Step 2: Detect body type BEFORE zooming
   onProgress?.('Detecting body framing...');

@@ -26,12 +26,9 @@ export interface FoodInferenceResult {
 }
 
 let sessionCore: ort.InferenceSession | null = null;
-let sessionGlobal: ort.InferenceSession | null = null;
 let isModelLoading = false;
 let classMapCore: string[] | null = null;                 
-let classMapGlobal: Record<string, string> | null = null; 
 let nutritionDb: Record<string, any> | null = null;       
-let nutrition5kMap: Record<string, any> | null = null;
 
 // ── NUTRITION ESTIMATOR ───────────────────────────────────────
 // For classes not in the legacy DB, infer from name keywords
@@ -82,23 +79,19 @@ function formatClassName(raw: string): string {
 
 // ── LOAD MODEL ────────────────────────────────────────────────
 export async function loadFoodModel(): Promise<void> {
-  if ((sessionCore && sessionGlobal) || isModelLoading) return;
+  if (sessionCore || isModelLoading) return;
   isModelLoading = true;
   try {
-    console.log('[FoodEngine] Loading Dual-Engine Array (Core 450 + Global 7K)...');
+    console.log('[FoodEngine] Loading Core Recognizer (450 classes)...');
 
     // 1. Load Data Maps
-    const [mapCoreRes, mapGlobalRes, dbRes, map5kRes] = await Promise.all([
+    const [mapCoreRes, dbRes] = await Promise.all([
       fetch('/data/food-classes.json'),
-      fetch('/models/class_map_global_7k.json'),
-      fetch('/data/food-nutrition-db.json'),
-      fetch('/data/nutrition5k_map.json')
+      fetch('/data/food-nutrition-db.json')
     ]);
 
     classMapCore = await mapCoreRes.json();
-    classMapGlobal = await mapGlobalRes.json();
     nutritionDb = await dbRes.json().catch(() => ({}));
-    nutrition5kMap = await map5kRes.json().catch(() => ({}));
 
     // 2. Load ONNX Models
     sessionCore = await ort.InferenceSession.create('/models/v2_food_recognizer.onnx', {
@@ -106,16 +99,10 @@ export async function loadFoodModel(): Promise<void> {
       graphOptimizationLevel: 'all'
     });
     
-    sessionGlobal = await ort.InferenceSession.create('/models/VisiFood_Global_7K.onnx', {
-      executionProviders: ['wasm'],
-      graphOptimizationLevel: 'all'
-    });
-
-    console.log(`[FoodEngine] Ready — Dual Engines Initialized.`);
+    console.log(`[FoodEngine] Ready.`);
   } catch (error) {
-    console.error('[FoodEngine] Failed to load Dual-Engine:', error);
+    console.error('[FoodEngine] Failed to load Engine:', error);
     sessionCore = null;
-    sessionGlobal = null;
   } finally {
     isModelLoading = false;
   }
@@ -149,8 +136,8 @@ async function preprocessImage(dataUrl: string): Promise<Float32Array> {
 
 // ── RUN INFERENCE ─────────────────────────────────────────────
 export async function runFoodInference(imageDataUrl: string, k: number = 5): Promise<FoodInferenceResult[]> {
-  if (!sessionCore || !sessionGlobal) await loadFoodModel();
-  if (!sessionCore || !sessionGlobal) return [];
+  if (!sessionCore) await loadFoodModel();
+  if (!sessionCore) return [];
 
   try {
     const input = await preprocessImage(imageDataUrl);
@@ -159,7 +146,7 @@ export async function runFoodInference(imageDataUrl: string, k: number = 5): Pro
     const isGarbageClass = (name: string) =>
       ['images', 'train', 'val', 'test', 'data', 'annotations'].includes(name.toLowerCase()) || name.length < 2;
 
-    // --- ENGINE 1: CORE 450 (Top 2) ---
+    // --- ENGINE: CORE 450 (Top 5) ---
     const inCore = sessionCore.inputNames[0];
     const outCore = sessionCore.outputNames[0];
     const mapCore = await sessionCore.run({ [inCore]: tensor });
@@ -174,53 +161,18 @@ export async function runFoodInference(imageDataUrl: string, k: number = 5): Pro
       .map((conf, index) => ({ index, conf }))
       .sort((a, b) => b.conf - a.conf)
       .filter(item => !isGarbageClass(classMapCore![item.index] || ''))
-      .slice(0, 2); // Pull Top 2 from Core
+      .slice(0, k);
 
-    // --- ENGINE 2: GLOBAL 7K (Top 3) ---
-    const inGlobal = sessionGlobal.inputNames[0];
-    const outGlobal = sessionGlobal.outputNames[0];
-    const mapGlobal = await sessionGlobal.run({ [inGlobal]: tensor });
-    const dataGlobal = mapGlobal[outGlobal].data as Float32Array;
-
-    const maxGlobal = Math.max(...Array.from(dataGlobal));
-    const expGlobal = Array.from(dataGlobal).map(v => Math.exp(v - maxGlobal));
-    const sumGlobal = expGlobal.reduce((a, b) => a + b, 0);
-    const confGlobal = expGlobal.map(v => v / sumGlobal);
-
-    const topGlobal = confGlobal
-      .map((conf, index) => ({ index, conf }))
-      .sort((a, b) => b.conf - a.conf)
-      .filter(item => !isGarbageClass(classMapGlobal![String(item.index)] || ''))
-      .slice(0, 3); // Pull Top 3 from Global
-
-    // --- MERGING & FORMATTING ---
+    // --- FORMATTING ---
     const combinedResults: FoodInferenceResult[] = [];
 
-    // Format Core Results finding basic generic mappings
+    // Format Core Results
     topCore.forEach(item => {
       const rawName = classMapCore![item.index] || 'Unknown Food';
       const displayName = formatClassName(rawName);
       const legNut = nutritionDb?.[rawName] || nutritionDb?.[displayName];
       const nutrition = legNut ? { calories: legNut.calories, protein: legNut.protein, carbs: legNut.carbs, fats: legNut.fats } : estimateNutrition(rawName);
       
-      combinedResults.push({ classId: item.index, className: displayName, confidence: item.conf, nutrients: nutrition });
-    });
-
-    // Format Global Results mapping to Nutrition5K or falling back
-    topGlobal.forEach(item => {
-      const rawName = classMapGlobal![String(item.index)] || 'Unknown Food';
-      let displayName = formatClassName(rawName);
-      let nutrition = { calories: 0, protein: 0, carbs: 0, fats: 0 };
-
-      if (rawName.startsWith('dish_') && nutrition5kMap && nutrition5kMap[rawName]) {
-        const dish = nutrition5kMap[rawName];
-        displayName = dish.name;
-        nutrition = { calories: dish.calories, protein: dish.protein, carbs: dish.carbs, fats: dish.fats };
-      } else {
-        const legNut = nutritionDb?.[rawName] || nutritionDb?.[displayName];
-        nutrition = legNut ? { calories: legNut.calories, protein: legNut.protein, carbs: legNut.carbs, fats: legNut.fats } : estimateNutrition(rawName);
-      }
-
       combinedResults.push({ classId: item.index, className: displayName, confidence: item.conf, nutrients: nutrition });
     });
 

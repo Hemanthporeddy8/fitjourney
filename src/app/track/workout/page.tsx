@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, Pause, ChevronRight, BrainCircuit } from 'lucide-react';
-import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
+import { suggestedExercises, type Exercise } from '@/lib/exercise-data.tsx';
 import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/workout-engine';
 
 // ── WorkoutNet COCO 17 Landmark Indices ────────────────────────
