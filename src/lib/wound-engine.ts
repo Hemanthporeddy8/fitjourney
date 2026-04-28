@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * @fileOverview Wound & Medical Document Analysis Engine (Local Bridge)
@@ -32,7 +32,7 @@ export async function analyzeWoundLocally(photoDataUri: string): Promise<WoundAn
     foodSuggestions: ["Vitamin C rich foods (Oranges, Bell Peppers)", "High-protein (Lean meats, Lentils)"],
     foodsToAvoid: ["Excessive sugar", "Highly processed fats"],
     otherSuggestions: ["Keep the area clean", "Monitor for changes in color"],
-    encouragingMessage: "Your local scan is complete! Keep up the recovery. âœ¨",
+    encouragingMessage: "Your local scan is complete! Keep up the recovery. ",
     disclaimer: "This is a local AI analysis and NOT medical advice. Consult a professional."
   };
 }

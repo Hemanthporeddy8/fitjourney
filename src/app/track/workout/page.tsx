@@ -1,4 +1,4 @@
-﻿
+
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
@@ -8,7 +8,7 @@ import { ArrowLeft, Play, Pause, ChevronRight, BrainCircuit } from 'lucide-react
 import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
 import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/workout-engine';
 
-// â”€â”€ WorkoutNet COCO 17 Landmark Indices â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  WorkoutNet COCO 17 Landmark Indices 
 const WN = { NOSE:0, L_SHOULDER:5, R_SHOULDER:6, L_ELBOW:7, R_ELBOW:8,
              L_WRIST:9, R_WRIST:10, L_HIP:11, R_HIP:12,
              L_KNEE:13, R_KNEE:14, L_ANKLE:15, R_ANKLE:16 };
@@ -47,7 +47,7 @@ function WorkoutClientContent() {
     const repRef      = useRef(0);
     const exRef       = useRef<Exercise | null>(null);
 
-    // â”€â”€ EXERCISE QUEUE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  EXERCISE QUEUE 
     useEffect(() => {
         const savedScans = JSON.parse(localStorage.getItem('fitjourney_scan_history') || '[]');
         const savedPlan  = JSON.parse(localStorage.getItem('fitjourney_latest_ideal_body_plan') || 'null');
@@ -67,7 +67,7 @@ function WorkoutClientContent() {
         if (ex) { setExercise(ex); exRef.current = ex; setCurrentIndex(idx); setExerciseTime(ex.durationMinutes * 60); }
     }, [exerciseId]);
 
-    // â”€â”€ TIMERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  TIMERS 
     useEffect(() => {
         if (!isResting && !isPaused && exerciseTime > 0) {
             timerRef.current = setInterval(() => setExerciseTime(p => { if (p<=1){setIsResting(true);return 0;} return p-1; }), 1000);
@@ -85,7 +85,7 @@ function WorkoutClientContent() {
 
     useEffect(() => { if (isResting && restTimer === 0) handleNext(); }, [isResting, restTimer]);
 
-    // â”€â”€ COUNTDOWN TIMER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  COUNTDOWN TIMER 
     useEffect(() => {
         if (countdown > 0) {
             const timer = setTimeout(() => {
@@ -208,7 +208,7 @@ function WorkoutClientContent() {
         }
     }
 
-    // â”€â”€ AI LIFECYCLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  AI LIFECYCLE 
     useEffect(() => {
         if (aiEnabled) {
             initWorkoutNet();

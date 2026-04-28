@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-// src/lib/physiquenet.ts â€” COMPLETE FIXED VERSION
+// src/lib/physiquenet.ts  COMPLETE FIXED VERSION
 // Fixes: dynamic ONNX names, confidence recalibration, body type detection
 
 import * as ort from 'onnxruntime-web';
@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') {
   ort.env.wasm.numThreads = 1;
 }
 
-// â”€â”€ TYPES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  TYPES 
 
 export type BodyType = 'full_body' | 'upper_body' | 'lower_body' | 'unknown';
 
@@ -32,7 +32,7 @@ export interface ScanResult {
   timestamp:     number;
 }
 
-// â”€â”€ SINGLETON SESSIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  SINGLETON SESSIONS 
 
 let sessionA: ort.InferenceSession | null = null;
 let modelsAreLoaded = false;
@@ -47,7 +47,7 @@ export async function loadModels(
     executionProviders: ['wasm'],
     graphOptimizationLevel: 'all',
   });
-  console.log('âœ… PhysiqueNet loaded');
+  console.log(' PhysiqueNet loaded');
   console.log('   inputs:', sessionA.inputNames);
   console.log('   outputs:', sessionA.outputNames);
 
@@ -59,7 +59,7 @@ export function modelsLoaded(): boolean {
   return modelsAreLoaded && sessionA !== null;
 }
 
-// â”€â”€ IMAGE HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  IMAGE HELPERS 
 
 function loadImageToCanvas(dataUrl: string): Promise<HTMLCanvasElement> {
   return new Promise((resolve, reject) => {
@@ -118,9 +118,9 @@ function autoNormalizeLighting(canvas: HTMLCanvasElement): HTMLCanvasElement {
   return out;
 }
 
-// â”€â”€ BODY TYPE DETECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  BODY TYPE DETECTION 
 // Detects whether photo contains full body, upper body, etc.
-// Uses mask shape analysis â€” where is the person in the frame?
+// Uses mask shape analysis  where is the person in the frame?
 
 export function detectBodyType(
   maskCanvas: HTMLCanvasElement
@@ -130,7 +130,7 @@ export function detectBodyType(
   const H    = maskCanvas.height;
   const idat = ctx.getImageData(0, 0, W, H);
 
-  // Scan row by row â€” find where person starts and ends vertically
+  // Scan row by row  find where person starts and ends vertically
   const rowCoverage = new Float32Array(H);
   for (let y = 0; y < H; y++) {
     let count = 0;
@@ -166,7 +166,7 @@ export function detectBodyType(
   // Full body: person is tall and starts near top, ends near bottom
   if (topPct < 0.15 && bottomPct > 0.75 && heightPct > 0.60) {
     bodyType = 'full_body';
-    label    = 'Full body detected âœ“';
+    label    = 'Full body detected ';
   }
   // Upper body: person starts near top but ends in middle of frame
   else if (topPct < 0.25 && bottomPct < 0.70 && heightPct > 0.35) {
@@ -183,12 +183,12 @@ export function detectBodyType(
     label    = 'Partial body detected';
   }
 
-  console.log(`[BodyType] top=${(topPct*100).toFixed(0)}% bottom=${(bottomPct*100).toFixed(0)}% height=${(heightPct*100).toFixed(0)}% â†’ ${bodyType}`);
+  console.log(`[BodyType] top=${(topPct*100).toFixed(0)}% bottom=${(bottomPct*100).toFixed(0)}% height=${(heightPct*100).toFixed(0)}%  ${bodyType}`);
 
   return { bodyType, label, topPct, bottomPct, heightPct };
 }
 
-// â”€â”€ MASK BOUNDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  MASK BOUNDS 
 
 function getMaskBounds(maskCanvas: HTMLCanvasElement): { x: number; y: number; w: number; h: number } {
   const ctx  = maskCanvas.getContext('2d', { willReadFrequently: true })!;
@@ -229,7 +229,7 @@ function getMaskBounds(maskCanvas: HTMLCanvasElement): { x: number; y: number; w
   };
 }
 
-// â”€â”€ TARGET B â€” BACKGROUND REMOVAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  TARGET B  BACKGROUND REMOVAL 
 // FIXED: uses dynamic input/output names from session
 
 async function runTargetB(canvas: HTMLCanvasElement): Promise<{
@@ -269,7 +269,7 @@ async function runTargetB(canvas: HTMLCanvasElement): Promise<{
   const total = rawPred.length;
 
   if (rawDims.length === 4 && rawDims[1] === 4) {
-    // RGBA format [1,4,H,W] â€” use alpha channel
+    // RGBA format [1,4,H,W]  use alpha channel
     const size = rawDims[2] * rawDims[3];
     softMask320 = rawPred.slice(3 * size, 4 * size);
   } else {
@@ -286,7 +286,7 @@ async function runTargetB(canvas: HTMLCanvasElement): Promise<{
       softMask320[i] = (softMask320[i] - mn) / rng;
     }
   } else {
-    // Flat output â€” apply sigmoid
+    // Flat output  apply sigmoid
     const orig = outMap[outputName].data as Float32Array;
     for (let i = 0; i < softMask320.length; i++) {
       softMask320[i] = 1 / (1 + Math.exp(-orig[i]));
@@ -330,7 +330,7 @@ async function runTargetB(canvas: HTMLCanvasElement): Promise<{
   return { composited: compCanvas, mCanvas };
 }
 
-// â”€â”€ PHYSIQUENET INFERENCE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  PHYSIQUENET INFERENCE 
 // FIXED: uses dynamic input/output names
 
 async function runPhysiqueNet(
@@ -368,7 +368,7 @@ async function runPhysiqueNet(
   return { bf: preds[0], shape: preds[1], bmi: preds[2], conf: preds[3] };
 }
 
-// â”€â”€ CONFIDENCE CALIBRATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  CONFIDENCE CALIBRATION 
 // Real photos get lower raw confidence than synthetic training data.
 // This function recalibrates confidence for display.
 // Raw 0.05-0.15 on real photos = actually reasonable prediction.
@@ -387,7 +387,7 @@ function calibrateConfidence(
                     : bodyType === 'lower_body'  ? 0.60
                     : 0.40;
 
-  // Raw model confidence (very small for real photos â€” this is normal)
+  // Raw model confidence (very small for real photos  this is normal)
   // Scale raw 0-0.3 range to 0-1 for real photos
   const confScore = Math.min(1, rawConf / 0.15);
 
@@ -399,13 +399,13 @@ function calibrateConfidence(
   let label: string;
   if (display >= 65) label = 'High accuracy scan';
   else if (display >= 45) label = 'Good scan quality';
-  else if (display >= 30) label = 'Fair â€” full body improves accuracy';
-  else label = 'Low â€” try plain background, full body';
+  else if (display >= 30) label = 'Fair  full body improves accuracy';
+  else label = 'Low  try plain background, full body';
 
   return { display, label };
 }
 
-// â”€â”€ BYPASS MODE (no Target B) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  BYPASS MODE (no Target B) 
 
 function buildBypassMask(rawCanvas: HTMLCanvasElement): {
   composited: HTMLCanvasElement;
@@ -449,7 +449,7 @@ function buildBypassMask(rawCanvas: HTMLCanvasElement): {
   }
 }
 
-// â”€â”€ MAIN SCAN FUNCTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  MAIN SCAN FUNCTION 
 
 export async function scanBody(
   imageDataUrl: string,
@@ -461,7 +461,7 @@ export async function scanBody(
 
   onProgress?.('Loading image...');
   const rawCanvas = await loadImageToCanvas(imageDataUrl);
-  console.log(`[Scan] Image: ${rawCanvas.width}Ã—${rawCanvas.height}`);
+  console.log(`[Scan] Image: ${rawCanvas.width}${rawCanvas.height}`);
 
   // Step 1: Background analysis (Bypass mode)
   onProgress?.('Analyzing image structure...');
@@ -485,7 +485,7 @@ export async function scanBody(
   zoomedMask.width = bounds.w; zoomedMask.height = bounds.h;
   zoomedMask.getContext('2d')!.drawImage(mCanvas, bounds.x, bounds.y, bounds.w, bounds.h, 0, 0, bounds.w, bounds.h);
 
-  // Step 4: Normalize â†’ pad â†’ resize to 224
+  // Step 4: Normalize  pad  resize to 224
   onProgress?.('Normalizing image...');
   const normalized = autoNormalizeLighting(zoomedImg);
   const squared    = padToSquare(normalized, 215);

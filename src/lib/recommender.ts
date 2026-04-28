@@ -1,4 +1,4 @@
-﻿// src/lib/recommender.ts
+// src/lib/recommender.ts
 // Maps PhysiqueNet BF% output to your existing videos
 // Your videos: Burpees, Crunches, High_Knees, Jumping jacks,
 //              Lunges, Planks, Pushups, Squarts
@@ -28,7 +28,7 @@ export interface RecommendResult {
   gap:         number;       // bf% to lose
 }
 
-// â”€â”€ YOUR 8 VIDEOS MAPPED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  YOUR 8 VIDEOS MAPPED 
 const VIDEO_LIBRARY: VideoRec[] = [
   {
     id:         'burpees',
@@ -38,7 +38,7 @@ const VIDEO_LIBRARY: VideoRec[] = [
     calories:   280,
     difficulty: 4,
     targets:    ['full body', 'cardio', 'fat loss'],
-    reason:     'Highest calorie burn â€” maximum fat loss',
+    reason:     'Highest calorie burn  maximum fat loss',
   },
   {
     id:         'high_knees',
@@ -68,7 +68,7 @@ const VIDEO_LIBRARY: VideoRec[] = [
     calories:   210,
     difficulty: 3,
     targets:    ['legs', 'glutes', 'metabolism'],
-    reason:     'Builds largest muscles â€” boosts metabolism',
+    reason:     'Builds largest muscles  boosts metabolism',
   },
   {
     id:         'lunges',
@@ -112,7 +112,7 @@ const VIDEO_LIBRARY: VideoRec[] = [
   },
 ];
 
-// â”€â”€ RECOMMENDATION ENGINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  RECOMMENDATION ENGINE 
 
 export function recommend(
   bf: number,
@@ -126,15 +126,15 @@ export function recommend(
   let message: string;
 
   if (gap > 10) {
-    // Heavy fat loss phase â€” cardio priority
+    // Heavy fat loss phase  cardio priority
     primary = [
       VIDEO_LIBRARY[0], // Burpees
       VIDEO_LIBRARY[1], // High Knees
       VIDEO_LIBRARY[2], // Jumping Jacks
     ];
-    message = `You have ${gap}% to lose. Focus on cardio daily â€” every session counts.`;
+    message = `You have ${gap}% to lose. Focus on cardio daily  every session counts.`;
   } else if (gap > 6) {
-    // Moderate fat loss â€” cardio + lower body
+    // Moderate fat loss  cardio + lower body
     primary = [
       VIDEO_LIBRARY[1], // High Knees
       VIDEO_LIBRARY[3], // Squats
@@ -142,7 +142,7 @@ export function recommend(
     ];
     message = `${gap}% to go. Combine cardio with strength to accelerate fat loss.`;
   } else if (gap > 3) {
-    // Mixed recomposition â€” build muscle, lose fat
+    // Mixed recomposition  build muscle, lose fat
     primary = [
       VIDEO_LIBRARY[3], // Squats
       VIDEO_LIBRARY[5], // Pushups
@@ -150,7 +150,7 @@ export function recommend(
     ];
     message = `${gap}% to go. Great progress! Strength training accelerates results now.`;
   } else if (gap > 0) {
-    // Almost at goal â€” toning and definition
+    // Almost at goal  toning and definition
     primary = [
       VIDEO_LIBRARY[5], // Pushups
       VIDEO_LIBRARY[6], // Crunches
@@ -158,7 +158,7 @@ export function recommend(
     ];
     message = `Almost there! Only ${gap}% to your goal. Focus on definition now.`;
   } else {
-    // At or past goal â€” maintenance
+    // At or past goal  maintenance
     primary = [
       VIDEO_LIBRARY[3], // Squats
       VIDEO_LIBRARY[5], // Pushups
@@ -200,7 +200,7 @@ function getPhase(bf: number, isMale: boolean): string {
   }
 }
 
-// â”€â”€ PROGRESS CALCULATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  PROGRESS CALCULATIONS 
 
 export interface ScanHistoryEntry {
   bf:        number;

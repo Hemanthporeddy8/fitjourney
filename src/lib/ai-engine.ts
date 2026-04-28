@@ -1,4 +1,4 @@
-﻿
+
 /**
  * @fileOverview Custom AI & Rules Engine
  * Central hub for proprietary models (VisiFood, PhysiPose) and deterministic health rules.
@@ -164,7 +164,7 @@ class CustomAIEngine {
         foodsToLimit: ["Caffeine", "High salt snacks"],
         gentleExercises: ["Yoga", "Slow walking"],
         selfCareTips: ["Use a heating pad", "Early bedtime"],
-        positiveAffirmation: "I listen to my body's needs. âœ¨"
+        positiveAffirmation: "I listen to my body's needs. "
       };
     }
     return {
@@ -172,7 +172,7 @@ class CustomAIEngine {
       foodsToLimit: ["Processed sugars"],
       gentleExercises: ["Strength training", "HIIT"],
       selfCareTips: ["Maintain routine", "Focus on goals"],
-      positiveAffirmation: "I am strong and energetic. âš¡"
+      positiveAffirmation: "I am strong and energetic. "
     };
   }
 

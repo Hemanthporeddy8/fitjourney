@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 /**
- * @fileOverview VisiFood Ultra Engine (V3 â€” 5,765 classes)
+ * @fileOverview VisiFood Ultra Engine (V3  5,765 classes)
  * Powered by FoodNet + PoseCore custom architecture.
  * 100% proprietary, no third-party AI APIs.
  */
@@ -30,7 +30,7 @@ let isModelLoading = false;
 let classMapCore: string[] | null = null;                 
 let nutritionDb: Record<string, any> | null = null;       
 
-// â”€â”€ NUTRITION ESTIMATOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  NUTRITION ESTIMATOR 
 // For classes not in the legacy DB, infer from name keywords
 function estimateNutrition(name: string) {
   const n = name.toLowerCase();
@@ -71,13 +71,13 @@ function estimateNutrition(name: string) {
   return { calories: 200, protein: 8, carbs: 25, fats: 8 };
 }
 
-// Format class name from folder-style names like "apple_pie" â†’ "Apple Pie"
+// Format class name from folder-style names like "apple_pie"  "Apple Pie"
 function formatClassName(raw: string): string {
   return raw.replace(/_/g, ' ').replace(/-/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase()).trim();
 }
 
-// â”€â”€ LOAD MODEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  LOAD MODEL 
 export async function loadFoodModel(): Promise<void> {
   if (sessionCore || isModelLoading) return;
   isModelLoading = true;
@@ -108,7 +108,7 @@ export async function loadFoodModel(): Promise<void> {
   }
 }
 
-// â”€â”€ PREPROCESS IMAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  PREPROCESS IMAGE 
 async function preprocessImage(dataUrl: string): Promise<Float32Array> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -134,7 +134,7 @@ async function preprocessImage(dataUrl: string): Promise<Float32Array> {
   });
 }
 
-// â”€â”€ RUN INFERENCE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  RUN INFERENCE 
 export async function runFoodInference(imageDataUrl: string, k: number = 5): Promise<FoodInferenceResult[]> {
   if (!sessionCore) await loadFoodModel();
   if (!sessionCore) return [];
