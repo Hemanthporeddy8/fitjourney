@@ -146,6 +146,9 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                }
 
                setSmartExercises(recommendations);
+            } else {
+               // Fallback: Show first 3 general exercises if no scan history
+               setSmartExercises(suggestedExercises.slice(0, 3));
             }
         }
     }, []);
@@ -301,9 +304,9 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                      <CardTitle className="text-base flex items-center gap-2">
                         <Dumbbell className="h-5 w-5 text-accent" /> AI Coach Recommendations
                      </CardTitle>
-                     <CardDescription className="text-xs">
-                        Targeting {lastScan?.bodyTypeLabel || 'Full Body'} for better proportions.
-                     </CardDescription>
+                      <CardDescription className="text-xs">
+                         {lastScan ? `Targeting ${lastScan.bodyTypeLabel} for better proportions.` : "Start with these fundamental movements."}
+                      </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 p-4">
                      <div className="grid grid-cols-1 gap-2">
@@ -330,9 +333,11 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                            </div>
                         ))}
                      </div>
-                     <p className="text-[10px] text-center text-muted-foreground italic px-4">
-                        &quot;Since AI detected an **{lastScan?.bodyTypeLabel}** focus and your blueprint is **{idealPlan?.planTitle}**, these exercises are prioritized.&quot;
-                     </p>
+                      {lastScan && (
+                        <p className="text-[10px] text-center text-muted-foreground italic px-4">
+                           &quot;Since AI detected an **{lastScan.bodyTypeLabel}** focus and your blueprint is **{idealPlan?.planTitle}**, these exercises are prioritized.&quot;
+                        </p>
+                      )}
                   </CardContent>
                </Card>
             )}
