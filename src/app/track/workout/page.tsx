@@ -280,15 +280,22 @@ function WorkoutClientContent() {
     const lShoulder = kp[WN.L_SHOULDER], lElbow    = kp[WN.L_ELBOW];
     const conf = 0.35;
 
-    if (['5','4','8','6'].includes(ex.id) && (lHip?.confidence||0) > conf && (lKnee?.confidence||0) > conf) {
+    if (['3', '7', '5'].includes(ex.id) && (lHip?.confidence||0) > conf && (lKnee?.confidence||0) > conf) {
+      // Squat (3), Lunges (7), Burpees (5) - based on Hip vs Knee
       if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
       if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
     } else if (ex.id === '1' && (lWrist?.confidence||0) > conf && (nose?.confidence||0) > conf) {
+      // Jumping Jacks (1) - wrist above nose
       if (lWrist.y < nose.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
       if (lWrist.y > nose.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
-    } else if (['2','3','7'].includes(ex.id) && (lShoulder?.confidence||0) > conf && (lElbow?.confidence||0) > conf) {
+    } else if (['4', '6'].includes(ex.id) && (lShoulder?.confidence||0) > conf && (lElbow?.confidence||0) > conf) {
+      // Push-ups (4), Plank (6) - shoulder vs elbow
       if (lShoulder.y > lElbow.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
       if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+    } else if (ex.id === '2' && (lKnee?.confidence||0) > conf && (lHip?.confidence||0) > conf) {
+      // High Knees (2) - knee above hip
+      if (lKnee.y < lHip.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
+      if (lKnee.y > lHip.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
     }
   }
 
@@ -420,6 +427,15 @@ function WorkoutClientContent() {
               <div className="absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center z-10">
                 <BrainCircuit className="h-12 w-12 text-white/10 mb-2" />
                 <p className="text-xs text-white/20">AI tracking off</p>
+              </div>
+            )}
+
+            {/* Visibility Hint */}
+            {aiEnabled && isAiReady && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center z-30 pointer-events-none">
+                 <p className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold text-white/80 border border-white/10">
+                   Tip: Stand back until your full body is visible
+                 </p>
               </div>
             )}
           </div>
