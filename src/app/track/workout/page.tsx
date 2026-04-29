@@ -70,7 +70,16 @@ function WorkoutClientContent() {
     setQueue(recs);
     const idx = Math.max(0, recs.findIndex(e => e.id === exerciseId));
     const ex  = recs[idx];
-    if (ex) { setExercise(ex); exRef.current = ex; setCurrentIndex(idx); setExerciseTime(ex.durationMinutes * 60); }
+    if (ex) { 
+      setExercise(ex); 
+      exRef.current = ex; 
+      setCurrentIndex(idx); 
+      setExerciseTime(ex.durationMinutes * 60);
+      // Reset counters for the new exercise
+      repRef.current = 0;
+      setRepCount(0);
+      poseStateRef.current = 'top';
+    }
   }, [exerciseId]);
 
   // ── Exercise timer ──────────────────────────────────────────
@@ -215,22 +224,15 @@ function WorkoutClientContent() {
 
         const vid    = videoRef.current;
         const canvas = canvasRef.current;
-        if (vid && canvas && vid.readyState >= 2) {
-          // AUTO-RESUME: if browser pauses the camera, try to play it again
-          if (vid.paused && aiStatus === 'ready') {
-            vid.play().catch(() => {});
-          }
-
-          if (!vid.paused) {
-            const res = await runPoseInference(vid);
-            if (res && canvasRef.current && loopActiveRef.current) {
-              const ctx     = canvas.getContext('2d')!;
-              canvas.width  = vid.videoWidth  || 640;
-              canvas.height = vid.videoHeight || 480;
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height);
-              countReps(res.keypoints);
-            }
+        if (vid && canvas && vid.readyState >= 2 && !vid.paused) {
+          const res = await runPoseInference(vid);
+          if (res && canvasRef.current && loopActiveRef.current) {
+            const ctx     = canvas.getContext('2d')!;
+            canvas.width  = vid.videoWidth  || 640;
+            canvas.height = vid.videoHeight || 480;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height);
+            countReps(res.keypoints);
           }
         }
 
@@ -285,24 +287,58 @@ function WorkoutClientContent() {
     const lHip      = kp[WN.L_HIP],      lKnee     = kp[WN.L_KNEE];
     const lWrist    = kp[WN.L_WRIST],    nose      = kp[WN.NOSE];
     const lShoulder = kp[WN.L_SHOULDER], lElbow    = kp[WN.L_ELBOW];
+    const rKnee     = kp[WN.R_KNEE];
     const conf = 0.35;
 
-    if (['3', '7', '5'].includes(ex.id) && (lHip?.confidence||0) > conf && (lKnee?.confidence||0) > conf) {
-      // Squat (3), Lunges (7), Burpees (5) - based on Hip vs Knee
-      if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-      if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-    } else if (ex.id === '1' && (lWrist?.confidence||0) > conf && (nose?.confidence||0) > conf) {
-      // Jumping Jacks (1) - wrist above nose
-      if (lWrist.y < nose.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
-      if (lWrist.y > nose.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
-    } else if (['4', '6'].includes(ex.id) && (lShoulder?.confidence||0) > conf && (lElbow?.confidence||0) > conf) {
-      // Push-ups (4), Plank (6) - shoulder vs elbow
-      if (lShoulder.y > lElbow.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-      if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-    } else if (ex.id === '2' && (lKnee?.confidence||0) > conf && (lHip?.confidence||0) > conf) {
-      // High Knees (2) - knee above hip
-      if (lKnee.y < lHip.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
-      if (lKnee.y > lHip.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+    // 1. Jumping Jacks (Wrist above Nose)
+    if (ex.id === '1') {
+      if ((lWrist?.confidence||0) > conf && (nose?.confidence||0) > conf) {
+        if (lWrist.y < nose.y && poseStateRef.current === 'top') { 
+          poseStateRef.current = 'bottom'; 
+          repRef.current++; setRepCount(repRef.current); 
+        }
+        if (lWrist.y > nose.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+      }
+    }
+    // 2. High Knees / 9. Mountain Climbers (Knee above Hip)
+    else if (['2', '9'].includes(ex.id)) {
+      if ((lKnee?.confidence||0) > conf && (lHip?.confidence||0) > conf) {
+        if (lKnee.y < lHip.y && poseStateRef.current === 'top') { 
+          poseStateRef.current = 'bottom'; 
+          repRef.current++; setRepCount(repRef.current); 
+        }
+        if (lKnee.y > lHip.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+      }
+    }
+    // 3. Squats / 7. Lunges / 5. Burpees (Hip drop)
+    else if (['3', '7', '5'].includes(ex.id)) {
+      if ((lHip?.confidence||0) > conf && (lKnee?.confidence||0) > conf) {
+        if (lHip.y > lKnee.y && poseStateRef.current === 'top') { poseStateRef.current = 'bottom'; }
+        if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { 
+          poseStateRef.current = 'top'; 
+          repRef.current++; setRepCount(repRef.current); 
+        }
+      }
+    }
+    // 4. Push-ups (Shoulder drop)
+    else if (ex.id === '4') {
+      if ((lShoulder?.confidence||0) > conf && (lElbow?.confidence||0) > conf) {
+        if (lShoulder.y > lElbow.y && poseStateRef.current === 'top') { poseStateRef.current = 'bottom'; }
+        if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { 
+          poseStateRef.current = 'top'; 
+          repRef.current++; setRepCount(repRef.current); 
+        }
+      }
+    }
+    // 8. Crunches (Nose towards Hip)
+    else if (ex.id === '8') {
+       if ((nose?.confidence||0) > conf && (lHip?.confidence||0) > conf) {
+         if (nose.y < lHip.y && poseStateRef.current === 'top') { poseStateRef.current = 'bottom'; }
+         if (nose.y > lHip.y && poseStateRef.current === 'bottom') { 
+           poseStateRef.current = 'top'; 
+           repRef.current++; setRepCount(repRef.current); 
+         }
+       }
     }
   }
 
@@ -434,15 +470,6 @@ function WorkoutClientContent() {
               <div className="absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center z-10">
                 <BrainCircuit className="h-12 w-12 text-white/10 mb-2" />
                 <p className="text-xs text-white/20">AI tracking off</p>
-              </div>
-            )}
-
-            {/* Visibility Hint */}
-            {aiEnabled && isAiReady && (
-              <div className="absolute bottom-4 left-0 right-0 flex justify-center z-30 pointer-events-none">
-                 <p className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold text-white/80 border border-white/10">
-                   Tip: Stand back until your full body is visible
-                 </p>
               </div>
             )}
           </div>
