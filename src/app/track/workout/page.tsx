@@ -215,15 +215,22 @@ function WorkoutClientContent() {
 
         const vid    = videoRef.current;
         const canvas = canvasRef.current;
-        if (vid && canvas && vid.readyState >= 2 && !vid.paused) {
-          const res = await runPoseInference(vid);
-          if (res && canvasRef.current && loopActiveRef.current) {
-            const ctx     = canvas.getContext('2d')!;
-            canvas.width  = vid.videoWidth  || 640;
-            canvas.height = vid.videoHeight || 480;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height);
-            countReps(res.keypoints);
+        if (vid && canvas && vid.readyState >= 2) {
+          // AUTO-RESUME: if browser pauses the camera, try to play it again
+          if (vid.paused && aiStatus === 'ready') {
+            vid.play().catch(() => {});
+          }
+
+          if (!vid.paused) {
+            const res = await runPoseInference(vid);
+            if (res && canvasRef.current && loopActiveRef.current) {
+              const ctx     = canvas.getContext('2d')!;
+              canvas.width  = vid.videoWidth  || 640;
+              canvas.height = vid.videoHeight || 480;
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height);
+              countReps(res.keypoints);
+            }
           }
         }
 
