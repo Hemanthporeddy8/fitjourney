@@ -16,13 +16,12 @@ const WN = {
   L_ANKLE: 15, R_ANKLE: 16,
 };
 
-// ── AI state machine ──────────────────────────────────────────
 type AiStatus = 'idle' | 'loading-model' | 'loading-camera' | 'ready' | 'error';
 
 function WorkoutClientContent() {
-  const router      = useRouter();
+  const router       = useRouter();
   const searchParams = useSearchParams();
-  const exerciseId  = searchParams.get('id');
+  const exerciseId   = searchParams.get('id');
 
   const [exercise, setExercise]         = useState<Exercise | null>(null);
   const [queue, setQueue]               = useState<Exercise[]>([]);
@@ -33,25 +32,26 @@ function WorkoutClientContent() {
   const [isResting, setIsResting]       = useState(false);
   const [restTimer, setRestTimer]       = useState(10);
   const [aiEnabled, setAiEnabled]       = useState(true);
+  const [aiStatus, setAiStatus]         = useState<AiStatus>('idle');
+  const [aiError, setAiError]           = useState<string | null>(null);
+  const [repCount, setRepCount]         = useState(0);
+  const [countdown, setCountdown]       = useState(10);
 
-  // FIX: single state machine instead of two booleans that got out of sync
-  const [aiStatus, setAiStatus]   = useState<AiStatus>('idle');
-  const [aiError, setAiError]     = useState<string | null>(null);
-
-  const [repCount, setRepCount]   = useState(0);
-  const [countdown, setCountdown] = useState(10);
-
-  const videoRef      = useRef<HTMLVideoElement | null>(null);
-  const canvasRef     = useRef<HTMLCanvasElement | null>(null);
-  const demoVideoRef  = useRef<HTMLVideoElement | null>(null);
-  const timerRef      = useRef<NodeJS.Timeout | null>(null);
-  const restTimerRef  = useRef<NodeJS.Timeout | null>(null);
-  const reqFrameRef   = useRef<number | undefined>();
-  const streamRef     = useRef<MediaStream | null>(null);
-  const poseStateRef  = useRef<'top' | 'bottom'>('top');
-  const repRef        = useRef(0);
-  const exRef         = useRef<Exercise | null>(null);
-  const loopActiveRef = useRef(false); // FIX: prevent stale RAF loops
+  const videoRef       = useRef<HTMLVideoElement | null>(null);
+  const canvasRef      = useRef<HTMLCanvasElement | null>(null);
+  const demoVideoRef   = useRef<HTMLVideoElement | null>(null);
+  const timerRef       = useRef<NodeJS.Timeout | null>(null);
+  const restTimerRef   = useRef<NodeJS.Timeout | null>(null);
+  const reqFrameRef    = useRef<number | undefined>();
+  const streamRef      = useRef<MediaStream | null>(null);
+  const poseStateRef   = useRef<'top' | 'bottom'>('top');
+  const repRef         = useRef(0);
+  const exRef          = useRef<Exercise | null>(null);
+  const loopActiveRef  = useRef(false);
+  // FIX 1: track whether we're already initialising to prevent double-call
+  const initRunningRef = useRef(false);
+  // FIX 2: stable ref for stopCamera so we never put functions in effect deps
+  const stopCameraRef  = useRef<() => void>(() => {});
 
   // ── Exercise queue ──────────────────────────────────────────
   useEffect(() => {
@@ -105,95 +105,149 @@ function WorkoutClientContent() {
     }
   }, [countdown]);
 
-  // ── Core AI init ────────────────────────────────────────────
-  const stopCamera = useCallback(() => {
-    loopActiveRef.current = false;
-    if (reqFrameRef.current) { cancelAnimationFrame(reqFrameRef.current); reqFrameRef.current = undefined; }
-    if (streamRef.current)   { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
-    if (videoRef.current)    { videoRef.current.srcObject = null; }
-    if (canvasRef.current)   { canvasRef.current.getContext('2d')?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); }
-  }, []);
+  // ── stopCamera (stored in ref — never changes identity) ─────
+  useEffect(() => {
+    stopCameraRef.current = () => {
+      loopActiveRef.current  = false;
+      initRunningRef.current = false;
+      if (reqFrameRef.current)  { cancelAnimationFrame(reqFrameRef.current); reqFrameRef.current = undefined; }
+      if (streamRef.current)    { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+      // FIX 3: do NOT null out srcObject here — it causes a flash-of-black
+      // and confuses the next play() call. Clear the canvas instead.
+      if (canvasRef.current)    { canvasRef.current.getContext('2d')?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); }
+    };
+  });
 
+  // ── Core AI init ────────────────────────────────────────────
   const initWorkoutNet = useCallback(async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    stopCamera();
+    // FIX 1: guard against double-invoke (React Strict Mode mounts twice)
+    if (initRunningRef.current) return;
+    initRunningRef.current = true;
+
+    if (!videoRef.current || !canvasRef.current) {
+      initRunningRef.current = false;
+      return;
+    }
+
+    // Stop any previous loop/stream cleanly
+    loopActiveRef.current = false;
+    if (reqFrameRef.current)  { cancelAnimationFrame(reqFrameRef.current); reqFrameRef.current = undefined; }
+    if (streamRef.current)    { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+
     setAiError(null);
     setAiStatus('loading-model');
 
-    // FIX: hard timeout — guarantees loading never hangs forever
+    // Hard timeout — never hang forever
     let timedOut = false;
     const timeoutId = setTimeout(() => {
       timedOut = true;
+      initRunningRef.current = false;
       setAiStatus('error');
       setAiError('AI trainer timed out. Check camera permissions and try again.');
-    }, 12000);
+    }, 15000);
 
     try {
-      // Step 1 — load ONNX model (cached after first load)
+      // Step 1 — load ONNX model (shared singleton, safe to call many times)
       await loadWorkoutModel();
       if (timedOut) return;
 
       setAiStatus('loading-camera');
 
-      // Step 2 — request camera
+      // Step 2 — request camera stream
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
       });
       if (timedOut) { stream.getTracks().forEach(t => t.stop()); return; }
 
-      streamRef.current          = stream;
+      streamRef.current = stream;
+
+      // FIX 4: assign srcObject ONLY if the video element is still mounted
+      if (!videoRef.current) { stream.getTracks().forEach(t => t.stop()); return; }
       videoRef.current.srcObject = stream;
 
-      // Step 3 — wait for video metadata (with per-frame fallback)
+      // Step 3 — wait for video data (robust cross-browser approach)
       await new Promise<void>((resolve, reject) => {
         const vid = videoRef.current!;
+        // Already has data (e.g. from a previous stream that wasn't fully cleared)
         if (vid.readyState >= 2) { resolve(); return; }
-        const onReady = () => { vid.removeEventListener('loadeddata', onReady); resolve(); };
-        const onError = () => { vid.removeEventListener('error', onError); reject(new Error('Video load error')); };
-        vid.addEventListener('loadeddata', onReady);
-        vid.addEventListener('error', onError);
-      });
-      if (timedOut) return;
 
-      await videoRef.current.play().catch(() => {}); // autoplay block is fine
+        let resolved = false;
+        const done = () => {
+          if (resolved) return;
+          resolved = true;
+          vid.removeEventListener('loadeddata',   done);
+          vid.removeEventListener('canplay',       done);
+          vid.removeEventListener('loadedmetadata',onMeta);
+          vid.removeEventListener('error',         onErr);
+          resolve();
+        };
+        const onMeta = () => {
+          // Some browsers only fire loadedmetadata, not loadeddata
+          setTimeout(done, 100);
+        };
+        const onErr = (e: Event) => {
+          if (resolved) return;
+          resolved = true;
+          reject(new Error('Video element error'));
+        };
+        vid.addEventListener('loadeddata',    done);
+        vid.addEventListener('canplay',        done);
+        vid.addEventListener('loadedmetadata', onMeta);
+        vid.addEventListener('error',          onErr);
+
+        // Fallback: if none of the above fire within 5s, proceed anyway
+        setTimeout(() => done(), 5000);
+      });
+
+      if (timedOut || !videoRef.current) return;
+
+      // Step 4 — play (ignore autoplay policy errors — stream still works)
+      try { await videoRef.current.play(); } catch { /* autoplay blocked is OK */ }
 
       clearTimeout(timeoutId);
+      initRunningRef.current = false;
       setAiStatus('ready');
 
-      // Step 4 — start inference loop
+      // Step 5 — inference loop
       loopActiveRef.current = true;
       const loop = async () => {
         if (!loopActiveRef.current) return;
-        if (videoRef.current && canvasRef.current && videoRef.current.readyState >= 2) {
-          const res = await runPoseInference(videoRef.current);
-          if (res && canvasRef.current) {
-            const canvas  = canvasRef.current;
+
+        const vid    = videoRef.current;
+        const canvas = canvasRef.current;
+        if (vid && canvas && vid.readyState >= 2 && !vid.paused) {
+          const res = await runPoseInference(vid);
+          if (res && canvasRef.current && loopActiveRef.current) {
             const ctx     = canvas.getContext('2d')!;
-            canvas.width  = videoRef.current.videoWidth  || 640;
-            canvas.height = videoRef.current.videoHeight || 480;
+            canvas.width  = vid.videoWidth  || 640;
+            canvas.height = vid.videoHeight || 480;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height);
             countReps(res.keypoints);
           }
         }
-        reqFrameRef.current = requestAnimationFrame(loop);
+
+        if (loopActiveRef.current) {
+          reqFrameRef.current = requestAnimationFrame(loop);
+        }
       };
       reqFrameRef.current = requestAnimationFrame(loop);
 
     } catch (err: any) {
       clearTimeout(timeoutId);
+      initRunningRef.current = false;
       if (timedOut) return;
       console.error('[WorkoutAI] init failed:', err);
       const msg =
-        err?.name === 'NotAllowedError'  ? 'Camera permission denied. Tap the camera icon in your browser address bar to allow access.' :
+        err?.name === 'NotAllowedError'  ? 'Camera permission denied. Tap the camera icon in your browser address bar to allow it.' :
         err?.name === 'NotFoundError'    ? 'No camera found on this device.' :
         err?.name === 'NotReadableError' ? 'Camera is in use by another app. Close it and try again.' :
         `Could not start AI trainer: ${err?.message || 'Unknown error'}`;
       setAiError(msg);
       setAiStatus('error');
-      stopCamera();
+      stopCameraRef.current();
     }
-  }, [stopCamera]);
+  }, []); // no deps — uses refs for everything mutable
 
   // ── Skeleton drawing ────────────────────────────────────────
   function drawSkeleton(ctx: CanvasRenderingContext2D, kp: any[], W: number, H: number) {
@@ -221,41 +275,54 @@ function WorkoutClientContent() {
   // ── Rep counting ────────────────────────────────────────────
   function countReps(kp: any[]) {
     const ex = exRef.current; if (!ex) return;
-    const lHip   = kp[WN.L_HIP],   lKnee  = kp[WN.L_KNEE];
-    const lWrist = kp[WN.L_WRIST], nose   = kp[WN.NOSE];
-    const lShoulder = kp[WN.L_SHOULDER], lElbow = kp[WN.L_ELBOW];
+    const lHip      = kp[WN.L_HIP],      lKnee     = kp[WN.L_KNEE];
+    const lWrist    = kp[WN.L_WRIST],    nose      = kp[WN.NOSE];
+    const lShoulder = kp[WN.L_SHOULDER], lElbow    = kp[WN.L_ELBOW];
     const conf = 0.35;
 
     if (['5','4','8','6'].includes(ex.id) && (lHip?.confidence||0) > conf && (lKnee?.confidence||0) > conf) {
-      // Squat / Lunge
       if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
       if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
     } else if (ex.id === '1' && (lWrist?.confidence||0) > conf && (nose?.confidence||0) > conf) {
-      // Jumping Jacks — wrist above nose = arms up
       if (lWrist.y < nose.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
       if (lWrist.y > nose.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
     } else if (['2','3','7'].includes(ex.id) && (lShoulder?.confidence||0) > conf && (lElbow?.confidence||0) > conf) {
-      // Push-ups / upper body
       if (lShoulder.y > lElbow.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
       if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
     }
   }
 
-  // ── AI lifecycle (aiEnabled toggle) ────────────────────────
+  // ── AI lifecycle ────────────────────────────────────────────
+  // FIX 5: separate mount effect (runs once) from toggle effect
+  // This prevents the Strict Mode double-invoke from killing the stream
+  const didMountRef = useRef(false);
   useEffect(() => {
+    // Skip Strict Mode's second invocation
+    if (didMountRef.current) return;
+    didMountRef.current = true;
+
+    if (aiEnabled) initWorkoutNet();
+
+    // True unmount cleanup only
+    return () => {
+      stopCameraRef.current();
+      if (timerRef.current)     clearInterval(timerRef.current);
+      if (restTimerRef.current) clearInterval(restTimerRef.current);
+    };
+  }, []); // intentionally empty — runs once on mount
+
+  // Toggle effect — only runs when user clicks AI On/Off AFTER mount
+  const firstToggleRef = useRef(true);
+  useEffect(() => {
+    if (firstToggleRef.current) { firstToggleRef.current = false; return; }
     if (aiEnabled) {
       initWorkoutNet();
     } else {
-      stopCamera();
+      stopCameraRef.current();
       setAiStatus('idle');
       setAiError(null);
     }
-    return () => {
-      stopCamera();
-      if (timerRef.current)    clearInterval(timerRef.current);
-      if (restTimerRef.current) clearInterval(restTimerRef.current);
-    };
-  }, [aiEnabled]);
+  }, [aiEnabled, initWorkoutNet]);
 
   const handleNext = () => {
     setIsResting(false);
@@ -271,7 +338,7 @@ function WorkoutClientContent() {
 
   const aiLoadingLabel =
     aiStatus === 'loading-model'  ? 'Loading AI model…'  :
-    aiStatus === 'loading-camera' ? 'Starting camera…'   : 'Loading AI Trainer…';
+    aiStatus === 'loading-camera' ? 'Starting camera…'   : 'Loading…';
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center p-4 pb-24">
@@ -288,8 +355,7 @@ function WorkoutClientContent() {
           </p>
           <h1 className="text-xl font-black">{exercise.name}</h1>
         </div>
-        <Button
-          variant="outline" size="sm"
+        <Button variant="outline" size="sm"
           className={`rounded-full h-10 px-4 ${aiEnabled ? 'bg-accent/10 border-accent text-accent' : 'bg-zinc-800 text-white/40'}`}
           onClick={() => setAiEnabled(p => !p)}>
           <BrainCircuit className={`h-4 w-4 mr-2 ${isAiReady ? 'animate-pulse' : ''}`} />
@@ -300,28 +366,34 @@ function WorkoutClientContent() {
       {/* DUAL SPLIT */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
-        {/* ── LIVE AI CAM ─────────────────────────────────────── */}
+        {/* LIVE AI CAM */}
         <div className="flex flex-col space-y-3">
           <p className="text-[10px] font-black tracking-[0.2em] text-accent uppercase flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-accent animate-pulse" /> Live AI Trainer
           </p>
           <div className="aspect-video rounded-3xl overflow-hidden bg-black relative border-2 border-accent/20">
 
-            {/* Camera feed — always mounted so ref is stable */}
+            {/* Video + canvas — ALWAYS mounted, never conditionally removed */}
             <video
-              ref={videoRef} playsInline muted
+              ref={videoRef}
+              playsInline
+              muted
+              autoPlay
               style={{ transform: 'scaleX(-1)' }}
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+            <canvas
+              ref={canvasRef}
+              className="absolute inset-0 w-full h-full pointer-events-none"
+            />
 
             {/* Loading overlay */}
             {aiEnabled && isAiLoading && (
-              <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10">
+              <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-10">
                 <div className="h-10 w-10 border-4 border-accent border-t-transparent rounded-full animate-spin mb-3" />
                 <p className="text-xs font-bold text-accent uppercase tracking-widest">{aiLoadingLabel}</p>
                 <p className="text-[10px] text-white/40 mt-1">
-                  {aiStatus === 'loading-model' ? 'First load ~3s' : 'Allow camera when prompted'}
+                  {aiStatus === 'loading-model' ? 'Downloading model (~850kb)…' : 'Allow camera when prompted'}
                 </p>
               </div>
             )}
@@ -333,19 +405,19 @@ function WorkoutClientContent() {
                 <p className="font-bold uppercase tracking-tight text-sm text-white mb-2">AI Trainer Unavailable</p>
                 <p className="text-white/60 text-xs mb-5 leading-relaxed">{aiError}</p>
                 <Button size="sm" className="bg-accent hover:bg-accent/90 text-black font-bold"
-                  onClick={initWorkoutNet}>
+                  onClick={() => { initRunningRef.current = false; initWorkoutNet(); }}>
                   Try Again
                 </Button>
                 <Button size="sm" variant="ghost" className="text-white/30 text-xs mt-2"
-                  onClick={() => { setAiEnabled(false); }}>
+                  onClick={() => setAiEnabled(false)}>
                   Continue without AI
                 </Button>
               </div>
             )}
 
-            {/* AI off placeholder */}
+            {/* AI off */}
             {!aiEnabled && (
-              <div className="absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center">
+              <div className="absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center z-10">
                 <BrainCircuit className="h-12 w-12 text-white/10 mb-2" />
                 <p className="text-xs text-white/20">AI tracking off</p>
               </div>
@@ -353,7 +425,7 @@ function WorkoutClientContent() {
           </div>
         </div>
 
-        {/* ── REFERENCE VIDEO ──────────────────────────────────── */}
+        {/* REFERENCE VIDEO */}
         <div className="flex flex-col space-y-3">
           <p className="text-[10px] font-black tracking-[0.2em] text-white/40 uppercase flex items-center gap-2">
             <Play className="h-2 w-2 fill-white/40" /> Reference Model
@@ -435,7 +507,6 @@ function WorkoutClientContent() {
           </Button>
         )}
       </div>
-
     </div>
   );
 }
