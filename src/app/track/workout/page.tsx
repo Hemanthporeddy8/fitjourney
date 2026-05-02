@@ -36,6 +36,7 @@ function WorkoutClientContent() {
   const [aiError, setAiError]           = useState<string | null>(null);
   const [repCount, setRepCount]         = useState(0);
   const [countdown, setCountdown]       = useState(10);
+  const [skeletonQuality, setSkeletonQuality] = useState<'none' | 'partial' | 'ready'>('none');
 
   const videoRef       = useRef<HTMLVideoElement | null>(null);
   const canvasRef      = useRef<HTMLCanvasElement | null>(null);
@@ -231,7 +232,9 @@ function WorkoutClientContent() {
             canvas.width  = vid.videoWidth  || 640;
             canvas.height = vid.videoHeight || 480;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height);
+            const quality = getSkeletonQuality(res.keypoints, exRef.current?.id || '');
+            setSkeletonQuality(quality);
+            drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height, quality);
             countReps(res.keypoints);
           }
         }
@@ -258,11 +261,52 @@ function WorkoutClientContent() {
     }
   }, []); // no deps — uses refs for everything mutable
 
-  // ── Skeleton drawing ────────────────────────────────────────
-  function drawSkeleton(ctx: CanvasRenderingContext2D, kp: any[], W: number, H: number) {
+  // ── Skeleton quality check ───────────────────────────────────
+  // Returns 'ready' if all critical keypoints visible, 'partial' if some, 'none' if too few
+  function getSkeletonQuality(kp: any[], exId: string): 'ready' | 'partial' | 'none' {
     const conf = 0.35;
-    ctx.strokeStyle = '#F49B33';
-    ctx.lineWidth   = 3;
+    const ok = (i: number) => (kp[i]?.confidence || 0) > conf;
+    const hasUpperBody = ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER);
+    const hasHips      = ok(WN.L_HIP) || ok(WN.R_HIP);
+    const hasKnees     = ok(WN.L_KNEE) || ok(WN.R_KNEE);
+    const hasWrists    = ok(WN.L_WRIST) || ok(WN.R_WRIST);
+
+    // Per-exercise: what's the minimum for accurate counting?
+    if (exId === '1') { // Jumping Jacks — needs shoulders + wrists
+      if (hasUpperBody && hasWrists) return 'ready';
+      if (hasUpperBody) return 'partial';
+      return 'none';
+    }
+    if (['3','7','5'].includes(exId)) { // Squats/Lunges/Burpees — need hips + knees
+      if (hasHips && hasKnees) return 'ready';
+      if (hasUpperBody) return 'partial';
+      return 'none';
+    }
+    if (exId === '4') { // Push-ups — needs shoulders + elbows
+      if (hasUpperBody && ok(WN.L_ELBOW)) return 'ready';
+      if (hasUpperBody) return 'partial';
+      return 'none';
+    }
+    if (['2','9'].includes(exId)) { // High Knees / Mountain Climbers
+      if (hasHips && hasKnees) return 'ready';
+      if (hasUpperBody) return 'partial';
+      return 'none';
+    }
+    if (exId === '8') { // Crunches
+      if (hasUpperBody && hasHips) return 'ready';
+      if (hasUpperBody) return 'partial';
+      return 'none';
+    }
+    return hasUpperBody ? 'partial' : 'none';
+  }
+
+  // ── Skeleton drawing (color = green when ready, orange when partial) ──
+  function drawSkeleton(ctx: CanvasRenderingContext2D, kp: any[], W: number, H: number, quality: 'ready' | 'partial' | 'none') {
+    const conf = 0.35;
+    const lineColor = quality === 'ready' ? '#22c55e' : '#F49B33'; // green or orange
+    const dotColor  = quality === 'ready' ? '#86efac' : '#ffffff';
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth   = quality === 'ready' ? 4 : 3;
     for (const [a, b] of CONNECTING_LINES) {
       if ((kp[a]?.confidence || 0) > conf && (kp[b]?.confidence || 0) > conf) {
         ctx.beginPath();
@@ -271,74 +315,121 @@ function WorkoutClientContent() {
         ctx.stroke();
       }
     }
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = dotColor;
     for (const pt of kp) {
       if ((pt.confidence || 0) > conf) {
         ctx.beginPath();
-        ctx.arc((1 - pt.x) * W, pt.y * H, 5, 0, Math.PI * 2);
+        ctx.arc((1 - pt.x) * W, pt.y * H, quality === 'ready' ? 6 : 5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
   }
 
-  // ── Rep counting ────────────────────────────────────────────
+  // ── Adaptive rep counting ────────────────────────────────────
+  // Adapts to whatever body parts are visible — works anywhere!
   function countReps(kp: any[]) {
     const ex = exRef.current; if (!ex) return;
-    const lHip      = kp[WN.L_HIP],      lKnee     = kp[WN.L_KNEE];
-    const lWrist    = kp[WN.L_WRIST],    nose      = kp[WN.NOSE];
-    const lShoulder = kp[WN.L_SHOULDER], lElbow    = kp[WN.L_ELBOW];
-    const rKnee     = kp[WN.R_KNEE];
     const conf = 0.35;
+    const ok = (i: number) => (kp[i]?.confidence || 0) > conf;
 
-    // 1. Jumping Jacks (Wrist above Nose)
+    const lShoulder = kp[WN.L_SHOULDER], rShoulder = kp[WN.R_SHOULDER];
+    const lElbow    = kp[WN.L_ELBOW];
+    const lWrist    = kp[WN.L_WRIST],    rWrist    = kp[WN.R_WRIST];
+    const lHip      = kp[WN.L_HIP],      rHip      = kp[WN.R_HIP];
+    const lKnee     = kp[WN.L_KNEE],     rKnee     = kp[WN.R_KNEE];
+    const nose      = kp[WN.NOSE];
+
+    // ── 1. Jumping Jacks ────────────────────────────────────────
+    // ADAPTIVE: Full body → wrist above shoulder. Upper only → same logic still works.
+    // Wrists rising above shoulders = arms are up
     if (ex.id === '1') {
-      if ((lWrist?.confidence||0) > conf && (nose?.confidence||0) > conf) {
-        if (lWrist.y < nose.y && poseStateRef.current === 'top') { 
-          poseStateRef.current = 'bottom'; 
-          repRef.current++; setRepCount(repRef.current); 
-        }
-        if (lWrist.y > nose.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+      const wristOk = ok(WN.L_WRIST) || ok(WN.R_WRIST);
+      const shoulderOk = ok(WN.L_SHOULDER) || ok(WN.R_SHOULDER);
+      if (!wristOk || !shoulderOk) return;
+      const wristY   = ok(WN.L_WRIST)    ? lWrist.y    : rWrist.y;
+      const shoulderY = ok(WN.L_SHOULDER) ? lShoulder.y : rShoulder.y;
+      const armsUp = wristY < shoulderY; // y is inverted (0=top of screen)
+      if (armsUp  && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
+      if (!armsUp && poseStateRef.current === 'bottom')  { poseStateRef.current = 'top'; }
+    }
+
+    // ── 2. High Knees ────────────────────────────────────────────
+    // Full body: knee above hip. Upper-body fallback: shoulder bounce rhythm.
+    else if (ex.id === '2') {
+      if (ok(WN.L_KNEE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
+        const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
+        const kneeUp = lKnee.y < hipY;
+        if (kneeUp  && poseStateRef.current === 'top')   { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
+        if (!kneeUp && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+      } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
+        // Fallback: shoulders bob up/down with each knee raise
+        const avgShoulderY = (lShoulder.y + rShoulder.y) / 2;
+        if (avgShoulderY < 0.35 && poseStateRef.current === 'top')   { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
+        if (avgShoulderY > 0.40 && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
       }
     }
-    // 2. High Knees / 9. Mountain Climbers (Knee above Hip)
-    else if (['2', '9'].includes(ex.id)) {
-      if ((lKnee?.confidence||0) > conf && (lHip?.confidence||0) > conf) {
-        if (lKnee.y < lHip.y && poseStateRef.current === 'top') { 
-          poseStateRef.current = 'bottom'; 
-          repRef.current++; setRepCount(repRef.current); 
-        }
-        if (lKnee.y > lHip.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+
+    // ── 3. Squats ────────────────────────────────────────────────
+    // Full body: hip drops below knee. Upper-body fallback: shoulder dip.
+    else if (ex.id === '3') {
+      if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
+        if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+      } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
+        const avgY = (lShoulder.y + rShoulder.y) / 2;
+        if (avgY > 0.60 && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (avgY < 0.50 && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
       }
     }
-    // 3. Squats / 7. Lunges / 5. Burpees (Hip drop)
-    else if (['3', '7', '5'].includes(ex.id)) {
-      if ((lHip?.confidence||0) > conf && (lKnee?.confidence||0) > conf) {
-        if (lHip.y > lKnee.y && poseStateRef.current === 'top') { poseStateRef.current = 'bottom'; }
-        if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { 
-          poseStateRef.current = 'top'; 
-          repRef.current++; setRepCount(repRef.current); 
-        }
-      }
-    }
-    // 4. Push-ups (Shoulder drop)
+
+    // ── 4. Push-ups ──────────────────────────────────────────────
     else if (ex.id === '4') {
-      if ((lShoulder?.confidence||0) > conf && (lElbow?.confidence||0) > conf) {
-        if (lShoulder.y > lElbow.y && poseStateRef.current === 'top') { poseStateRef.current = 'bottom'; }
-        if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { 
-          poseStateRef.current = 'top'; 
-          repRef.current++; setRepCount(repRef.current); 
-        }
+      if (ok(WN.L_SHOULDER) && ok(WN.L_ELBOW)) {
+        if (lShoulder.y > lElbow.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
       }
     }
-    // 8. Crunches (Nose towards Hip)
+
+    // ── 5. Burpees ───────────────────────────────────────────────
+    else if (ex.id === '5') {
+      if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
+        if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+      } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
+        const avgY = (lShoulder.y + rShoulder.y) / 2;
+        if (avgY > 0.55 && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (avgY < 0.40 && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+      }
+    }
+
+    // ── 7. Lunges ────────────────────────────────────────────────
+    else if (ex.id === '7') {
+      if ((ok(WN.L_HIP) || ok(WN.R_HIP)) && (ok(WN.L_KNEE) || ok(WN.R_KNEE))) {
+        const hipY  = ok(WN.L_HIP)  ? lHip.y  : rHip.y;
+        const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
+        if (hipY > kneeY && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (hipY < kneeY && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+      }
+    }
+
+    // ── 8. Crunches ──────────────────────────────────────────────
     else if (ex.id === '8') {
-       if ((nose?.confidence||0) > conf && (lHip?.confidence||0) > conf) {
-         if (nose.y < lHip.y && poseStateRef.current === 'top') { poseStateRef.current = 'bottom'; }
-         if (nose.y > lHip.y && poseStateRef.current === 'bottom') { 
-           poseStateRef.current = 'top'; 
-           repRef.current++; setRepCount(repRef.current); 
-         }
-       }
+      if (ok(WN.NOSE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
+        const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
+        if (nose.y < hipY && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
+        if (nose.y > hipY && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+      }
+    }
+
+    // ── 9. Mountain Climbers ─────────────────────────────────────
+    else if (ex.id === '9') {
+      if ((ok(WN.L_KNEE) || ok(WN.R_KNEE)) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
+        const hipY  = ok(WN.L_HIP)  ? lHip.y  : rHip.y;
+        const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
+        const driven = kneeY < hipY;
+        if (driven  && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
+        if (!driven && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
+      }
     }
   }
 
@@ -420,9 +511,22 @@ function WorkoutClientContent() {
 
         {/* LIVE AI CAM */}
         <div className="flex flex-col space-y-3">
-          <p className="text-[10px] font-black tracking-[0.2em] text-accent uppercase flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" /> Live AI Trainer
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-black tracking-[0.2em] text-accent uppercase flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" /> Live AI Trainer
+            </p>
+            {isAiReady && (
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                skeletonQuality === 'ready'   ? 'bg-green-500/20 text-green-400' :
+                skeletonQuality === 'partial' ? 'bg-yellow-500/20 text-yellow-400' :
+                                               'bg-white/10 text-white/30'
+              }`}>
+                {skeletonQuality === 'ready'   ? 'READY TO COUNT' :
+                 skeletonQuality === 'partial' ? 'STEP BACK — SHOW FULL BODY' :
+                                               'LOOKING FOR YOU...'}
+              </span>
+            )}
+          </div>
           <div className="aspect-video rounded-3xl overflow-hidden bg-black relative border-2 border-accent/20">
 
             {/* Video + canvas — ALWAYS mounted, never conditionally removed */}
