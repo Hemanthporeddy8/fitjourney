@@ -49,10 +49,14 @@ function WorkoutClientContent() {
   const repRef         = useRef(0);
   const exRef          = useRef<Exercise | null>(null);
   const loopActiveRef  = useRef(false);
-  // FIX 1: track whether we're already initialising to prevent double-call
   const initRunningRef = useRef(false);
-  // FIX 2: stable ref for stopCamera so we never put functions in effect deps
   const stopCameraRef  = useRef<() => void>(() => {});
+  // Anti-noise: minimum ms between two reps (prevents noise spikes from counting)
+  const lastRepTimeRef    = useRef(0);
+  const MIN_REP_MS        = 600;
+  // Anti-noise: require pose held for N consecutive frames before state change
+  const frameCountRef     = useRef(0);
+  const FRAMES_REQUIRED   = 3;
 
   // ── Exercise queue ──────────────────────────────────────────
   useEffect(() => {
@@ -325,12 +329,14 @@ function WorkoutClientContent() {
     }
   }
 
-  // ── Adaptive rep counting ────────────────────────────────────
-  // Adapts to whatever body parts are visible — works anywhere!
+  // ── Adaptive rep counting (debounced + frame-gated) ─────────
+  // conf=0.5: only count when AI is highly confident (sigmoid output)
+  // MIN_REP_MS: no two reps faster than 600ms (stops noise spikes)
+  // FRAMES_REQUIRED: condition must hold for 3 frames (stops single-frame glitches)
   function countReps(kp: any[]) {
     const ex = exRef.current; if (!ex) return;
-    const conf = 0.35;
-    const ok = (i: number) => (kp[i]?.confidence || 0) > conf;
+    const CONF = 0.5; // raised from 0.35 — after sigmoid, 0.5 is solid confidence
+    const ok = (i: number) => (kp[i]?.confidence || 0) > CONF;
 
     const lShoulder = kp[WN.L_SHOULDER], rShoulder = kp[WN.R_SHOULDER];
     const lElbow    = kp[WN.L_ELBOW];
@@ -339,97 +345,125 @@ function WorkoutClientContent() {
     const lKnee     = kp[WN.L_KNEE],     rKnee     = kp[WN.R_KNEE];
     const nose      = kp[WN.NOSE];
 
-    // ── 1. Jumping Jacks ────────────────────────────────────────
-    // ADAPTIVE: Full body → wrist above shoulder. Upper only → same logic still works.
-    // Wrists rising above shoulders = arms are up
+    // Helper: called when condition for "top" position is met.
+    // Requires N consecutive frames + debounce before counting.
+    const registerUp = () => {
+      if (poseStateRef.current !== 'bottom') return;
+      const now = Date.now();
+      if (now - lastRepTimeRef.current < MIN_REP_MS) return; // debounce
+      frameCountRef.current++;
+      if (frameCountRef.current >= FRAMES_REQUIRED) {
+        poseStateRef.current = 'top';
+        repRef.current++;
+        setRepCount(repRef.current);
+        lastRepTimeRef.current = now;
+        frameCountRef.current = 0;
+      }
+    };
+    const registerDown = () => {
+      if (poseStateRef.current !== 'top') return;
+      frameCountRef.current++;
+      if (frameCountRef.current >= FRAMES_REQUIRED) {
+        poseStateRef.current = 'bottom';
+        frameCountRef.current = 0;
+      }
+    };
+    const resetFrames = () => { frameCountRef.current = 0; };
+
+    // ── 1. Jumping Jacks ─ wrists above shoulders ────────────────
     if (ex.id === '1') {
-      const wristOk = ok(WN.L_WRIST) || ok(WN.R_WRIST);
+      const wristOk   = ok(WN.L_WRIST) || ok(WN.R_WRIST);
       const shoulderOk = ok(WN.L_SHOULDER) || ok(WN.R_SHOULDER);
-      if (!wristOk || !shoulderOk) return;
-      const wristY   = ok(WN.L_WRIST)    ? lWrist.y    : rWrist.y;
+      if (!wristOk || !shoulderOk) { resetFrames(); return; }
+      const wristY    = ok(WN.L_WRIST)    ? lWrist.y    : rWrist.y;
       const shoulderY = ok(WN.L_SHOULDER) ? lShoulder.y : rShoulder.y;
-      const armsUp = wristY < shoulderY; // y is inverted (0=top of screen)
-      if (armsUp  && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
-      if (!armsUp && poseStateRef.current === 'bottom')  { poseStateRef.current = 'top'; }
+      // wristY < shoulderY means wrist is ABOVE shoulder (y=0 is top of screen)
+      if (wristY < shoulderY - 0.05) registerDown(); // arms up   → set to 'bottom'
+      else if (wristY > shoulderY + 0.05) registerUp(); // arms down → count rep
+      else resetFrames();
     }
 
-    // ── 2. High Knees ────────────────────────────────────────────
-    // Full body: knee above hip. Upper-body fallback: shoulder bounce rhythm.
+    // ── 2. High Knees ─ knee above hip ───────────────────────────
     else if (ex.id === '2') {
       if (ok(WN.L_KNEE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
         const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
-        const kneeUp = lKnee.y < hipY;
-        if (kneeUp  && poseStateRef.current === 'top')   { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
-        if (!kneeUp && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
-      } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
-        // Fallback: shoulders bob up/down with each knee raise
-        const avgShoulderY = (lShoulder.y + rShoulder.y) / 2;
-        if (avgShoulderY < 0.35 && poseStateRef.current === 'top')   { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
-        if (avgShoulderY > 0.40 && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
-      }
+        if (lKnee.y < hipY - 0.04) registerDown();
+        else if (lKnee.y > hipY)   registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
 
-    // ── 3. Squats ────────────────────────────────────────────────
-    // Full body: hip drops below knee. Upper-body fallback: shoulder dip.
+    // ── 3. Squats ─ hip below knee level ─────────────────────────
     else if (ex.id === '3') {
       if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
-        if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+        if (lHip.y > lKnee.y + 0.04) registerDown(); // squatting
+        else if (lHip.y < lKnee.y)   registerUp();   // standing
+        else resetFrames();
       } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
         const avgY = (lShoulder.y + rShoulder.y) / 2;
-        if (avgY > 0.60 && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (avgY < 0.50 && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-      }
+        if (avgY > 0.60) registerDown();
+        else if (avgY < 0.50) registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
 
-    // ── 4. Push-ups ──────────────────────────────────────────────
+    // ── 4. Push-ups ─ shoulder above/below elbow ─────────────────
     else if (ex.id === '4') {
       if (ok(WN.L_SHOULDER) && ok(WN.L_ELBOW)) {
-        if (lShoulder.y > lElbow.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (lShoulder.y < lElbow.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-      }
+        if (lShoulder.y > lElbow.y + 0.03) registerDown();
+        else if (lShoulder.y < lElbow.y)   registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
 
     // ── 5. Burpees ───────────────────────────────────────────────
     else if (ex.id === '5') {
       if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
-        if (lHip.y > lKnee.y && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (lHip.y < lKnee.y && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
+        if (lHip.y > lKnee.y + 0.04) registerDown();
+        else if (lHip.y < lKnee.y)   registerUp();
+        else resetFrames();
       } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
         const avgY = (lShoulder.y + rShoulder.y) / 2;
-        if (avgY > 0.55 && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (avgY < 0.40 && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-      }
+        if (avgY > 0.55) registerDown();
+        else if (avgY < 0.40) registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
 
-    // ── 7. Lunges ────────────────────────────────────────────────
+    // ── 7. Lunges ─────────────────────────────────────────────────
     else if (ex.id === '7') {
-      if ((ok(WN.L_HIP) || ok(WN.R_HIP)) && (ok(WN.L_KNEE) || ok(WN.R_KNEE))) {
+      const hasHip  = ok(WN.L_HIP) || ok(WN.R_HIP);
+      const hasKnee = ok(WN.L_KNEE) || ok(WN.R_KNEE);
+      if (hasHip && hasKnee) {
         const hipY  = ok(WN.L_HIP)  ? lHip.y  : rHip.y;
         const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
-        if (hipY > kneeY && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (hipY < kneeY && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-      }
+        if (hipY > kneeY + 0.04) registerDown();
+        else if (hipY < kneeY)   registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
 
-    // ── 8. Crunches ──────────────────────────────────────────────
+    // ── 8. Crunches ───────────────────────────────────────────────
     else if (ex.id === '8') {
       if (ok(WN.NOSE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
         const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
-        if (nose.y < hipY && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; }
-        if (nose.y > hipY && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; repRef.current++; setRepCount(repRef.current); }
-      }
+        if (nose.y < hipY - 0.05) registerDown();
+        else if (nose.y > hipY)   registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
 
-    // ── 9. Mountain Climbers ─────────────────────────────────────
+    // ── 9. Mountain Climbers ──────────────────────────────────────
     else if (ex.id === '9') {
-      if ((ok(WN.L_KNEE) || ok(WN.R_KNEE)) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
+      const hasKnee = ok(WN.L_KNEE) || ok(WN.R_KNEE);
+      const hasHip  = ok(WN.L_HIP)  || ok(WN.R_HIP);
+      if (hasKnee && hasHip) {
         const hipY  = ok(WN.L_HIP)  ? lHip.y  : rHip.y;
         const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
-        const driven = kneeY < hipY;
-        if (driven  && poseStateRef.current === 'top')    { poseStateRef.current = 'bottom'; repRef.current++; setRepCount(repRef.current); }
-        if (!driven && poseStateRef.current === 'bottom') { poseStateRef.current = 'top'; }
-      }
+        if (kneeY < hipY - 0.04) registerDown();
+        else if (kneeY > hipY)   registerUp();
+        else resetFrames();
+      } else resetFrames();
     }
   }
 

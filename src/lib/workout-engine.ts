@@ -21,7 +21,7 @@ let loadPromise: Promise<void> | null = null;
 
 // ── Temporal smoothing (EMA) — eliminates skeleton jumping between frames —
 // Blends each new detection with the previous frame's position.
-const SMOOTH = 0.4; // 0 = no smoothing, 1 = fully stuck. 0.4 = snappy but stable
+const SMOOTH = 0.6; // increased for more stable skeleton
 let prevKeypoints: Array<{ x: number; y: number; confidence: number }> | null = null;
 
 function sigmoid(x: number): number {
