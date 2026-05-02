@@ -343,18 +343,19 @@ function WorkoutClientContent() {
   }
 
   // ── AI lifecycle ────────────────────────────────────────────
-  // FIX 5: separate mount effect (runs once) from toggle effect
-  // This prevents the Strict Mode double-invoke from killing the stream
+  // Using module-level flag to survive React Strict Mode double-invoke
   const didMountRef = useRef(false);
   useEffect(() => {
-    // Skip Strict Mode's second invocation
     if (didMountRef.current) return;
     didMountRef.current = true;
 
-    if (aiEnabled) initWorkoutNet();
+    // Small delay ensures videoRef/canvasRef are attached to DOM
+    const t = setTimeout(() => {
+      if (aiEnabled) initWorkoutNet();
+    }, 100);
 
-    // True unmount cleanup only
     return () => {
+      clearTimeout(t);
       stopCameraRef.current();
       if (timerRef.current)     clearInterval(timerRef.current);
       if (restTimerRef.current) clearInterval(restTimerRef.current);
@@ -366,6 +367,7 @@ function WorkoutClientContent() {
   useEffect(() => {
     if (firstToggleRef.current) { firstToggleRef.current = false; return; }
     if (aiEnabled) {
+      initRunningRef.current = false; // allow re-init
       initWorkoutNet();
     } else {
       stopCameraRef.current();
