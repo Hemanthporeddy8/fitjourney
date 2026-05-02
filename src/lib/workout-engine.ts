@@ -17,8 +17,16 @@ export interface PoseResult {
 
 let session: ort.InferenceSession | null = null;
 let isModelLoading = false;
-// ── FIX 1: cache the load Promise so concurrent calls wait on the same one ──
 let loadPromise: Promise<void> | null = null;
+
+// ── Temporal smoothing (EMA) — eliminates skeleton jumping between frames —
+// Blends each new detection with the previous frame's position.
+const SMOOTH = 0.4; // 0 = no smoothing, 1 = fully stuck. 0.4 = snappy but stable
+let prevKeypoints: Array<{ x: number; y: number; confidence: number }> | null = null;
+
+function sigmoid(x: number): number {
+  return 1 / (1 + Math.exp(-x));
+}
 
 export const COCO_KEYPOINTS = [
   'nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear',
@@ -127,9 +135,27 @@ export async function runPoseInference(
       keypoints.push({
         x:          (maxIdx % mapSize) / mapSize,
         y:          Math.floor(maxIdx / mapSize) / mapSize,
-        confidence: maxVal,
+        // CRITICAL: sigmoid converts raw logits → true 0-1 probabilities
+        // Without this, threshold 0.35 lets garbage keypoints through
+        confidence: sigmoid(maxVal),
       });
     }
+
+    // ── EMA temporal smoothing — blend new detection with previous frame ──
+    // Prevents skeleton from jumping when model is uncertain on one frame
+    if (prevKeypoints && prevKeypoints.length === keypoints.length) {
+      for (let i = 0; i < keypoints.length; i++) {
+        const cur  = keypoints[i];
+        const prev = prevKeypoints[i];
+        // Only smooth high-confidence detections; let low-conf ones fall through
+        if (cur.confidence > 0.3 && prev.confidence > 0.3) {
+          cur.x = prev.x * SMOOTH + cur.x * (1 - SMOOTH);
+          cur.y = prev.y * SMOOTH + cur.y * (1 - SMOOTH);
+        }
+        cur.confidence = prev.confidence * 0.3 + cur.confidence * 0.7;
+      }
+    }
+    prevKeypoints = keypoints.map(k => ({ ...k }));
 
     return { keypoints };
   } catch (error) {
