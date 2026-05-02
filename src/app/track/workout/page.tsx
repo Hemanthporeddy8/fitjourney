@@ -37,6 +37,7 @@ function WorkoutClientContent() {
   const [repCount, setRepCount]         = useState(0);
   const [countdown, setCountdown]       = useState(10);
   const [skeletonQuality, setSkeletonQuality] = useState<'none' | 'partial' | 'ready'>('none');
+  const [detectedParts, setDetectedParts] = useState({ arms: false, core: false, legs: false });
 
   const videoRef       = useRef<HTMLVideoElement | null>(null);
   const canvasRef      = useRef<HTMLCanvasElement | null>(null);
@@ -268,12 +269,23 @@ function WorkoutClientContent() {
   // ── Skeleton quality check ───────────────────────────────────
   // Returns 'ready' if all critical keypoints visible, 'partial' if some, 'none' if too few
   function getSkeletonQuality(kp: any[], exId: string): 'ready' | 'partial' | 'none' {
-    const conf = 0.35;
+    const conf = 0.5; // match new CONF
     const ok = (i: number) => (kp[i]?.confidence || 0) > conf;
     const hasUpperBody = ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER);
     const hasHips      = ok(WN.L_HIP) || ok(WN.R_HIP);
     const hasKnees     = ok(WN.L_KNEE) || ok(WN.R_KNEE);
     const hasWrists    = ok(WN.L_WRIST) || ok(WN.R_WRIST);
+
+    // Update detected parts UI safely
+    const newArms = hasUpperBody && hasWrists;
+    const newCore = hasHips;
+    const newLegs = hasKnees;
+    setDetectedParts(prev => {
+      if (prev.arms !== newArms || prev.core !== newCore || prev.legs !== newLegs) {
+        return { arms: newArms, core: newCore, legs: newLegs };
+      }
+      return prev;
+    });
 
     // Per-exercise: what's the minimum for accurate counting?
     if (exId === '1') { // Jumping Jacks — needs shoulders + wrists
@@ -358,6 +370,13 @@ function WorkoutClientContent() {
         setRepCount(repRef.current);
         lastRepTimeRef.current = now;
         frameCountRef.current = 0;
+        
+        // Speak the count so user doesn't need to look at screen
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+          const utterance = new SpeechSynthesisUtterance(repRef.current.toString());
+          utterance.rate = 1.1;
+          window.speechSynthesis.speak(utterance);
+        }
       }
     };
     const registerDown = () => {
@@ -508,6 +527,28 @@ function WorkoutClientContent() {
     router.replace(`/track/workout?id=${queue[(currentIndex + 1) % queue.length].id}`);
   };
 
+  const handleSkip = () => {
+    const remainingTime = exerciseTime; // seconds
+    const remainingExercises = queue.length - currentIndex - 1;
+    
+    if (remainingExercises > 0) {
+      // Distribute remaining time to other exercises
+      const extraMinutes = remainingTime / 60 / remainingExercises;
+      const newQueue = [...queue];
+      for (let i = currentIndex + 1; i < queue.length; i++) {
+        newQueue[i] = { ...newQueue[i], durationMinutes: newQueue[i].durationMinutes + extraMinutes };
+      }
+      setQueue(newQueue);
+    } else {
+      // Last exercise skipped, convert to walking makeup (8 kcal/min avg)
+      const makeupCalories = Math.floor((remainingTime / 60) * 8);
+      const existing = parseInt(localStorage.getItem('fitjourney_makeup_calories') || '0');
+      localStorage.setItem('fitjourney_makeup_calories', (existing + makeupCalories).toString());
+    }
+    
+    handleNext();
+  };
+
   if (!exercise) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
 
   const isAiLoading = aiStatus === 'loading-model' || aiStatus === 'loading-camera';
@@ -556,11 +597,18 @@ function WorkoutClientContent() {
                                                'bg-white/10 text-white/30'
               }`}>
                 {skeletonQuality === 'ready'   ? 'READY TO COUNT' :
-                 skeletonQuality === 'partial' ? 'STEP BACK — SHOW FULL BODY' :
+                 skeletonQuality === 'partial' ? 'ADAPTIVE MODE ON' :
                                                'LOOKING FOR YOU...'}
               </span>
             )}
           </div>
+          {isAiReady && (
+            <div className="flex gap-2">
+               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.arms ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>ARMS</span>
+               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.core ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>CORE</span>
+               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.legs ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>LEGS</span>
+            </div>
+          )}
           <div className="aspect-video rounded-3xl overflow-hidden bg-black relative border-2 border-accent/20">
 
             {/* Video + canvas — ALWAYS mounted, never conditionally removed */}
@@ -666,7 +714,7 @@ function WorkoutClientContent() {
         <div className="grid grid-cols-3 gap-4 py-6 border-y border-white/10">
           <div className="text-center"><p className="text-3xl font-black">{exercise.sets}</p><p className="text-[10px] uppercase font-bold text-white/40">Sets</p></div>
           <div className="text-center border-x border-white/10"><p className="text-3xl font-black">{exercise.reps}</p><p className="text-[10px] uppercase font-bold text-white/40">Reps</p></div>
-          <div className="text-center"><p className="text-3xl font-black">{exercise.durationMinutes}m</p><p className="text-[10px] uppercase font-bold text-white/40">Time</p></div>
+          <div className="text-center"><p className="text-3xl font-black">{Math.round(exercise.durationMinutes)}m</p><p className="text-[10px] uppercase font-bold text-white/40">Time</p></div>
         </div>
         <p className="text-center text-white/60 text-sm italic px-6">&quot;{exercise.description}&quot;</p>
         <div className="grid grid-cols-2 gap-4">
@@ -680,8 +728,8 @@ function WorkoutClientContent() {
             <>
               <Button size="lg" variant="secondary"
                 className="h-16 rounded-2xl font-black bg-zinc-900 border border-white/10"
-                onClick={handleNext}>
-                NEXT <ChevronRight className="ml-2 h-5 w-5" />
+                onClick={handleSkip}>
+                SKIP EXERCISE <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg"
                 className="h-16 rounded-2xl font-black bg-accent hover:bg-accent/90"
