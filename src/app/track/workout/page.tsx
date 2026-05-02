@@ -38,6 +38,7 @@ function WorkoutClientContent() {
   const [countdown, setCountdown]       = useState(10);
   const [skeletonQuality, setSkeletonQuality] = useState<'none' | 'partial' | 'ready'>('none');
   const [detectedParts, setDetectedParts] = useState({ arms: false, core: false, legs: false });
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const videoRef       = useRef<HTMLVideoElement | null>(null);
   const canvasRef      = useRef<HTMLCanvasElement | null>(null);
@@ -269,7 +270,7 @@ function WorkoutClientContent() {
   // ── Skeleton quality check ───────────────────────────────────
   // Returns 'ready' if all critical keypoints visible, 'partial' if some, 'none' if too few
   function getSkeletonQuality(kp: any[], exId: string): 'ready' | 'partial' | 'none' {
-    const conf = 0.5; // match new CONF
+    const conf = 0.6; // Stricter CONF to prevent face-hallucinations
     const ok = (i: number) => (kp[i]?.confidence || 0) > conf;
     const hasUpperBody = ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER);
     const hasHips      = ok(WN.L_HIP) || ok(WN.R_HIP);
@@ -370,13 +371,6 @@ function WorkoutClientContent() {
         setRepCount(repRef.current);
         lastRepTimeRef.current = now;
         frameCountRef.current = 0;
-        
-        // Speak the count so user doesn't need to look at screen
-        if (typeof window !== 'undefined' && window.speechSynthesis) {
-          const utterance = new SpeechSynthesisUtterance(repRef.current.toString());
-          utterance.rate = 1.1;
-          window.speechSynthesis.speak(utterance);
-        }
       }
     };
     const registerDown = () => {
@@ -396,13 +390,13 @@ function WorkoutClientContent() {
       if (!wristOk || !shoulderOk) { resetFrames(); return; }
       const wristY    = ok(WN.L_WRIST)    ? lWrist.y    : rWrist.y;
       const shoulderY = ok(WN.L_SHOULDER) ? lShoulder.y : rShoulder.y;
-      // wristY < shoulderY means wrist is ABOVE shoulder (y=0 is top of screen)
-      if (wristY < shoulderY - 0.05) registerDown(); // arms up   → set to 'bottom'
-      else if (wristY > shoulderY + 0.05) registerUp(); // arms down → count rep
+      if (wristY < shoulderY - 0.05) registerDown();
+      else if (wristY > shoulderY + 0.05) registerUp();
       else resetFrames();
     }
 
     // ── 2. High Knees ─ knee above hip ───────────────────────────
+    // Strictly requires hips and knees now. No upper body fallback.
     else if (ex.id === '2') {
       if (ok(WN.L_KNEE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
         const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
@@ -417,11 +411,6 @@ function WorkoutClientContent() {
       if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
         if (lHip.y > lKnee.y + 0.04) registerDown(); // squatting
         else if (lHip.y < lKnee.y)   registerUp();   // standing
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
-        const avgY = (lShoulder.y + rShoulder.y) / 2;
-        if (avgY > 0.60) registerDown();
-        else if (avgY < 0.50) registerUp();
         else resetFrames();
       } else resetFrames();
     }
@@ -440,11 +429,6 @@ function WorkoutClientContent() {
       if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
         if (lHip.y > lKnee.y + 0.04) registerDown();
         else if (lHip.y < lKnee.y)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER)) {
-        const avgY = (lShoulder.y + rShoulder.y) / 2;
-        if (avgY > 0.55) registerDown();
-        else if (avgY < 0.40) registerUp();
         else resetFrames();
       } else resetFrames();
     }
@@ -581,11 +565,11 @@ function WorkoutClientContent() {
         </Button>
       </div>
 
-      {/* DUAL SPLIT */}
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* DUAL SPLIT OR FULL SCREEN */}
+      <div className={`w-full ${isFullScreen ? 'max-w-7xl' : 'max-w-5xl'} grid ${isFullScreen ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-6 mb-8 transition-all duration-500`}>
 
         {/* LIVE AI CAM */}
-        <div className="flex flex-col space-y-3">
+        <div className={`flex flex-col space-y-3 ${isFullScreen ? 'order-1' : ''}`}>
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-black tracking-[0.2em] text-accent uppercase flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-accent animate-pulse" /> Live AI Trainer
@@ -603,13 +587,19 @@ function WorkoutClientContent() {
             )}
           </div>
           {isAiReady && (
-            <div className="flex gap-2">
-               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.arms ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>ARMS</span>
-               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.core ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>CORE</span>
-               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.legs ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>LEGS</span>
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.arms ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>ARMS</span>
+                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.core ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>CORE</span>
+                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${detectedParts.legs ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-transparent text-white/30 border-white/10'}`}>LEGS</span>
+              </div>
+              <Button variant="outline" size="sm" className="h-6 text-[10px] bg-black/50 text-white/60 border-white/10"
+                onClick={() => setIsFullScreen(!isFullScreen)}>
+                {isFullScreen ? 'Exit Full Screen' : 'Full Screen AI'}
+              </Button>
             </div>
           )}
-          <div className="aspect-video rounded-3xl overflow-hidden bg-black relative border-2 border-accent/20">
+          <div className={`rounded-3xl overflow-hidden bg-black relative border-2 border-accent/20 ${isFullScreen ? 'aspect-auto h-[60vh]' : 'aspect-video'}`}>
 
             {/* Video + canvas — ALWAYS mounted, never conditionally removed */}
             <video
@@ -624,6 +614,22 @@ function WorkoutClientContent() {
               ref={canvasRef}
               className="absolute inset-0 w-full h-full pointer-events-none"
             />
+            
+            {/* Full Screen HUD Overlay */}
+            {isFullScreen && isAiReady && (
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex justify-between items-end z-20 pointer-events-none">
+                <div>
+                  <p className="text-[12px] uppercase font-black tracking-[0.3em] text-accent/80 mb-1 shadow-black drop-shadow-md">Rep Count</p>
+                  <p className="text-8xl font-black text-accent drop-shadow-xl">{repCount}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[12px] uppercase font-black tracking-[0.3em] text-white/80 mb-1 shadow-black drop-shadow-md">Time Left</p>
+                  <p className="text-6xl font-black font-mono drop-shadow-xl text-white">
+                    {Math.floor(exerciseTime / 60)}:{String(exerciseTime % 60).padStart(2, '0')}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Loading overlay */}
             {aiEnabled && isAiLoading && (
@@ -661,53 +667,57 @@ function WorkoutClientContent() {
               </div>
             )}
           </div>
-        </div>
+      </div>
 
         {/* REFERENCE VIDEO */}
-        <div className="flex flex-col space-y-3">
-          <p className="text-[10px] font-black tracking-[0.2em] text-white/40 uppercase flex items-center gap-2">
-            <Play className="h-2 w-2 fill-white/40" /> Reference Model
-          </p>
-          {!isResting ? (
-            <div className="aspect-video rounded-3xl overflow-hidden bg-black relative border border-white/5">
-              <video
-                ref={demoVideoRef} key={exercise.videoUrl} src={exercise.videoUrl}
-                autoPlay={!isDemoPaused} loop muted playsInline
-                className="w-full h-full object-cover"
-              />
-              <Button variant="ghost" size="icon"
-                className="absolute bottom-4 right-4 bg-black/40 rounded-full h-10 w-10 border border-white/10"
-                onClick={() => {
-                  isDemoPaused ? demoVideoRef.current?.play() : demoVideoRef.current?.pause();
-                  setIsDemoPaused(p => !p);
-                }}>
-                {isDemoPaused ? <Play className="h-5 w-5 fill-white" /> : <Pause className="h-5 w-5 fill-white" />}
-              </Button>
-            </div>
-          ) : (
-            <div className="aspect-video rounded-3xl bg-accent/10 border-2 border-accent/20 flex flex-col items-center justify-center">
-              <div className="h-16 w-16 rounded-full border-4 border-accent flex items-center justify-center">
-                <span className="text-2xl font-black text-accent">{restTimer}</span>
+        {!isFullScreen && (
+          <div className="flex flex-col space-y-3">
+            <p className="text-[10px] font-black tracking-[0.2em] text-white/40 uppercase flex items-center gap-2">
+              <Play className="h-2 w-2 fill-white/40" /> Reference Model
+            </p>
+            {!isResting ? (
+              <div className="aspect-video rounded-3xl overflow-hidden bg-black relative border border-white/5">
+                <video
+                  ref={demoVideoRef} key={exercise.videoUrl} src={exercise.videoUrl}
+                  autoPlay={!isDemoPaused} loop muted playsInline
+                  className="w-full h-full object-cover"
+                />
+                <Button variant="ghost" size="icon"
+                  className="absolute bottom-4 right-4 bg-black/40 rounded-full h-10 w-10 border border-white/10"
+                  onClick={() => {
+                    isDemoPaused ? demoVideoRef.current?.play() : demoVideoRef.current?.pause();
+                    setIsDemoPaused(p => !p);
+                  }}>
+                  {isDemoPaused ? <Play className="h-5 w-5 fill-white" /> : <Pause className="h-5 w-5 fill-white" />}
+                </Button>
               </div>
-              <p className="text-[10px] font-black text-accent tracking-widest uppercase mt-3">Rest</p>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="aspect-video rounded-3xl bg-accent/10 border-2 border-accent/20 flex flex-col items-center justify-center">
+                <div className="h-16 w-16 rounded-full border-4 border-accent flex items-center justify-center">
+                  <span className="text-2xl font-black text-accent">{restTimer}</span>
+                </div>
+                <p className="text-[10px] font-black text-accent tracking-widest uppercase mt-3">Rest</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* HUD */}
-      <div className="grid grid-cols-2 gap-6 w-full max-w-xl mb-10">
-        <div className="bg-zinc-900/80 border border-accent/30 p-6 rounded-[2rem] text-center">
-          <p className="text-[10px] uppercase font-black tracking-[0.3em] text-accent/60 mb-1">Rep Count</p>
-          <p className="text-6xl font-black text-accent">{repCount}</p>
+      {/* HUD (Hidden in full screen mode since it's inside the camera feed) */}
+      {!isFullScreen && (
+        <div className="grid grid-cols-2 gap-6 w-full max-w-xl mb-10">
+          <div className="bg-zinc-900/80 border border-accent/30 p-6 rounded-[2rem] text-center">
+            <p className="text-[10px] uppercase font-black tracking-[0.3em] text-accent/60 mb-1">Rep Count</p>
+            <p className="text-6xl font-black text-accent">{repCount}</p>
+          </div>
+          <div className="bg-zinc-900/80 border border-white/10 p-6 rounded-[2rem] text-center">
+            <p className="text-[10px] uppercase font-black tracking-[0.3em] text-white/40 mb-1">Time Left</p>
+            <p className="text-6xl font-black font-mono">
+              {Math.floor(exerciseTime / 60)}:{String(exerciseTime % 60).padStart(2, '0')}
+            </p>
+          </div>
         </div>
-        <div className="bg-zinc-900/80 border border-white/10 p-6 rounded-[2rem] text-center">
-          <p className="text-[10px] uppercase font-black tracking-[0.3em] text-white/40 mb-1">Time Left</p>
-          <p className="text-6xl font-black font-mono">
-            {Math.floor(exerciseTime / 60)}:{String(exerciseTime % 60).padStart(2, '0')}
-          </p>
-        </div>
-      </div>
+      )}
 
       {/* STATS + CONTROLS */}
       <div className="w-full max-w-2xl space-y-6">
