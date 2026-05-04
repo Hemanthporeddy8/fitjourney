@@ -68,12 +68,19 @@ function WorkoutClientContent() {
     if (savedScans.length > 0) {
       const bt    = savedScans[0].bodyType;
       const focus = savedPlan?.workoutPlan?.focus?.toLowerCase() || '';
-      if (bt === 'upper_body')      recs = suggestedExercises.filter(e => ['3','7'].includes(e.id));
-      else if (bt === 'lower_body') recs = suggestedExercises.filter(e => ['4','6','8'].includes(e.id));
-      else                          recs = suggestedExercises.filter(e => ['5','1','9'].includes(e.id));
+      let recommendedIds: string[] = [];
+      if (bt === 'upper_body')      recommendedIds = ['3','7'];
+      else if (bt === 'lower_body') recommendedIds = ['4','6','8'];
+      else                          recommendedIds = ['5','1','9'];
+      
+      const recommended = suggestedExercises.filter(e => recommendedIds.includes(e.id));
+      const others = suggestedExercises.filter(e => !recommendedIds.includes(e.id));
+      recs = [...recommended, ...others];
+
       if (focus.includes('hypertrophy')) recs = recs.map(r => ({ ...r, reps: '15-20 reps', sets: '4 sets' }));
+    } else {
+      recs = [...suggestedExercises];
     }
-    if (!recs.length) recs = suggestedExercises.slice(0, 3);
     setQueue(recs);
     const idx = Math.max(0, recs.findIndex(e => e.id === exerciseId));
     const ex  = recs[idx];
@@ -721,6 +728,20 @@ function WorkoutClientContent() {
             </Button>
           ) : (
             <>
+              <div className="col-span-2 flex justify-center pb-2">
+                 <Button 
+                   size="lg" 
+                   className={`rounded-full h-14 px-8 font-black shadow-lg transition-transform active:scale-95 ${isPaused ? 'bg-amber-500 hover:bg-amber-600 text-black' : 'bg-zinc-800 hover:bg-zinc-700 text-white'}`}
+                   onClick={() => {
+                     setIsPaused(!isPaused);
+                     if (!isPaused) demoVideoRef.current?.pause();
+                     else demoVideoRef.current?.play();
+                   }}
+                 >
+                   {isPaused ? <Play className="h-6 w-6 mr-2 fill-black" /> : <Pause className="h-6 w-6 mr-2 fill-white" />}
+                   {isPaused ? 'RESUME WORKOUT' : 'PAUSE WORKOUT'}
+                 </Button>
+              </div>
               <Button size="lg" variant="secondary"
                 className="h-16 rounded-2xl font-black bg-zinc-900 border border-white/10"
                 onClick={handleSkip}>
