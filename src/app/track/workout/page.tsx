@@ -429,8 +429,9 @@ function WorkoutClientContent() {
         else resetFrames();
       } else if (ok(WN.L_SHOULDER)) {
         // ADAPTIVE FALLBACK: Shoulders go down toward the floor
-        if (lShoulder.y > 0.65) registerDown();
-        else if (lShoulder.y < 0.45) registerUp();
+        // Based on video, shoulders move from ~0.2 (up) to ~0.5 (down)
+        if (lShoulder.y > 0.45) registerDown();
+        else if (lShoulder.y < 0.35) registerUp();
         else resetFrames();
       } else resetFrames();
     }
