@@ -130,15 +130,19 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                // Smart Exercises logic refined by Ideal Body Focus
                const bodyType = latest.bodyType;
                const focus = savedIdealPlan?.workoutPlan?.focus?.toLowerCase() || '';
-               let recommendations: Exercise[] = [];
-               
+               let recommendedIds: string[] = [];
                if (bodyType === 'upper_body') {
-                  recommendations = suggestedExercises.filter(e => ['3', '7'].includes(e.id)); 
+                  recommendedIds = ['3', '7'];
                } else if (bodyType === 'lower_body') {
-                  recommendations = suggestedExercises.filter(e => ['4', '6', '8'].includes(e.id)); 
+                  recommendedIds = ['4', '6', '8'];
                } else {
-                  recommendations = suggestedExercises.filter(e => ['5', '1', '9'].includes(e.id)); 
+                  recommendedIds = ['5', '1', '9'];
                }
+
+               // Put recommended exercises first, then the rest
+               const recommended = suggestedExercises.filter(e => recommendedIds.includes(e.id));
+               const others = suggestedExercises.filter(e => !recommendedIds.includes(e.id));
+               let recommendations: Exercise[] = [...recommended, ...others];
 
                // Intensity adjustment: if "Hypertrophy" focus, increase volume
                if (focus.includes('hypertrophy')) {
@@ -147,8 +151,15 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
 
                setSmartExercises(recommendations);
             } else {
-               // Fallback: Show first 3 general exercises if no scan history
-               setSmartExercises(suggestedExercises.slice(0, 3));
+               // Fallback: Show all general exercises if no scan history
+               setSmartExercises(suggestedExercises);
+            }
+
+            // Load makeup walking calories from skipped workouts
+            const makeupCals = parseInt(localStorage.getItem('fitjourney_makeup_calories') || '0');
+            if (makeupCals > 0) {
+               setTargetCalories(prev => prev + makeupCals);
+               toast({ title: "Walking Target Updated", description: `Added ${makeupCals} kcal from skipped exercises to your walking goal.` });
             }
         }
     }, []);
@@ -258,7 +269,7 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                 <CardContent className="space-y-6">
                      <div className="p-3 bg-secondary rounded-md text-sm text-center">
                          <Target className="inline h-4 w-4 mr-2 text-accent" />
-                         {selectedMealName ? `Goal: ${selectedMealName} (${targetCalories} kcal)` : "No meal goal selected."}
+                         {selectedMealName ? `Goal: ${selectedMealName} (${targetCalories} kcal)` : (targetCalories > 0 ? `Target: ${targetCalories} kcal (Includes skipped workout makeup)` : "No goal selected.")}
                      </div>
 
                      {aiRecommendedGoal && !selectedMealName && (
