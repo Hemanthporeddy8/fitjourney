@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, Pause, ChevronRight, BrainCircuit, AlertTriangle } from 'lucide-react';
 import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
-import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/workout-engine';
+import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/mediapipe-engine';
 
 const WN = {
   NOSE: 0, L_SHOULDER: 5, R_SHOULDER: 6,
@@ -233,7 +233,8 @@ function WorkoutClientContent() {
         const canvas = canvasRef.current;
         if (vid && canvas && vid.readyState >= 2 && !vid.paused) {
           const res = await runPoseInference(vid);
-          if (res && canvasRef.current && loopActiveRef.current) {
+          // Only process and draw if we got valid keypoints back
+          if (res?.keypoints && canvasRef.current && loopActiveRef.current) {
             const ctx     = canvas.getContext('2d')!;
             canvas.width  = vid.videoWidth  || 640;
             canvas.height = vid.videoHeight || 480;
