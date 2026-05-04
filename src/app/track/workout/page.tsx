@@ -393,12 +393,16 @@ function WorkoutClientContent() {
     }
 
     // ── 2. High Knees ─ knee above hip ───────────────────────────
-    // Strictly requires hips and knees now. No upper body fallback.
     else if (ex.id === '2') {
       if (ok(WN.L_KNEE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
         const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
         if (lKnee.y < hipY - 0.04) registerDown();
         else if (lKnee.y > hipY)   registerUp();
+        else resetFrames();
+      } else if (ok(WN.L_SHOULDER)) {
+        // ADAPTIVE FALLBACK: Shoulders bounce up and down rapidly
+        if (lShoulder.y > 0.55) registerDown();
+        else if (lShoulder.y < 0.45) registerUp();
         else resetFrames();
       } else resetFrames();
     }
@@ -409,6 +413,11 @@ function WorkoutClientContent() {
         if (lHip.y > lKnee.y + 0.04) registerDown(); // squatting
         else if (lHip.y < lKnee.y)   registerUp();   // standing
         else resetFrames();
+      } else if (ok(WN.L_SHOULDER)) {
+        // ADAPTIVE FALLBACK: Shoulders drop significantly
+        if (lShoulder.y > 0.7) registerDown();
+        else if (lShoulder.y < 0.5) registerUp();
+        else resetFrames();
       } else resetFrames();
     }
 
@@ -418,6 +427,11 @@ function WorkoutClientContent() {
         if (lShoulder.y > lElbow.y + 0.03) registerDown();
         else if (lShoulder.y < lElbow.y)   registerUp();
         else resetFrames();
+      } else if (ok(WN.L_SHOULDER)) {
+        // ADAPTIVE FALLBACK: Shoulders go down toward the floor
+        if (lShoulder.y > 0.65) registerDown();
+        else if (lShoulder.y < 0.45) registerUp();
+        else resetFrames();
       } else resetFrames();
     }
 
@@ -426,6 +440,10 @@ function WorkoutClientContent() {
       if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
         if (lHip.y > lKnee.y + 0.04) registerDown();
         else if (lHip.y < lKnee.y)   registerUp();
+        else resetFrames();
+      } else if (ok(WN.L_SHOULDER)) {
+        if (lShoulder.y > 0.75) registerDown();
+        else if (lShoulder.y < 0.4) registerUp();
         else resetFrames();
       } else resetFrames();
     }
@@ -440,6 +458,10 @@ function WorkoutClientContent() {
         if (hipY > kneeY + 0.04) registerDown();
         else if (hipY < kneeY)   registerUp();
         else resetFrames();
+      } else if (ok(WN.L_SHOULDER)) {
+        if (lShoulder.y > 0.65) registerDown();
+        else if (lShoulder.y < 0.5) registerUp();
+        else resetFrames();
       } else resetFrames();
     }
 
@@ -449,6 +471,11 @@ function WorkoutClientContent() {
         const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
         if (nose.y < hipY - 0.05) registerDown();
         else if (nose.y > hipY)   registerUp();
+        else resetFrames();
+      } else if (ok(WN.NOSE)) {
+        // ADAPTIVE FALLBACK: Nose moves up and down
+        if (nose.y > 0.6) registerDown();
+        else if (nose.y < 0.4) registerUp();
         else resetFrames();
       } else resetFrames();
     }
@@ -462,6 +489,11 @@ function WorkoutClientContent() {
         const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
         if (kneeY < hipY - 0.04) registerDown();
         else if (kneeY > hipY)   registerUp();
+        else resetFrames();
+      } else if (ok(WN.L_SHOULDER)) {
+        // ADAPTIVE FALLBACK: Shoulders rock slightly
+        if (lShoulder.y > 0.6) registerDown();
+        else if (lShoulder.y < 0.5) registerUp();
         else resetFrames();
       } else resetFrames();
     }
