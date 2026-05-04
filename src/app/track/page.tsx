@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { type StoredScan } from '@/lib/progress-tracker';
 import { type FitProfile } from '@/lib/progress-tracker';
 import { type IdealBodyPlanResult } from '@/lib/ai-engine';
+import { calculateDynamicWorkoutPlan } from '@/lib/workout-count-engine';
 
 // Lazy load heavy Calendar component
 const Calendar = dynamic(() => import("@/components/ui/calendar").then(mod => mod.Calendar), {
@@ -149,20 +150,32 @@ function TrackPageClientContent({ initialCaloriesParam }: TrackPageClientProps) 
                   recommendations = recommendations.map(r => ({ ...r, reps: '15-20 reps', sets: '4 sets' }));
                }
 
-               setSmartExercises(recommendations);
+               // Load makeup walking calories from skipped workouts
+               const makeupCals = parseInt(localStorage.getItem('fitjourney_makeup_calories') || '0');
+               if (makeupCals > 0) {
+                  setTargetCalories(prev => prev + makeupCals);
+                  toast({ title: "Walking Target Updated", description: `Added ${makeupCals} kcal from skipped exercises to your walking goal.` });
+               }
+
+               // Initial calculation
+               const bf = latest.bf;
+               const finalRecs = calculateDynamicWorkoutPlan(kcal, bf, recommendations);
+               setSmartExercises(finalRecs);
             } else {
                // Fallback: Show all general exercises if no scan history
                setSmartExercises(suggestedExercises);
             }
-
-            // Load makeup walking calories from skipped workouts
-            const makeupCals = parseInt(localStorage.getItem('fitjourney_makeup_calories') || '0');
-            if (makeupCals > 0) {
-               setTargetCalories(prev => prev + makeupCals);
-               toast({ title: "Walking Target Updated", description: `Added ${makeupCals} kcal from skipped exercises to your walking goal.` });
-            }
         }
     }, []);
+
+    // Re-calculate smart exercises whenever target calories change
+    useEffect(() => {
+        if (targetCalories > 0 && smartExercises.length > 0) {
+            const bf = lastScan?.bf || 20;
+            const updatedExercises = calculateDynamicWorkoutPlan(targetCalories, bf, smartExercises);
+            setSmartExercises(updatedExercises);
+        }
+    }, [targetCalories, lastScan]);
 
     useEffect(() => {
         if (selectedDateForMeals) {

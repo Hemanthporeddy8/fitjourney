@@ -99,13 +99,21 @@ function WorkoutClientContent() {
   // ── Exercise timer ──────────────────────────────────────────
   useEffect(() => {
     if (!isResting && !isPaused && exerciseTime > 0) {
-      timerRef.current = setInterval(() =>
-        setExerciseTime(p => { if (p <= 1) { setIsResting(true); return 0; } return p - 1; }), 1000);
+      // For holds like Plank (ID 6), we ONLY run the timer if quality is 'ready'
+      const isHold = exercise?.id === '6';
+      const shouldRun = isHold ? skeletonQuality === 'ready' : true;
+
+      if (shouldRun) {
+        timerRef.current = setInterval(() =>
+          setExerciseTime(p => { if (p <= 1) { setIsResting(true); return 0; } return p - 1; }), 1000);
+      } else {
+        if (timerRef.current) clearInterval(timerRef.current);
+      }
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [isResting, isPaused, exerciseTime]);
+  }, [isResting, isPaused, exerciseTime, skeletonQuality, exercise]);
 
   // ── Rest timer ──────────────────────────────────────────────
   useEffect(() => {
@@ -730,12 +738,19 @@ function WorkoutClientContent() {
 
       {/* HUD (Hidden in full screen mode since it's inside the camera feed) */}
       {!isFullScreen && (
-        <div className="grid grid-cols-2 gap-6 w-full max-w-xl mb-10">
-          <div className="bg-zinc-900/80 border border-accent/30 p-6 rounded-[2rem] text-center">
-            <p className="text-[10px] uppercase font-black tracking-[0.3em] text-accent/60 mb-1">Rep Count</p>
-            <p className="text-6xl font-black text-accent">{repCount}</p>
-          </div>
-          <div className="bg-zinc-900/80 border border-white/10 p-6 rounded-[2rem] text-center">
+        <div className={`grid ${exercise.id === '6' ? 'grid-cols-1' : 'grid-cols-2'} gap-6 w-full max-w-xl mb-10 transition-all duration-500`}>
+          {exercise.id !== '6' && (
+            <div className="bg-zinc-900/80 border border-accent/30 p-6 rounded-[2rem] text-center">
+              <p className="text-[10px] uppercase font-black tracking-[0.3em] text-accent/60 mb-1">Rep Count</p>
+              <p className="text-6xl font-black text-accent">{repCount}</p>
+            </div>
+          )}
+          <div className={`bg-zinc-900/80 border ${exercise.id === '6' ? 'border-accent animate-pulse' : 'border-white/10'} p-6 rounded-[2rem] text-center relative overflow-hidden`}>
+            {exercise.id === '6' && (
+              <div className="absolute top-0 left-0 right-0 p-2 bg-accent/20">
+                <p className="text-[8px] font-black uppercase tracking-widest text-accent">Hold Position to Run Timer</p>
+              </div>
+            )}
             <p className="text-[10px] uppercase font-black tracking-[0.3em] text-white/40 mb-1">Time Left</p>
             <p className="text-6xl font-black font-mono">
               {Math.floor(exerciseTime / 60)}:{String(exerciseTime % 60).padStart(2, '0')}
