@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, Pause, ChevronRight, BrainCircuit, AlertTriangle } from 'lucide-react';
 import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
-import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/mediapipe-engine';
+import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/workout-engine';
 
 const WN = {
   NOSE: 0, L_SHOULDER: 5, R_SHOULDER: 6,

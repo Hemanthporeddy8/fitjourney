@@ -49,8 +49,8 @@ export async function loadWorkoutModel(): Promise<void> {
   loadPromise = (async () => {
     isModelLoading = true;
     try {
-      console.log('[WorkoutEngine] Loading WorkoutNet V2...');
-      session = await ort.InferenceSession.create('/models/workoutnet_v2.onnx', {
+      console.log('[WorkoutEngine] Loading WorkoutINET (FitJourneyNet V1)...');
+      session = await ort.InferenceSession.create('/fitjourney_net_v1.onnx', {
         executionProviders: ['wasm'],
         graphOptimizationLevel: 'all',
       });
