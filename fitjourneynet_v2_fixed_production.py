@@ -802,8 +802,9 @@ def train_epoch(model, loader, optimizer, criterion, device, epoch):
             print(f"Epoch {epoch} batch {batch_idx} loss {loss.item():.4f}")
 
 
-@torch.no_grad()
     return total_loss / max(n_batches, 1)
+
+@torch.no_grad()
 
 def validate(model, loader, criterion, device):
     model.eval()
