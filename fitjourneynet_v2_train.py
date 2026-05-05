@@ -909,8 +909,7 @@ def main():
     for epoch in range(1, EPOCHS + 1):
         t0 = time.time()
 
-        train_loss = train_epoch(model, train_loader, optimizer,
-                                 criterion, DEVICE, epoch)
+        train_loss = train_epoch(model, train_loader, optimizer, criterion, DEVICE, epoch)
         val_loss, val_pckh = validate(model, val_loader, criterion, DEVICE)
         scheduler.step()
 
