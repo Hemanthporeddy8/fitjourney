@@ -883,11 +883,8 @@ def main():
         print(f"OCHuman not found ({e}), using COCO only")
         train_ds = coco_train
 
-    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True,
-                              num_workers=WORKERS, pin_memory=True,
-                              drop_last=True)
-    val_loader   = DataLoader(coco_val, batch_size=BATCH_SIZE, shuffle=False,
-                              num_workers=WORKERS, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, num_workers=WORKERS, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(coco_val, batch_size=BATCH_SIZE, shuffle=False, num_workers=WORKERS, pin_memory=True)
 
     # Model
     model     = FitJourneyNetV2(num_kp=NUM_KP).to(DEVICE)
