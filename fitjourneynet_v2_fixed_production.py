@@ -716,37 +716,14 @@ class CombinedPoseLoss(nn.Module):
 # ══════════════════════════════════════════════════════════
 
 def get_train_transform():
-    """
-    Strong augmentations matching MediaPipe's training protocol.
-    Random horizontal flip, scale, rotation, color jitter.
-    """
     return A.Compose([
         A.HorizontalFlip(p=0.5),
-        A.ShiftScaleRotate(
-            shift_limit=0.1,
-            scale_limit=0.3,
-            rotate_limit=40,
-            border_mode=cv2.BORDER_CONSTANT,
-            p=0.8
-        ),
-        A.ColorJitter(
-            brightness=0.3,
-            contrast=0.3,
-            saturation=0.3,
-            hue=0.1,
-            p=0.7
-        ),
+        A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.3, rotate_limit=40, border_mode=cv2.BORDER_CONSTANT, p=0.8),
+        A.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1, p=0.7),
         A.GaussianBlur(blur_limit=3, p=0.2),
         A.CoarseDropout(num_holes_range=(1, 8), hole_height_range=(8, 32), hole_width_range=(8, 32), p=0.3),
-            p=0.3
-        ),  # simulates partial occlusion
         A.RandomBrightnessContrast(p=0.3),
     ], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False))
-
-
-# ══════════════════════════════════════════════════════════
-# CELL 10 — Metrics
-# ══════════════════════════════════════════════════════════
 
 def pckh_metric(pred_heatmaps, target_joints, target_weight, threshold=0.5):
     """
