@@ -56,10 +56,10 @@ INPUT_SIZE  = 256       # same as MediaPipe, same as existing model
 HEATMAP_SZ  = 64        # 256/4 — standard for heatmap models
 NUM_KP      = 17        # COCO-17 keypoints
 SIGMA       = 2.0       # Gaussian sigma for ground-truth heatmaps
-BATCH_SIZE  = 32        # per GPU; with 2x T4 effective=64
-EPOCHS      = 80
+BATCH_SIZE  = 64        # Optimized for Kaggle GPU T4 x2 (32 per GPU)
+EPOCHS      = 100       # 100 Epochs = ~5-6 hours. This is the 'Gold Standard' for convergence.
 LR          = 1e-3
-WORKERS     = 4
+WORKERS     = 8         # Speed up data loading
 
 print(f"Device: {DEVICE}")
 print(f"Input: {INPUT_SIZE}×{INPUT_SIZE} → Heatmap: {HEATMAP_SZ}×{HEATMAP_SZ}")
