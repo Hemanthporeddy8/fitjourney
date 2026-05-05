@@ -143,21 +143,32 @@ export async function runPoseInference(
       });
     }
 
-    // Temporal smoothing
-    if (prevKeypoints && prevKeypoints.length === keypoints.length) {
-      for (let i = 0; i < keypoints.length; i++) {
-        const cur  = keypoints[i];
+    // ── Smart Filtering ──────────────────────────────────────────
+    // If a keypoint has low confidence, it's likely outside the frame.
+    // We null out its coordinates so the UI doesn't draw 'random' lines.
+    const filteredKeypoints = keypoints.map(kp => {
+      if (kp.confidence < 0.4) {
+        return { ...kp, x: -1, y: -1, confidence: 0 };
+      }
+      return kp;
+    });
+
+    // ── EMA temporal smoothing ───────────────────────────────────
+    if (prevKeypoints && prevKeypoints.length === filteredKeypoints.length) {
+      for (let i = 0; i < filteredKeypoints.length; i++) {
+        const cur  = filteredKeypoints[i];
         const prev = prevKeypoints[i];
-        if (cur.confidence > 0.3 && prev.confidence > 0.3) {
+        // Only smooth if both are valid
+        if (cur.confidence > 0 && prev.confidence > 0) {
           cur.x = prev.x * SMOOTH + cur.x * (1 - SMOOTH);
           cur.y = prev.y * SMOOTH + cur.y * (1 - SMOOTH);
         }
         cur.confidence = prev.confidence * 0.3 + cur.confidence * 0.7;
       }
     }
-    prevKeypoints = keypoints.map(k => ({ ...k }));
+    prevKeypoints = filteredKeypoints.map(k => ({ ...k }));
 
-    return { keypoints };
+    return { keypoints: filteredKeypoints };
   } catch (error) {
     console.error('[WorkoutEngine] Inference error:', error);
     return null;
