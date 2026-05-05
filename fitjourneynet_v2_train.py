@@ -822,10 +822,7 @@ def train_epoch(model, loader, optimizer, criterion, device, epoch):
         if batch_idx % 50 == 0:
             pckh = pckh_metric(pred_hm.detach().cpu(),
                                gt_coords.cpu(), weights.cpu())
-            print(f"  Epoch {epoch} [{batch_idx}/{len(loader)}]  "
-                  f"Loss: {loss.item():.4f}  "
-                  f"(hm={loss_dict['hm']:.3f} reg={loss_dict['reg']:.3f})  "
-                  f"PCKh: {pckh:.1f}%")
+            print(f"  Epoch {epoch} [{batch_idx}/{len(loader)}] Loss: {loss.item():.4f} PCKh: {pckh:.1f}%")
     
     return total_loss / max(n_batches, 1)
 
