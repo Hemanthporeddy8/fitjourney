@@ -16,7 +16,7 @@ KAGGLE SETUP:
        - "OCHuman"   → search "ochuman" on Kaggle datasets
   3. Enable internet (Settings → Internet → On)
   4. Run all cells
-  
+
 Expected training time: ~4 hours on T4 GPU
 Expected final PCKh@0.5: >85% (MediaPipe gets ~88%)
 """
@@ -112,13 +112,13 @@ FLIP_PAIRS = [
 def generate_heatmap(joints, joints_vis, hm_size, sigma):
     """
     Generate ground truth Gaussian heatmaps.
-    
+
     Args:
         joints:     (17, 2) array of keypoint coords in INPUT_SIZE space
         joints_vis: (17,)   array of visibility flags (0/1/2)
         hm_size:    output heatmap resolution (64)
         sigma:      Gaussian standard deviation
-    
+
     Returns:
         heatmaps:  (17, hm_size, hm_size) float32
         target_weight: (17, 1) float32
@@ -126,47 +126,47 @@ def generate_heatmap(joints, joints_vis, hm_size, sigma):
     num_joints = joints.shape[0]
     heatmaps   = np.zeros((num_joints, hm_size, hm_size), dtype=np.float32)
     target_weight = np.ones((num_joints, 1), dtype=np.float32)
-    
+
     # scale from input space to heatmap space
     scale = hm_size / INPUT_SIZE
-    
+
     for i in range(num_joints):
         if joints_vis[i] == 0:
             target_weight[i] = 0
             continue
-        
+
         mu_x = int(joints[i, 0] * scale + 0.5)
         mu_y = int(joints[i, 1] * scale + 0.5)
-        
+
         # skip if outside heatmap
         if mu_x < 0 or mu_x >= hm_size or mu_y < 0 or mu_y >= hm_size:
             target_weight[i] = 0
             continue
-        
+
         # Gaussian kernel
         size   = 6 * sigma + 1
         x      = np.arange(0, size, 1, np.float32)
         y      = x[:, np.newaxis]
         x0, y0 = size // 2, size // 2
         g      = np.exp(-((x-x0)**2 + (y-y0)**2) / (2 * sigma**2))
-        
+
         # bounds of Gaussian to paste
         xl = int(max(0, mu_x - x0))
         xr = int(min(hm_size, mu_x + x0 + 1))
         yt = int(max(0, mu_y - y0))
         yb = int(min(hm_size, mu_y + y0 + 1))
-        
+
         gl = int(max(0, -mu_x + x0))
         gr = int(gl + xr - xl)
         gt = int(max(0, -mu_y + y0))
         gb = int(gt + yb - yt)
-        
+
         if xl >= xr or yt >= yb:
             target_weight[i] = 0
             continue
-        
+
         heatmaps[i, yt:yb, xl:xr] = g[gt:gb, gl:gr]
-    
+
     return heatmaps, target_weight
 
 
@@ -179,27 +179,27 @@ class COCOKeypointDataset(Dataset):
     COCO 2017 Keypoint Dataset.
     License: Creative Commons Attribution 4.0 International
     URL: https://cocodataset.org
-    
+
     Only loads images that have at least one annotated person with
     visible keypoints. Crops and resizes each person instance to
     INPUT_SIZE × INPUT_SIZE before feeding to model.
     """
-    
+
     def __init__(self, root, split="train", transform=None, min_keypoints=5):
         assert split in ("train", "val")
         self.root      = root
         self.split     = split
         self.transform = transform
-        
+
         ann_file = os.path.join(root, "annotations",
                                 f"person_keypoints_{split}2017.json")
         print(f"Loading COCO {split} annotations...")
         with open(ann_file) as f:
             data = json.load(f)
-        
+
         # Build image id → path lookup
         self.id2img = {img["id"]: img for img in data["images"]}
-        
+
         # Filter valid annotations
         self.samples = []
         for ann in data["annotations"]:
@@ -216,22 +216,22 @@ class COCOKeypointDataset(Dataset):
                 "bbox":     bbox,
                 "keypoints": kps,
             })
-        
+
         img_dir = "train2017" if split == "train" else "val2017"
         self.img_dir = os.path.join(root, img_dir)
         print(f"COCO {split}: {len(self.samples)} valid person instances")
-    
+
     def __len__(self):
         return len(self.samples)
-    
+
     def __getitem__(self, idx):
         sample  = self.samples[idx]
         img_info = self.id2img[sample["image_id"]]
-        
+
         img_path = os.path.join(self.img_dir, img_info["file_name"])
         image    = cv2.imread(img_path)
         image    = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        
+
         # Crop person bounding box with padding
         x, y, w, h = sample["bbox"]
         pad = 0.25  # 25% padding around the person — critical for upper body
@@ -239,27 +239,27 @@ class COCOKeypointDataset(Dataset):
         y1  = max(0, y - pad * h)
         x2  = min(image.shape[1], x + w + pad * w)
         y2  = min(image.shape[0], y + h + pad * h)
-        
+
         crop      = image[int(y1):int(y2), int(x1):int(x2)]
         crop_h, crop_w = crop.shape[:2]
-        
+
         if crop_h == 0 or crop_w == 0:
             # fallback: return zeros
             image_t = torch.zeros(3, INPUT_SIZE, INPUT_SIZE)
             hm      = torch.zeros(NUM_KP, HEATMAP_SZ, HEATMAP_SZ)
             tw      = torch.zeros(NUM_KP, 1)
             return image_t, hm, tw
-        
+
         # Scale keypoints to crop space
         kps = sample["keypoints"].copy().astype(np.float32)
         kps[:, 0] = (kps[:, 0] - x1) * (INPUT_SIZE / crop_w)
         kps[:, 1] = (kps[:, 1] - y1) * (INPUT_SIZE / crop_h)
         joints     = kps[:, :2]
         joints_vis = (kps[:, 2] > 0).astype(np.float32)
-        
+
         # Resize crop to INPUT_SIZE
         crop = cv2.resize(crop, (INPUT_SIZE, INPUT_SIZE))
-        
+
         # Augmentation
         if self.transform:
             aug    = self.transform(image=crop, keypoints=list(zip(joints[:,0], joints[:,1])))
@@ -267,18 +267,18 @@ class COCOKeypointDataset(Dataset):
             augkps = aug.get("keypoints", [])
             if len(augkps) == NUM_KP:
                 joints = np.array(augkps, dtype=np.float32)
-        
+
         # Generate ground truth heatmaps
         heatmaps, target_weight = generate_heatmap(joints, joints_vis, HEATMAP_SZ, SIGMA)
-        
+
         # Normalize image
         if not isinstance(crop, torch.Tensor):
             crop = torch.from_numpy(crop.transpose(2, 0, 1)).float() / 255.0
-        
+
         mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
         std  = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
         crop = (crop - mean) / std
-        
+
         return (
             crop,
             torch.from_numpy(heatmaps),
@@ -295,28 +295,28 @@ class OCHumanDataset(Dataset):
     OCHuman Dataset — Occluded Human Pose.
     License: CC BY 4.0
     URL: https://github.com/liruilong940607/OCHuman
-    
+
     This dataset specialises in partially-visible people —
     exactly what happens when your user sits at a desk with only
     their upper body in frame. Training on this makes the model
     correctly mark invisible keypoints as low-confidence instead
     of randomly guessing positions.
     """
-    
+
     def __init__(self, root, split="train"):
         ann_file = os.path.join(root, f"ochuman_{split}.json")
         if not os.path.exists(ann_file):
             # Try alternative naming
             ann_file = os.path.join(root, "ochuman.json")
-        
+
         with open(ann_file) as f:
             data = json.load(f)
-        
+
         self.img_dir = os.path.join(root, "images")
         self.samples = []
-        
+
         id2img = {img["id"]: img for img in data.get("images", [])}
-        
+
         for ann in data.get("annotations", []):
             kps = ann.get("keypoints", [])
             if not kps or len(kps) < 17 * 3:
@@ -330,32 +330,32 @@ class OCHumanDataset(Dataset):
                 "bbox":      ann.get("bbox", [0, 0, 100, 100]),
                 "keypoints": kps_arr,
             })
-        
+
         print(f"OCHuman: {len(self.samples)} partial-body instances")
-    
+
     def __len__(self):
         return len(self.samples)
-    
+
     def __getitem__(self, idx):
         s = self.samples[idx]
         img_path = os.path.join(self.img_dir, s["file_name"])
-        
+
         if not os.path.exists(img_path):
             image_t = torch.zeros(3, INPUT_SIZE, INPUT_SIZE)
             hm      = torch.zeros(NUM_KP, HEATMAP_SZ, HEATMAP_SZ)
             tw      = torch.zeros(NUM_KP, 1)
             return image_t, hm, tw
-        
+
         image = cv2.imread(img_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        
+
         x, y, w, h = s["bbox"]
         pad = 0.3
         x1  = max(0, x - pad * w)
         y1  = max(0, y - pad * h)
         x2  = min(image.shape[1], x + w + pad * w)
         y2  = min(image.shape[0], y + h + pad * h)
-        
+
         crop    = image[int(y1):int(y2), int(x1):int(x2)]
         crop_h, crop_w = crop.shape[:2]
         if crop_h < 2 or crop_w < 2:
@@ -363,22 +363,22 @@ class OCHumanDataset(Dataset):
             hm      = torch.zeros(NUM_KP, HEATMAP_SZ, HEATMAP_SZ)
             tw      = torch.zeros(NUM_KP, 1)
             return image_t, hm, tw
-        
+
         kps        = s["keypoints"].copy().astype(np.float32)
         kps[:, 0]  = (kps[:, 0] - x1) * (INPUT_SIZE / crop_w)
         kps[:, 1]  = (kps[:, 1] - y1) * (INPUT_SIZE / crop_h)
         joints     = kps[:, :2]
         joints_vis = (kps[:, 2] > 0).astype(np.float32)
-        
+
         crop = cv2.resize(crop, (INPUT_SIZE, INPUT_SIZE))
-        
+
         heatmaps, target_weight = generate_heatmap(joints, joints_vis, HEATMAP_SZ, SIGMA)
-        
+
         crop_t = torch.from_numpy(crop.transpose(2, 0, 1)).float() / 255.0
         mean   = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
         std    = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
         crop_t = (crop_t - mean) / std
-        
+
         return (
             crop_t,
             torch.from_numpy(heatmaps),
@@ -405,7 +405,7 @@ class DepthwiseSeparable(nn.Module):
         self.pw = nn.Conv2d(in_ch, out_ch, 1, bias=False)
         self.bn = nn.BatchNorm2d(out_ch)
         self.act = nn.Hardswish(inplace=True)
-    
+
     def forward(self, x):
         return self.act(self.bn(self.pw(self.dw(x))))
 
@@ -416,7 +416,7 @@ class InvertedResidual(nn.Module):
         super().__init__()
         mid_ch = in_ch * expand
         self.use_skip = (stride == 1 and in_ch == out_ch)
-        
+
         layers = []
         if expand != 1:
             layers += [nn.Conv2d(in_ch, mid_ch, 1, bias=False),
@@ -426,7 +426,7 @@ class InvertedResidual(nn.Module):
                              groups=mid_ch, bias=False),
                    nn.BatchNorm2d(mid_ch),
                    nn.Hardswish(inplace=True)]
-        
+
         # Squeeze-and-Excitation — helps the model focus on relevant body parts
         if use_se:
             squeeze = max(1, mid_ch // 4)
@@ -441,24 +441,24 @@ class InvertedResidual(nn.Module):
             self.se = layers.pop()
         else:
             self.se = None
-        
+
         layers += [nn.Conv2d(mid_ch, out_ch, 1, bias=False),
                    nn.BatchNorm2d(out_ch)]
-        
+
         self.conv = nn.Sequential(*layers)
         self.mid_ch = mid_ch
         self.out_ch = out_ch
-    
+
     def forward(self, x):
         out = x
         # manually step through since SE needs to be applied mid-way
         for i, layer in enumerate(self.conv):
             out = layer(out)
-        
+
         if self.se is not None:
             # SE is applied to the depthwise output (before pointwise)
             pass  # SE integrated in __init__ for simplicity
-        
+
         if self.use_skip:
             return out + x
         return out
@@ -468,7 +468,7 @@ class FitJourneyBackbone(nn.Module):
     """
     Lightweight backbone inspired by MobileNetV3-Small.
     Produces multi-scale features for the pose decoder.
-    
+
     Output channels at each scale:
       stride 4  (64×64): 32ch  → fed to decoder for fine keypoint localization
       stride 8  (32×32): 64ch
@@ -477,14 +477,14 @@ class FitJourneyBackbone(nn.Module):
     """
     def __init__(self):
         super().__init__()
-        
+
         # Stem
         self.stem = nn.Sequential(
             nn.Conv2d(3, 16, 3, stride=2, padding=1, bias=False),  # 128×128
             nn.BatchNorm2d(16),
             nn.Hardswish(inplace=True),
         )
-        
+
         # Stage 1 — 64×64, 32 ch
         self.stage1 = nn.Sequential(
             DepthwiseSeparable(16, 16),
@@ -493,14 +493,14 @@ class FitJourneyBackbone(nn.Module):
             nn.Hardswish(inplace=True),
         )
         self.down1 = nn.Conv2d(32, 32, 3, stride=2, padding=1, bias=False)  # 64×64
-        
+
         # Stage 2 — 32×32, 64 ch
         self.stage2 = nn.Sequential(
             DepthwiseSeparable(32, 32),
             DepthwiseSeparable(32, 64),
         )
         self.down2 = nn.Conv2d(64, 64, 3, stride=2, padding=1, bias=False)  # 32×32
-        
+
         # Stage 3 — 16×16, 128 ch
         self.stage3 = nn.Sequential(
             DepthwiseSeparable(64, 64),
@@ -508,14 +508,14 @@ class FitJourneyBackbone(nn.Module):
             DepthwiseSeparable(128, 128),
         )
         self.down3 = nn.Conv2d(128, 128, 3, stride=2, padding=1, bias=False)  # 16×16
-        
+
         # Stage 4 — 8×8, 256 ch (global context)
         self.stage4 = nn.Sequential(
             DepthwiseSeparable(128, 256),
             DepthwiseSeparable(256, 256),
             nn.AdaptiveAvgPool2d(8),
         )
-    
+
     def forward(self, x):
         x  = self.stem(x)          # 3,256,256 → 16,128,128
         s1 = self.stage1(x)        # 32,128,128
@@ -525,7 +525,7 @@ class FitJourneyBackbone(nn.Module):
         s3 = self.stage3(s2)       # 128,32,32
         s3 = self.down3(s3)        # 128,16,16
         s4 = self.stage4(s3)       # 256,8,8
-        
+
         return s1, s2, s3, s4      # multi-scale features
 
 
@@ -533,25 +533,25 @@ class FitJourneyDecoder(nn.Module):
     """
     Feature Pyramid decoder — combines multi-scale features.
     Upsamples from 8×8 → 16 → 32 → 64, then predicts heatmaps.
-    
+
     This is the key difference from your old model:
     Old model: single scale → random predictions for missing keypoints
     New model: multi-scale context → knows when a keypoint ISN'T there
     """
     def __init__(self, num_kp=17):
         super().__init__()
-        
+
         # Lateral connections (1×1 conv to unify channel dims)
         self.lat4 = nn.Conv2d(256, 128, 1, bias=False)
         self.lat3 = nn.Conv2d(128, 128, 1, bias=False)
         self.lat2 = nn.Conv2d(64,  64,  1, bias=False)
         self.lat1 = nn.Conv2d(32,  64,  1, bias=False)
-        
+
         # Refinement convs after upsampling
         self.ref3 = DepthwiseSeparable(128, 128)
         self.ref2 = DepthwiseSeparable(128, 128)
         self.ref1 = DepthwiseSeparable(128, 128)
-        
+
         # Final heatmap head
         self.heatmap_head = nn.Sequential(
             nn.Conv2d(128, 256, 3, padding=1, bias=False),
@@ -559,7 +559,7 @@ class FitJourneyDecoder(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(256, num_kp, 1),   # no activation — raw logits
         )
-        
+
         # Regression head — predicts (x, y, confidence) directly
         # This gives sub-pixel accuracy beyond what 64×64 heatmap allows
         self.regress_head = nn.Sequential(
@@ -571,35 +571,35 @@ class FitJourneyDecoder(nn.Module):
             nn.Linear(256, num_kp * 3),  # x, y, confidence per keypoint
             nn.Sigmoid(),                  # outputs in [0,1]
         )
-    
+
     def forward(self, s1, s2, s3, s4):
         # Top-down pathway
         p4 = self.lat4(s4)                                           # 128,8,8
         p3 = self.lat3(s3) + F.interpolate(p4, size=s3.shape[-2:],  # 128,16,16
                                            mode='bilinear', align_corners=False)
         p3 = self.ref3(p3)
-        
+
         p2 = F.interpolate(p3, size=s2.shape[-2:],                  # 128,32,32
                           mode='bilinear', align_corners=False)
         p2 = torch.cat([p2, self.lat2(s2).expand_as(
                         p2[:, :64])], dim=1)[:, :128]
         p2 = self.ref2(p2)
-        
+
         p1 = F.interpolate(p2, size=s1.shape[-2:],                  # 128,64,64
                           mode='bilinear', align_corners=False)
         p1_skip = self.lat1(s1)                                      # 64,64,64
         p1 = self.ref1(p1)
-        
+
         heatmaps  = self.heatmap_head(p1)      # (B, 17, 64, 64)
         coords    = self.regress_head(p1)       # (B, 17*3) — x,y,conf
-        
+
         return heatmaps, coords.view(-1, NUM_KP, 3)
 
 
 class FitJourneyNetV2(nn.Module):
     """
     Full model: Backbone + Decoder.
-    
+
     Inference output: heatmaps (B, 17, 64, 64)
     For ONNX export we return only heatmaps (same interface as V1).
     The regression head is used only during training for better gradients.
@@ -609,7 +609,7 @@ class FitJourneyNetV2(nn.Module):
         self.backbone = FitJourneyBackbone()
         self.decoder  = FitJourneyDecoder(num_kp)
         self._init_weights()
-    
+
     def _init_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -622,11 +622,11 @@ class FitJourneyNetV2(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.zeros_(m.bias)
-    
+
     def forward(self, x, return_regression=False):
         s1, s2, s3, s4     = self.backbone(x)
         heatmaps, coords   = self.decoder(s1, s2, s3, s4)
-        
+
         if return_regression:
             return heatmaps, coords
         return heatmaps   # ONNX export: same interface as V1
@@ -641,7 +641,7 @@ if __name__ == "__main__":
     print(f"  Input:      {dummy.shape}")
     print(f"  Heatmaps:   {hm.shape}     ← same as V1, browser-compatible")
     print(f"  Regression: {coords.shape}  ← (B, 17, 3) x/y/conf")
-    
+
     total = sum(p.numel() for p in model.parameters())
     print(f"  Parameters: {total/1e6:.2f}M")
     print(f"  Estimated ONNX size: ~{total*4/1e6:.1f} MB")
@@ -658,7 +658,7 @@ class HeatmapLoss(nn.Module):
     """
     def __init__(self):
         super().__init__()
-    
+
     def forward(self, pred, target, target_weight):
         # pred:          (B, 17, 64, 64)
         # target:        (B, 17, 64, 64)
@@ -676,24 +676,24 @@ class RegressionLoss(nn.Module):
     """
     def __init__(self):
         super().__init__()
-    
+
     def forward(self, pred_coords, target_joints, target_weight):
         # pred_coords:   (B, 17, 3) — predicted x, y, conf
         # target_joints: (B, 17, 2) — ground truth x, y normalized [0,1]
         # target_weight: (B, 17, 1)
-        
+
         # normalise target to [0,1]
         tgt = target_joints / INPUT_SIZE
-        
+
         # Only xy loss on visible keypoints
         w   = target_weight                            # (B,17,1)
         xy_loss  = F.smooth_l1_loss(pred_coords[:,:,:2] * w, tgt * w)
-        
+
         # Visibility/confidence loss (BCE)
         vis = (target_weight.squeeze(-1) > 0).float()  # (B,17)
         conf_loss = F.binary_cross_entropy(
             pred_coords[:,:,2].clamp(1e-6, 1-1e-6), vis)
-        
+
         return xy_loss + 0.1 * conf_loss
 
 
@@ -704,7 +704,7 @@ class CombinedPoseLoss(nn.Module):
         self.reg_loss = RegressionLoss()
         self.hm_w     = hm_weight
         self.reg_w    = reg_weight
-    
+
     def forward(self, pred_hm, pred_coords, target_hm, target_joints, target_weight):
         lhm  = self.hm_loss(pred_hm, target_hm, target_weight) * self.hm_w
         lreg = self.reg_loss(pred_coords, target_joints, target_weight) * self.reg_w
@@ -755,30 +755,30 @@ def pckh_metric(pred_heatmaps, target_joints, target_weight, threshold=0.5):
     MediaPipe scores ~88%. Target: >85%.
     """
     B, K, H, W = pred_heatmaps.shape
-    
+
     # Decode heatmap peaks
     flat = pred_heatmaps.view(B, K, -1)
     idx  = flat.argmax(dim=2)
     px   = (idx % W).float() / W * INPUT_SIZE
     py   = (idx // W).float() / H * INPUT_SIZE
-    
+
     # Head size = distance between left ear (3) and right ear (4)
     le   = target_joints[:, 3, :]   # left ear
     re   = target_joints[:, 4, :]   # right ear
     hs   = torch.norm(le - re, dim=1, keepdim=True) * threshold  # (B,1)
     hs   = hs.clamp(min=10)  # minimum head size to avoid division by zero
-    
+
     # Euclidean error per keypoint
     pred_xy = torch.stack([px, py], dim=2)   # (B,K,2)
     err     = torch.norm(pred_xy - target_joints, dim=2)  # (B,K)
-    
+
     # Correct if within threshold * head_size
     correct = (err < hs).float() * target_weight.squeeze(-1)
     visible = target_weight.squeeze(-1).sum()
-    
+
     if visible == 0:
         return 0.0
-    
+
     return (correct.sum() / visible).item() * 100.0
 
 
@@ -791,12 +791,12 @@ def train_epoch(model, loader, optimizer, criterion, device, epoch):
     total_loss = 0
     total_pckh = 0
     n_batches  = 0
-    
+
     for batch_idx, (images, heatmaps, weights) in enumerate(loader):
         images   = images.to(device)
         heatmaps = heatmaps.to(device)
         weights  = weights.to(device)
-        
+
         # For regression loss we need raw joint coords
         # Decode from heatmaps (ground truth)
         B, K, H, W = heatmaps.shape
@@ -805,25 +805,25 @@ def train_epoch(model, loader, optimizer, criterion, device, epoch):
         gx    = (idx % W).float() / W * INPUT_SIZE
         gy    = (idx // W).float() / H * INPUT_SIZE
         gt_coords = torch.stack([gx, gy], dim=2)   # (B,17,2)
-        
+
         optimizer.zero_grad()
         pred_hm, pred_coords = model(images, return_regression=True)
-        
+
         loss, loss_dict = criterion(pred_hm, pred_coords, heatmaps, gt_coords, weights)
         loss.backward()
-        
+
         # Gradient clipping — prevents training instability
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
-        
+
         total_loss += loss.item()
         n_batches  += 1
-        
+
         if batch_idx % 50 == 0:
             pckh = pckh_metric(pred_hm.detach().cpu(),
                                gt_coords.cpu(), weights.cpu())
             print(f"  Epoch {epoch} [{batch_idx}/{len(loader)}] Loss: {loss.item():.4f} PCKh: {pckh:.1f}%")
-    
+
     return total_loss / max(n_batches, 1)
 
 
@@ -833,28 +833,28 @@ def validate(model, loader, criterion, device):
     total_loss = 0
     total_pckh = 0
     n_batches  = 0
-    
+
     for images, heatmaps, weights in loader:
         images   = images.to(device)
         heatmaps = heatmaps.to(device)
         weights  = weights.to(device)
-        
+
         B, K, H, W = heatmaps.shape
         flat      = heatmaps.view(B, K, -1)
         idx       = flat.argmax(dim=2)
         gx        = (idx % W).float() / W * INPUT_SIZE
         gy        = (idx // W).float() / H * INPUT_SIZE
         gt_coords = torch.stack([gx, gy], dim=2)
-        
+
         pred_hm, pred_coords = model(images, return_regression=True)
         loss, _ = criterion(pred_hm, pred_coords, heatmaps, gt_coords, weights)
-        
+
         pckh = pckh_metric(pred_hm.cpu(), gt_coords.cpu(), weights.cpu())
-        
+
         total_loss += loss.item()
         total_pckh += pckh
         n_batches  += 1
-    
+
     return total_loss / max(n_batches,1), total_pckh / max(n_batches,1)
 
 
@@ -866,14 +866,14 @@ def main():
     print("=" * 60)
     print("FitJourneyNet V2 — Training")
     print("=" * 60)
-    
+
     # Datasets
     train_transform = get_train_transform()
-    
+
     coco_train = COCOKeypointDataset(COCO_ROOT, split="train",
                                      transform=train_transform)
     coco_val   = COCOKeypointDataset(COCO_ROOT, split="val")
-    
+
     # Try to load OCHuman — skip gracefully if not available
     try:
         ochuman = OCHumanDataset(OCHUMAN_ROOT, split="train")
@@ -882,54 +882,54 @@ def main():
     except Exception as e:
         print(f"OCHuman not found ({e}), using COCO only")
         train_ds = coco_train
-    
+
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True,
                               num_workers=WORKERS, pin_memory=True,
                               drop_last=True)
     val_loader   = DataLoader(coco_val, batch_size=BATCH_SIZE, shuffle=False,
                               num_workers=WORKERS, pin_memory=True)
-    
+
     # Model
     model     = FitJourneyNetV2(num_kp=NUM_KP).to(DEVICE)
-    
+
     # Multi-GPU if available
     if torch.cuda.device_count() > 1:
         print(f"Using {torch.cuda.device_count()} GPUs")
         model = nn.DataParallel(model)
-    
+
     total_params = sum(p.numel() for p in model.parameters())
     print(f"Parameters: {total_params/1e6:.2f}M")
-    
+
     # Optimizer + scheduler
     criterion  = CombinedPoseLoss(hm_weight=1.0, reg_weight=0.5)
     optimizer  = AdamW(model.parameters(), lr=LR, weight_decay=1e-4)
     scheduler  = CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-6)
-    
+
     # Training
     best_pckh  = 0.0
     best_path  = "/kaggle/working/fitjourney_net_v2_best.pth"
-    
+
     for epoch in range(1, EPOCHS + 1):
         t0 = time.time()
-        
+
         train_loss = train_epoch(model, train_loader, optimizer,
                                  criterion, DEVICE, epoch)
         val_loss, val_pckh = validate(model, val_loader, criterion, DEVICE)
         scheduler.step()
-        
+
         elapsed = time.time() - t0
         print(f"\nEpoch {epoch}/{EPOCHS}  "
               f"Train Loss: {train_loss:.4f}  "
               f"Val Loss: {val_loss:.4f}  "
               f"Val PCKh: {val_pckh:.1f}%  "
               f"({elapsed:.0f}s)\n")
-        
+
         if val_pckh > best_pckh:
             best_pckh = val_pckh
             m = model.module if hasattr(model, 'module') else model
             torch.save(m.state_dict(), best_path)
             print(f"  ✓ New best model saved (PCKh={val_pckh:.1f}%)")
-    
+
     print(f"\nTraining complete. Best PCKh: {best_pckh:.1f}%")
     return best_path
 
@@ -941,24 +941,24 @@ def main():
 def export_to_onnx(checkpoint_path, output_path="/kaggle/working/fitjourney_net_v2.onnx"):
     """
     Export trained model to ONNX for browser deployment.
-    
+
     Output is identical interface to V1:
       Input:  float32[1, 3, 256, 256]   (ImageNet normalized)
       Output: float32[1, 17, 64, 64]    (heatmaps, raw logits)
-    
+
     Your existing workout-engine.ts needs ZERO changes.
     Just update the model path from fitjourney_net_v1.onnx → fitjourney_net_v2.onnx
     """
     import onnx
     from onnxruntime.quantization import quantize_dynamic, QuantType
-    
+
     model = FitJourneyNetV2(num_kp=NUM_KP)
     state = torch.load(checkpoint_path, map_location="cpu")
     model.load_state_dict(state)
     model.eval()
-    
+
     dummy = torch.randn(1, 3, INPUT_SIZE, INPUT_SIZE)
-    
+
     # Export with dynamic batch size
     torch.onnx.export(
         model,
@@ -975,24 +975,24 @@ def export_to_onnx(checkpoint_path, output_path="/kaggle/working/fitjourney_net_
         },
         verbose=False,
     )
-    
+
     # Verify the exported model
     import onnx
     onnx_model = onnx.load(output_path)
     onnx.checker.check_model(onnx_model)
     print(f"✓ ONNX model verified: {output_path}")
-    
+
     # Check size
     size_mb = os.path.getsize(output_path) / 1e6
     print(f"  Size: {size_mb:.1f} MB")
-    
+
     # Verify inference
     import onnxruntime as ort
     sess   = ort.InferenceSession(output_path)
     out    = sess.run(None, {"input": dummy.numpy()})
     print(f"  Output shape: {out[0].shape}  ← should be (1, 17, 64, 64)")
     print(f"  Output range: [{out[0].min():.2f}, {out[0].max():.2f}]")
-    
+
     # Optional: quantize to INT8 for even smaller size (~2MB)
     quantized_path = output_path.replace(".onnx", "_int8.onnx")
     try:
@@ -1001,7 +1001,7 @@ def export_to_onnx(checkpoint_path, output_path="/kaggle/working/fitjourney_net_
         print(f"  INT8 quantized: {quantized_path} ({q_size:.1f} MB)")
     except Exception as e:
         print(f"  Quantization skipped: {e}")
-    
+
     return output_path
 
 
@@ -1013,38 +1013,38 @@ def visualize_predictions(model_path, val_loader, n=4):
     """Draw skeleton overlays on validation images to visually check quality."""
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
-    
+
     model = FitJourneyNetV2()
     model.load_state_dict(torch.load(model_path, map_location="cpu"))
     model.eval()
-    
+
     images, heatmaps, weights = next(iter(val_loader))
-    
+
     with torch.no_grad():
         pred_hm = model(images[:n])
-    
+
     fig, axes = plt.subplots(n, 2, figsize=(12, 4*n))
-    
+
     for i in range(n):
         img = images[i].permute(1,2,0).numpy()
         # De-normalize
         mean = np.array([0.485, 0.456, 0.406])
         std  = np.array([0.229, 0.224, 0.225])
         img  = (img * std + mean).clip(0, 1)
-        
+
         # Decode GT keypoints
         B,K,H,W = heatmaps.shape
         flat = heatmaps[i].view(K,-1)
         idx  = flat.argmax(dim=1)
         gt_x = (idx % W).float() / W * INPUT_SIZE
         gt_y = (idx // W).float() / H * INPUT_SIZE
-        
+
         # Decode predicted keypoints
         flat = pred_hm[i].view(K,-1)
         idx  = flat.argmax(dim=1)
         pr_x = (idx % 64).float() / 64 * INPUT_SIZE
         pr_y = (idx // 64).float() / 64 * INPUT_SIZE
-        
+
         # Draw
         for ax, kp_x, kp_y, title in [
             (axes[i,0], gt_x, gt_y, "Ground Truth"),
@@ -1061,7 +1061,7 @@ def visualize_predictions(model_path, val_loader, n=4):
                     ax.scatter(kp_x[k], kp_y[k], c='white', s=30, zorder=5)
             ax.set_title(title, fontsize=12)
             ax.axis('off')
-    
+
     plt.tight_layout()
     plt.savefig("/kaggle/working/predictions_sample.png", dpi=100)
     plt.show()
@@ -1075,13 +1075,13 @@ def visualize_predictions(model_path, val_loader, n=4):
 if __name__ == "__main__":
     # 1. Train
     best_checkpoint = main()
-    
+
     # 2. Export to ONNX
     onnx_path = export_to_onnx(best_checkpoint)
-    
+
     # 3. Visualize (optional)
     _, val_loader = None, None  # re-create if needed
-    
+
     print("\n" + "="*60)
     print("DONE! Download these files from /kaggle/working/:")
     print(f"  fitjourney_net_v2.onnx      — put in public/ of your app")
