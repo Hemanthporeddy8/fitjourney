@@ -59,7 +59,7 @@ SIGMA       = 2.0       # Gaussian sigma for ground-truth heatmaps
 BATCH_SIZE  = 64        # Optimized for Kaggle GPU T4 x2 (32 per GPU)
 EPOCHS      = 100       # 100 Epochs = ~5-6 hours. This is the 'Gold Standard' for convergence.
 LR          = 1e-3
-WORKERS     = 8         # Speed up data loading
+WORKERS     = 2
 
 print(f"Device: {DEVICE}")
 print(f"Input: {INPUT_SIZE}×{INPUT_SIZE} → Heatmap: {HEATMAP_SZ}×{HEATMAP_SZ}")
@@ -151,15 +151,15 @@ def generate_heatmap(joints, joints_vis, hm_size, sigma):
         g      = np.exp(-((x-x0)**2 + (y-y0)**2) / (2 * sigma**2))
         
         # bounds of Gaussian to paste
-        xl = max(0, mu_x - x0)
-        xr = min(hm_size, mu_x + x0 + 1)
-        yt = max(0, mu_y - y0)
-        yb = min(hm_size, mu_y + y0 + 1)
+        xl = int(max(0, mu_x - x0))
+        xr = int(min(hm_size, mu_x + x0 + 1))
+        yt = int(max(0, mu_y - y0))
+        yb = int(min(hm_size, mu_y + y0 + 1))
         
-        gl = max(0, -mu_x + x0)
-        gr = gl + xr - xl
-        gt = max(0, -mu_y + y0)
-        gb = gt + yb - yt
+        gl = int(max(0, -mu_x + x0))
+        gr = int(gl + xr - xl)
+        gt = int(max(0, -mu_y + y0))
+        gb = int(gt + yb - yt)
         
         if xl >= xr or yt >= yb:
             target_weight[i] = 0
@@ -737,11 +737,7 @@ def get_train_transform():
             p=0.7
         ),
         A.GaussianBlur(blur_limit=3, p=0.2),
-        A.CoarseDropout(
-            max_holes=8,
-            max_height=32,
-            max_width=32,
-            fill_value=128,
+        A.CoarseDropout(num_holes_range=(1, 8), hole_height_range=(8, 32), hole_width_range=(8, 32), p=0.3),
             p=0.3
         ),  # simulates partial occlusion
         A.RandomBrightnessContrast(p=0.3),
