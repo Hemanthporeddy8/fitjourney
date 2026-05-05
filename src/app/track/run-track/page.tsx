@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Play, Pause, Square, MapPin, Clock, Flame, Footprints, TrendingUp, Activity, ArrowLeft, Wind } from 'lucide-react';
+import { Play, Pause, Square, MapPin, Clock, Flame, Footprints, TrendingUp, Activity, ArrowLeft, Wind, Trophy, Share2, RotateCcw } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 const CALORIES_PER_KM: Record<string,number> = { walk: 60, run: 80 };
@@ -20,13 +20,22 @@ function fmtTime(s:number){
   return`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-type Phase='idle'|'active'|'paused';
+type Phase='idle'|'active'|'paused'|'done';
 interface Coord{lat:number;lng:number}
+
+interface SessionResult{
+  mode:string; elapsed:number; distance:number;
+  steps:number; calories:number; pace:number;
+  goalKcal:number; goalName:string;
+}
 
 function RunTrackContent(){
   const router=useRouter();
   const params=useSearchParams();
   const mode=(params.get('mode')||'walk') as 'walk'|'run';
+
+  const goalKcal  = parseInt(params.get('goal')||'0');
+  const goalName  = decodeURIComponent(params.get('goalName')||'Daily Goal');
 
   const [phase,setPhase]=useState<Phase>('idle');
   const [elapsed,setElapsed]=useState(0);
@@ -38,6 +47,7 @@ function RunTrackContent(){
   const [route,setRoute]=useState<Coord[]>([]);
   const [offlineMode,setOfflineMode]=useState(false);
   const [aiGoal,setAiGoal]=useState<{kcal:number;km:number}|null>(null);
+  const [result,setResult]=useState<SessionResult|null>(null);
 
   const timerRef=useRef<NodeJS.Timeout|null>(null);
   const watchRef=useRef<number|null>(null);
@@ -158,21 +168,107 @@ function RunTrackContent(){
   const handleResume=()=>{startTimeRef.current=Date.now();setPhase('active');if(!offlineMode)startGps();else cleanupAccelRef.current=startAccel();};
 
   const handleStop=()=>{
-    setPhase('idle');
     if(watchRef.current!==null)navigator.geolocation.clearWatch(watchRef.current);
     if(cleanupAccelRef.current)cleanupAccelRef.current();
-    if(elapsed>10){
+    const effectiveGoal = goalKcal || (aiGoal?.kcal||0);
+    const sessionResult:SessionResult={mode,elapsed,distance:parseFloat(distance.toFixed(2)),steps,calories,pace,goalKcal:effectiveGoal,goalName};
+    if(elapsed>5){
       const sessions=JSON.parse(localStorage.getItem('fitjourney_run_sessions')||'[]');
-      sessions.unshift({mode,elapsed,distance:parseFloat(distance.toFixed(2)),steps,calories,pace,date:new Date().toISOString()});
+      sessions.unshift({...sessionResult,date:new Date().toISOString()});
       localStorage.setItem('fitjourney_run_sessions',JSON.stringify(sessions.slice(0,30)));
+      setResult(sessionResult);
+      setPhase('done');
+    } else {
+      setPhase('idle');
+      router.back();
     }
-    router.back();
   };
 
-  const prog=aiGoal?Math.min(100,(calories/aiGoal.kcal)*100):0;
+  const effectiveGoalKcal = goalKcal || (aiGoal?.kcal||0);
+  const prog=effectiveGoalKcal>0?Math.min(100,(calories/effectiveGoalKcal)*100):0;
   const isRun=mode==='run';
   const accentColor=isRun?'#3b82f6':'#22c55e';
   const accentBg=isRun?'#0d1a30':'#0f1f0f';
+
+  // ── Achievement Card (shown after stopping) ──────────────
+  if(phase==='done'&&result){
+    const achieved = result.goalKcal>0 && result.calories>=result.goalKcal*0.8;
+    const pctGoal  = result.goalKcal>0 ? Math.round((result.calories/result.goalKcal)*100) : 100;
+    const badges   = [];
+    if(result.distance>=5) badges.push({icon:'🏅',label:'5K Club'});
+    else if(result.distance>=1) badges.push({icon:'⭐',label:'1K Done'});
+    if(result.calories>=300) badges.push({icon:'🔥',label:'300 kcal'});
+    if(result.steps>=5000) badges.push({icon:'👟',label:'5K Steps'});
+    if(achieved) badges.push({icon:'🎯',label:'Goal Hit!'});
+
+    return(
+      <div style={{minHeight:'100vh',background:'#0a0a0f',color:'#fff',fontFamily:'system-ui,sans-serif',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'24px'}}>
+        {/* Big header */}
+        <div style={{textAlign:'center',marginBottom:'32px'}}>
+          <div style={{fontSize:'64px',marginBottom:'12px'}}>{achieved?'🏆':'✅'}</div>
+          <h1 style={{fontSize:'28px',fontWeight:900,margin:'0 0 4px',background:`linear-gradient(135deg,${isRun?'#3b82f6':'#22c55e'},#a78bfa)`,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>
+            {achieved?'Goal Achieved!':'Workout Complete!'}
+          </h1>
+          <p style={{fontSize:'13px',color:'#6b7280',margin:0}}>
+            {result.goalName} · {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}
+          </p>
+        </div>
+
+        {/* Stats grid */}
+        <div style={{width:'100%',maxWidth:'380px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'20px'}}>
+          {[
+            {emoji:'📍',label:'Distance',val:`${result.distance.toFixed(2)} km`,color:'#3b82f6'},
+            {emoji:'⏱️',label:'Time',val:fmtTime(result.elapsed),color:'#a78bfa'},
+            {emoji:'🔥',label:'Calories',val:`${result.calories} kcal`,color:'#ef4444'},
+            {emoji:'👟',label:'Steps',val:result.steps.toLocaleString(),color:isRun?'#3b82f6':'#22c55e'},
+            {emoji:'💨',label:'Avg Pace',val:result.pace>0?`${result.pace}' /km`:'--',color:'#f59e0b'},
+            {emoji:'🎯',label:'Goal',val:result.goalKcal>0?`${pctGoal}%`:'--',color:'#22c55e'},
+          ].map(s=>(
+            <div key={s.label} style={{background:'#111118',borderRadius:'16px',border:'1px solid #1e1e30',padding:'16px',textAlign:'center'}}>
+              <div style={{fontSize:'22px',marginBottom:'6px'}}>{s.emoji}</div>
+              <p style={{margin:'0 0 2px',fontSize:'9px',color:'#6b7280',letterSpacing:'0.1em',textTransform:'uppercase'}}>{s.label}</p>
+              <p style={{margin:0,fontSize:'18px',fontWeight:900,color:s.color}}>{s.val}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Goal progress bar */}
+        {result.goalKcal>0&&(
+          <div style={{width:'100%',maxWidth:'380px',background:'#111118',borderRadius:'16px',border:'1px solid #1e1e30',padding:'16px',marginBottom:'20px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}>
+              <span style={{fontSize:'12px',fontWeight:700}}>Goal Progress</span>
+              <span style={{fontSize:'12px',color:'#6b7280'}}>{result.calories} / {result.goalKcal} kcal</span>
+            </div>
+            <div style={{height:'10px',background:'#1e1e30',borderRadius:'999px',overflow:'hidden'}}>
+              <div style={{height:'100%',width:`${pctGoal}%`,background:`linear-gradient(90deg,${accentColor},#a78bfa)`,borderRadius:'999px'}}/>
+            </div>
+          </div>
+        )}
+
+        {/* Badges */}
+        {badges.length>0&&(
+          <div style={{display:'flex',gap:'10px',flexWrap:'wrap',justifyContent:'center',marginBottom:'28px'}}>
+            {badges.map(b=>(
+              <div key={b.label} style={{display:'flex',alignItems:'center',gap:'6px',padding:'8px 14px',background:'#1a1a2e',borderRadius:'999px',border:'1px solid #2a2a4a'}}>
+                <span style={{fontSize:'16px'}}>{b.icon}</span>
+                <span style={{fontSize:'12px',fontWeight:700,color:'#fff'}}>{b.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div style={{display:'flex',gap:'12px',width:'100%',maxWidth:'380px'}}>
+          <button onClick={()=>router.push('/track')} style={{flex:1,padding:'14px',borderRadius:'14px',background:'#111118',border:'1px solid #2a2a4a',color:'#fff',fontSize:'14px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px'}}>
+            <RotateCcw size={16}/> Back
+          </button>
+          <button onClick={()=>{setPhase('idle');setElapsed(0);setDistance(0);setSteps(0);setCalories(0);setPace(0);setCadence(0);setRoute([]);pauseAccRef.current=0;lastPosRef.current=null;setResult(null);}} style={{flex:1,padding:'14px',borderRadius:'14px',background:`linear-gradient(135deg,${accentColor},${isRun?'#1d4ed8':'#16a34a'})`,border:'none',color:'#fff',fontSize:'14px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',boxShadow:`0 0 20px ${accentColor}44`}}>
+            <Play size={16} fill='#fff'/> New {isRun?'Run':'Walk'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return(
     <div style={{minHeight:'100vh',background:'#0a0a0f',color:'#fff',fontFamily:'system-ui,sans-serif',paddingBottom:'30px'}}>
@@ -191,12 +287,12 @@ function RunTrackContent(){
         </div>
       </div>
 
-      {/* ── AI Goal Progress ── */}
-      {aiGoal&&(
+      {/* ── Goal Progress ── */}
+      {effectiveGoalKcal>0&&(
         <div style={{margin:'16px 16px 0',borderRadius:'16px',background:accentBg,border:`1px solid ${accentColor}33`,padding:'14px 16px'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
-            <span style={{fontSize:'11px',color:accentColor,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em'}}>Daily Goal</span>
-            <span style={{fontSize:'12px',color:'#9ca3af'}}>{Math.round(prog)}% · {calories} / {aiGoal.kcal} kcal</span>
+            <span style={{fontSize:'11px',color:accentColor,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em'}}>{goalName||'Daily Goal'}</span>
+            <span style={{fontSize:'12px',color:'#9ca3af'}}>{Math.round(prog)}% · {calories} / {effectiveGoalKcal} kcal</span>
           </div>
           <div style={{height:'6px',background:'#1e1e30',borderRadius:'999px',overflow:'hidden'}}>
             <div style={{height:'100%',width:`${prog}%`,background:`linear-gradient(90deg,${accentColor},${isRun?'#a78bfa':'#3b82f6'})`,borderRadius:'999px',transition:'width 0.5s'}}/>
