@@ -19,9 +19,7 @@ let session: ort.InferenceSession | null = null;
 let isModelLoading = false;
 let loadPromise: Promise<void> | null = null;
 
-// ── Temporal smoothing (EMA) — eliminates skeleton jumping between frames —
-// Blends each new detection with the previous frame's position.
-const SMOOTH = 0.6; // increased for more stable skeleton
+const SMOOTH = 0.6;
 let prevKeypoints: Array<{ x: number; y: number; confidence: number }> | null = null;
 
 function sigmoid(x: number): number {
@@ -36,15 +34,14 @@ export const COCO_KEYPOINTS = [
 ];
 
 export const CONNECTING_LINES = [
-  // Face lines removed to keep skeleton clean
   [5, 6], [5, 7], [7, 9], [6, 8], [8, 10], // Arms
   [5, 11], [6, 12], [11, 12], // Torso
   [11, 13], [13, 15], [12, 14], [14, 16] // Legs
 ];
 
 export async function loadWorkoutModel(): Promise<void> {
-  if (session) return; // already loaded
-  if (loadPromise) return loadPromise; // already loading — wait on same promise
+  if (session) return;
+  if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
     isModelLoading = true;
@@ -54,12 +51,12 @@ export async function loadWorkoutModel(): Promise<void> {
         executionProviders: ['wasm'],
         graphOptimizationLevel: 'all',
       });
-      console.log('[WorkoutEngine] Model loaded. Inputs:', session.inputNames, 'Outputs:', session.outputNames);
+      console.log('[WorkoutEngine] Model loaded.');
     } catch (err) {
       console.error('[WorkoutEngine] Failed to load model:', err);
       session = null;
-      loadPromise = null; // allow retry
-      throw err; // propagate so initWorkoutNet catches it
+      loadPromise = null;
+      throw err;
     } finally {
       isModelLoading = false;
     }
@@ -95,6 +92,7 @@ export async function runPoseInference(
 
     if (sWidth === 0 || sHeight === 0) return null;
 
+    // Square crop logic
     const sz = Math.min(sWidth, sHeight);
     const ox = (sWidth  - sz) / 2;
     const oy = (sHeight - sz) / 2;
@@ -112,11 +110,8 @@ export async function runPoseInference(
     }
 
     const tensor = new ort.Tensor('float32', floatData, [1, 3, inputSize, inputSize]);
-
-    const inputName  = session.inputNames[0];
-    const outputName = session.outputNames[0];
-    const outputs    = await session.run({ [inputName]: tensor });
-    const heatmaps   = outputs[outputName].data as Float32Array;
+    const outputs = await session.run({ [session.inputNames[0]]: tensor });
+    const heatmaps = outputs[session.outputNames[0]].data as Float32Array;
 
     const numKeypoints = 17;
     const mapSize      = 64;
@@ -132,22 +127,27 @@ export async function runPoseInference(
           maxIdx = i;
         }
       }
+      
+      // Raw x, y in the 64x64 heatmap
+      const rawX = (maxIdx % mapSize) / mapSize;
+      const rawY = Math.floor(maxIdx / mapSize) / mapSize;
+
+      // Map back to original video coordinates
+      // 1. Map 0-1 (square) -> original sz pixels
+      // 2. Offset by crop (ox, oy)
+      // 3. Normalize by sWidth, sHeight
       keypoints.push({
-        x:          (maxIdx % mapSize) / mapSize,
-        y:          Math.floor(maxIdx / mapSize) / mapSize,
-        // CRITICAL: sigmoid converts raw logits → true 0-1 probabilities
-        // Without this, threshold 0.35 lets garbage keypoints through
+        x: (ox + rawX * sz) / sWidth,
+        y: (oy + rawY * sz) / sHeight,
         confidence: sigmoid(maxVal),
       });
     }
 
-    // ── EMA temporal smoothing — blend new detection with previous frame ──
-    // Prevents skeleton from jumping when model is uncertain on one frame
+    // Temporal smoothing
     if (prevKeypoints && prevKeypoints.length === keypoints.length) {
       for (let i = 0; i < keypoints.length; i++) {
         const cur  = keypoints[i];
         const prev = prevKeypoints[i];
-        // Only smooth high-confidence detections; let low-conf ones fall through
         if (cur.confidence > 0.3 && prev.confidence > 0.3) {
           cur.x = prev.x * SMOOTH + cur.x * (1 - SMOOTH);
           cur.y = prev.y * SMOOTH + cur.y * (1 - SMOOTH);

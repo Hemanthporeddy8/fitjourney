@@ -332,8 +332,8 @@ function WorkoutClientContent() {
     for (const [a, b] of CONNECTING_LINES) {
       if ((kp[a]?.confidence || 0) > conf && (kp[b]?.confidence || 0) > conf) {
         ctx.beginPath();
-        ctx.moveTo((1 - kp[a].x) * W, kp[a].y * H);
-        ctx.lineTo((1 - kp[b].x) * W, kp[b].y * H);
+        ctx.moveTo(kp[a].x * W, kp[a].y * H);
+        ctx.lineTo(kp[b].x * W, kp[b].y * H);
         ctx.stroke();
       }
     }
@@ -341,7 +341,7 @@ function WorkoutClientContent() {
     for (const pt of kp) {
       if ((pt.confidence || 0) > conf) {
         ctx.beginPath();
-        ctx.arc((1 - pt.x) * W, pt.y * H, quality === 'ready' ? 6 : 5, 0, Math.PI * 2);
+        ctx.arc(pt.x * W, pt.y * H, quality === 'ready' ? 6 : 5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
