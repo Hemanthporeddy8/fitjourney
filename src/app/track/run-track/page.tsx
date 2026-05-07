@@ -26,8 +26,9 @@ function fmtTime(s: number) {
 }
 
 type Phase = 'permission' | 'idle' | 'active' | 'paused' | 'done';
+type TrackType = 'long' | 'loop';
 interface Coord { lat: number; lng: number }
-interface Result { mode: string; elapsed: number; distance: number; steps: number; calories: number; pace: number; goalKcal: number; goalName: string; }
+interface Result { mode: string; type: TrackType; elapsed: number; distance: number; steps: number; calories: number; pace: number; goalKcal: number; goalName: string; }
 
 function RunTrackContent() {
   const router = useRouter();
@@ -38,6 +39,7 @@ function RunTrackContent() {
 
   const [phase, setPhase] = useState<Phase>('permission');
   const [gpsEnabled, setGpsEnabled] = useState(false);
+  const [trackType, setTrackType] = useState<TrackType>('long');
   const [elapsed, setElapsed] = useState(0);
   const [distance, setDistance] = useState(0);
   const [steps, setSteps] = useState(0);
@@ -77,9 +79,16 @@ function RunTrackContent() {
 
   // Derived stats
   useEffect(() => {
-    setCalories(Math.round(distance * (CALORIES_PER_KM[mode] || 60)));
-    if (elapsed > 10 && distance > 0) setPace(parseFloat(((elapsed / 60) / distance).toFixed(2)));
-    if (elapsed > 0) setCadence(Math.round((steps / elapsed) * 60));
+    // Calories based on distance or steps if distance is failing
+    const effectiveDist = distance > 0 ? distance : (steps * STEP_M / 1000);
+    setCalories(Math.round(effectiveDist * (CALORIES_PER_KM[mode] || 60)));
+    
+    if (elapsed > 5 && effectiveDist > 0.001) {
+      const minPerKm = (elapsed / 60) / effectiveDist;
+      // Sanity check: cap pace at 2 min/km (bullet train prevention)
+      setPace(minPerKm < 2 ? 2 : parseFloat(minPerKm.toFixed(2)));
+    }
+    if (elapsed > 0) setCadence(Math.round((steps / (elapsed / 60))));
   }, [distance, elapsed, steps, mode]);
 
   // Timer
@@ -112,61 +121,90 @@ function RunTrackContent() {
   }, [route]);
 
   const startGps = useCallback(() => {
+    const threshold = trackType === 'loop' ? 0.0015 : 0.004; // 1.5m for loop, 4m for long
     watchRef.current = navigator.geolocation.watchPosition(pos => {
       setGpsAccuracy(Math.round(pos.coords.accuracy));
+      // Discard low accuracy points initially
+      if (pos.coords.accuracy > 30 && route.length < 5) return;
+
       if (lastPosRef.current) {
         const inc = haversine(lastPosRef.current.coords.latitude, lastPosRef.current.coords.longitude, pos.coords.latitude, pos.coords.longitude);
-        if (inc > 0.003) {
-          setDistance(d => d + inc);
-          setSteps(s => s + Math.round((inc * 1000) / STEP_M));
-          setRoute(r => [...r.slice(-300), { lat: pos.coords.latitude, lng: pos.coords.longitude }]);
-        }
-      }
-      lastPosRef.current = pos;
-    }, () => { }, { enableHighAccuracy: true, maximumAge: 1000 });
-  }, []);
+        
+        // Speed check: discard jumps faster than 30km/h for walk/run
+        const speedKmh = (inc / ((pos.timestamp - lastPosRef.current.timestamp) / 3600000));
+        if (speedKmh > 35) return;
 
-  const startAccelFallback = useCallback(() => {
+        if (inc >= threshold) {
+          setDistance(d => d + inc);
+          setRoute(r => [...r.slice(-300), { lat: pos.coords.latitude, lng: pos.coords.longitude }]);
+          lastPosRef.current = pos;
+        }
+      } else {
+        lastPosRef.current = pos;
+        setRoute([{ lat: pos.coords.latitude, lng: pos.coords.longitude }]);
+      }
+    }, () => { }, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
+  }, [trackType, route.length]);
+
+  const startAccel = useCallback(() => {
     const h = (e: DeviceMotionEvent) => {
       const acc = e.accelerationIncludingGravity; if (!acc) return;
       const mag = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
       accelBuf.current.push(mag);
-      if (accelBuf.current.length > 5) {
-        const b = accelBuf.current.slice(-5);
-        if (b[2] > b[1] && b[2] > b[3] && b[2] > 12) { setSteps(s => s + 1); setDistance(d => d + STEP_M / 1000); }
+      if (accelBuf.current.length > 10) {
+        const b = accelBuf.current.slice(-10);
+        // More robust peak detection: find max in window and check if it's a significant deviation from avg
+        const avg = b.reduce((a,c)=>a+c,0)/10;
+        const peak = Math.max(...b);
+        const peakIdx = b.indexOf(peak);
+        
+        if (peakIdx === 5 && peak > avg + 1.5 && peak > 10.5) { 
+          setSteps(s => s + 1); 
+          // If GPS is failing/jittery, use steps to supplement distance
+          if (!gpsEnabled || gpsAccuracy && gpsAccuracy > 25) {
+            setDistance(d => d + STEP_M / 1000);
+          }
+        }
         accelBuf.current.shift();
       }
     };
     window.addEventListener('devicemotion', h);
     return () => window.removeEventListener('devicemotion', h);
-  }, []);
+  }, [gpsEnabled, gpsAccuracy]);
 
   const handleStart = () => {
     startRef.current = Date.now();
     setPhase('active');
-    if (gpsEnabled) startGps(); else cleanupAccel.current = startAccelFallback();
+    cleanupAccel.current = startAccel();
+    if (gpsEnabled) startGps();
   };
 
   const handlePause = () => {
     pauseAcc.current = elapsed; setPhase('paused');
     if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
+    if (cleanupAccel.current) { cleanupAccel.current(); cleanupAccel.current = null; }
   };
 
   const handleResume = () => {
     startRef.current = Date.now(); setPhase('active');
-    if (gpsEnabled) startGps(); else cleanupAccel.current = startAccelFallback();
+    cleanupAccel.current = startAccel();
+    if (gpsEnabled) startGps();
   };
 
   const handleStop = () => {
     if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
     if (cleanupAccel.current) cleanupAccel.current();
-    const r: Result = { mode, elapsed, distance: parseFloat(distance.toFixed(2)), steps, calories, pace, goalKcal, goalName };
+    const effectiveGoal = goalKcal || (aiGoal?.kcal || 0);
+    const r: Result = { mode, type: trackType, elapsed, distance: parseFloat(distance.toFixed(2)), steps, calories, pace, goalKcal: effectiveGoal, goalName };
     if (elapsed > 5) {
       const sessions = JSON.parse(localStorage.getItem('fitjourney_run_sessions') || '[]');
       sessions.unshift({ ...r, date: new Date().toISOString() });
       localStorage.setItem('fitjourney_run_sessions', JSON.stringify(sessions.slice(0, 30)));
       setResult(r); setPhase('done');
-    } else { router.back(); }
+    } else {
+      setPhase('idle');
+      router.back();
+    }
   };
 
   const prog = goalKcal > 0 ? Math.min(100, (calories / goalKcal) * 100) : 0;
@@ -338,15 +376,39 @@ function RunTrackContent() {
           ))}
         </div>
 
+        {/* Type Selector (Idle Phase) */}
+        {phase === 'idle' && (
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <Button 
+              variant={trackType === 'long' ? 'default' : 'outline'} 
+              className="flex flex-col h-auto py-3 gap-1 rounded-2xl"
+              onClick={() => setTrackType('long')}
+            >
+              <span className="text-lg">🛣️</span>
+              <span className="text-sm font-bold text-wrap leading-tight">Long Directional</span>
+              <span className="text-[10px] opacity-60">Direct routes</span>
+            </Button>
+            <Button 
+              variant={trackType === 'loop' ? 'default' : 'outline'} 
+              className="flex flex-col h-auto py-3 gap-1 rounded-2xl"
+              onClick={() => setTrackType('loop')}
+            >
+              <span className="text-lg">🔄</span>
+              <span className="text-sm font-bold text-wrap leading-tight">Loop / Park</span>
+              <span className="text-[10px] opacity-60">Circular paths</span>
+            </Button>
+          </div>
+        )}
+
         {/* Controls */}
         <div className="flex justify-center items-center gap-5 py-2">
           {phase === 'idle' && (
-            <Button size="lg" className="w-20 h-20 rounded-full shadow-xl" onClick={handleStart}>
+            <Button size="lg" className="w-20 h-20 rounded-full shadow-xl shadow-primary/20" onClick={handleStart}>
               <Play className="h-8 w-8 fill-white ml-1" />
             </Button>
           )}
           {phase === 'active' && (<>
-            <Button size="lg" className="w-20 h-20 rounded-full bg-yellow-500 hover:bg-yellow-600 shadow-xl" onClick={handlePause}>
+            <Button size="lg" className="w-20 h-20 rounded-full bg-yellow-500 hover:bg-yellow-600 shadow-xl shadow-yellow-500/20" onClick={handlePause}>
               <Pause className="h-8 w-8 fill-white" />
             </Button>
             <Button size="icon" variant="destructive" className="w-14 h-14 rounded-full" onClick={handleStop}>
@@ -354,7 +416,7 @@ function RunTrackContent() {
             </Button>
           </>)}
           {phase === 'paused' && (<>
-            <Button size="lg" className="w-20 h-20 rounded-full shadow-xl" onClick={handleResume}>
+            <Button size="lg" className="w-20 h-20 rounded-full shadow-xl shadow-primary/20" onClick={handleResume}>
               <Play className="h-8 w-8 fill-white ml-1" />
             </Button>
             <Button size="icon" variant="destructive" className="w-14 h-14 rounded-full" onClick={handleStop}>
