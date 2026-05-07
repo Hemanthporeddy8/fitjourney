@@ -194,7 +194,7 @@ function RunTrackContent() {
   const handleStop = () => {
     if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
     if (cleanupAccel.current) cleanupAccel.current();
-    const effectiveGoal = goalKcal || (aiGoal?.kcal || 0);
+    const effectiveGoal = goalKcal || 0;
     const r: Result = { mode, type: trackType, elapsed, distance: parseFloat(distance.toFixed(2)), steps, calories, pace, goalKcal: effectiveGoal, goalName };
     if (elapsed > 5) {
       const sessions = JSON.parse(localStorage.getItem('fitjourney_run_sessions') || '[]');
