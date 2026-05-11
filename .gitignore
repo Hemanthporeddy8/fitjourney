@@ -43,3 +43,24 @@ backup_bulky/
 *.pth
 *.zip
 !results.zip
+
+# ── ML Training Artifacts (never commit these) ──────────────
+# Python training scripts
+*.py
+# Kaggle / Jupyter logs
+*.log
+# Jupyter notebooks
+*.ipynb
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+# Videos (screen recordings, demos)
+*.mp4
+*.mov
+*.avi
+# Scratch / temp work
+scratch/
+# ONNX exports (only keep the ones in public/models)
+*.onnx
+!public/models/*.onnx
