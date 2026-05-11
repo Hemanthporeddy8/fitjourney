@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Home as HomeIcon, LineChart, Dumbbell, Camera as CameraIcon, Scale, User as UserIcon, Zap, ScanLine, UserSquare2, Map } from 'lucide-react';
+import { Home as HomeIcon, LineChart, Dumbbell, Camera as CameraIcon, Scale, User as UserIcon, Zap, ScanLine, UserSquare2, Smile, Map } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function NavigationFooter() {
@@ -19,6 +19,7 @@ export function NavigationFooter() {
     { type: 'popover' }, // Camera popover
     { href: '/buddy', icon: Zap, label: 'Buddy' },
     { href: '/ideal-body', icon: Scale, label: 'Ideal Body' },
+    { href: '/face-timelapse', icon: Smile, label: 'Face' },
     { href: '/healmap', icon: Map, label: 'HealMap' },
     { href: '/profile', icon: UserIcon, label: 'Profile' },
   ];
