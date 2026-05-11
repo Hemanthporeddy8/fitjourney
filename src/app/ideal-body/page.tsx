@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Sparkles, Loader2, Scale, Flame, Dumbbell, Droplets, Moon, Lock, CheckCircle2, Play, Upload, Target } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Scale, Flame, Dumbbell, Lock, CheckCircle2, Play, Upload, Target, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,9 +16,9 @@ const SESSIONS_KEY     = 'fitjourney_sessions_completed';
 const SESSIONS_NEEDED  = 5;
 
 const BODY_TYPES = [
-  { id: 'ectomorph', label: 'Ectomorph', bf: '8–12%', color: 'border-blue-500/50', bg: 'bg-blue-500', desc: 'Naturally lean, long limbs, fast metabolism.' },
-  { id: 'mesomorph', label: 'Mesomorph', bf: '10–15%', color: 'border-green-500/50', bg: 'bg-green-500', desc: 'Athletic build, broad shoulders, muscle definition.' },
-  { id: 'endomorph', label: 'Endomorph', bf: '18–25%', color: 'border-orange-500/50', bg: 'bg-orange-500', desc: 'Stocky frame, naturally strong, stores fat easily.' }
+  { id: 'ectomorph', label: 'Ectomorph', bf: '8–12%', offset: 'object-left', desc: 'Naturally lean, long limbs, fast metabolism.' },
+  { id: 'mesomorph', label: 'Mesomorph', bf: '10–15%', offset: 'object-center', desc: 'Athletic build, broad shoulders, muscle definition.' },
+  { id: 'endomorph', label: 'Endomorph', bf: '18–25%', offset: 'object-right', desc: 'Stocky frame, naturally strong, stores fat easily.' }
 ];
 
 export default function IdealBodyPage() {
@@ -31,27 +31,19 @@ export default function IdealBodyPage() {
   const [selected, setSelected]           = useState<string | null>(null);
   const [locked, setLocked]               = useState<string | null>(null);
   const [gender, setGender]               = useState<'male' | 'female'>('male');
-  const [sessionsLeft, setSessionsLeft]   = useState(0);
   const [comparison, setComparison]       = useState<ComparisonResult | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(LOCAL_KEY);
     const lockData = localStorage.getItem(LOCK_KEY);
-    const sessions = parseInt(localStorage.getItem(SESSIONS_KEY) || '0');
     const profile = JSON.parse(localStorage.getItem('fitjourney_profile_data') || '{}');
 
     if (saved) setPlan(JSON.parse(saved));
     if (profile.gender === 'female') setGender('female');
     if (lockData) {
-      const { type, lockedAt } = JSON.parse(lockData);
-      const sessionsAfterLock = Math.max(0, sessions - lockedAt);
-      if (sessionsAfterLock < SESSIONS_NEEDED) {
-        setLocked(type);
-        setSelected(type);
-        setSessionsLeft(SESSIONS_NEEDED - sessionsAfterLock);
-      } else {
-        localStorage.removeItem(LOCK_KEY);
-      }
+      const { type } = JSON.parse(lockData);
+      setLocked(type);
+      setSelected(type);
     }
   }, []);
 
@@ -60,7 +52,6 @@ export default function IdealBodyPage() {
     const sessions = parseInt(localStorage.getItem(SESSIONS_KEY) || '0');
     localStorage.setItem(LOCK_KEY, JSON.stringify({ type: selected, lockedAt: sessions }));
     setLocked(selected);
-    setSessionsLeft(SESSIONS_NEEDED);
   };
 
   const handleGenerate = async () => {
@@ -92,6 +83,7 @@ export default function IdealBodyPage() {
     <div className="min-h-screen bg-zinc-950 text-white pb-24">
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
 
+      {/* Header */}
       <div className="sticky top-0 z-20 bg-zinc-950/90 backdrop-blur border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => router.back()}><ArrowLeft className="h-5 w-5" /></Button>
@@ -105,7 +97,6 @@ export default function IdealBodyPage() {
 
       <div className="px-4 py-6 max-w-2xl mx-auto space-y-8">
         
-        {/* 🚀 ACTION CENTER (ONLY WHEN LOCKED) */}
         {locked && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button onClick={() => router.push('/track')} className="h-14 rounded-2xl bg-primary font-black text-lg shadow-xl shadow-primary/20"><Play className="mr-2 h-5 w-5 fill-current" /> Start Today's Session</Button>
@@ -116,17 +107,14 @@ export default function IdealBodyPage() {
           </div>
         )}
 
-        {/* 📊 IDEAL COMPARE RESULTS */}
         {comparison && (
-          <Card className="bg-zinc-900 border-primary/30 overflow-hidden">
+          <Card className="bg-zinc-900 border-primary/30 overflow-hidden animate-in fade-in slide-in-from-bottom-4">
             <div className="bg-primary/10 px-4 py-3 border-b border-white/5 flex items-center justify-between">
               <h3 className="text-sm font-black flex items-center gap-2"><Target className="h-4 w-4 text-primary" /> AI Analysis: {comparison.matchPercentage}% Match</h3>
             </div>
             <CardContent className="p-4 space-y-3">
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: `${comparison.matchPercentage}%` }} />
-              </div>
-              <p className="text-xs text-muted-foreground italic">"{comparison.analysis}"</p>
+              <div className="h-2 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-primary" style={{ width: `${comparison.matchPercentage}%` }} /></div>
+              <p className="text-xs text-muted-foreground italic leading-relaxed">"{comparison.analysis}"</p>
               <div className="flex flex-wrap gap-2">
                 {comparison.focusAreas.map(area => <Badge key={area} className="bg-zinc-800 text-[10px]">🎯 {area}</Badge>)}
               </div>
@@ -134,79 +122,93 @@ export default function IdealBodyPage() {
           </Card>
         )}
 
-        {/* 1. Body Type Chart */}
+        {/* 📋 SELECTION SECTION (Divided from the 3-in-1 pro chart) */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Professional Reference Chart</h2>
+            <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Your Goal Physique</h2>
             {locked && <Badge variant="outline" className="text-amber-400 border-amber-400/30 text-[10px]"><Lock className="h-3 w-3 mr-1" /> Selection Locked</Badge>}
           </div>
-          <div className="rounded-[2rem] overflow-hidden border border-white/10 bg-white">
-            <Image 
-              src={gender === 'male' ? '/images/male_body_types.png' : '/images/female_body_types.png'} 
-              alt="Body types" width={800} height={450} className="w-full h-auto"
-            />
-          </div>
-        </div>
 
-        {/* Selection Grid */}
-        <div className="grid grid-cols-1 gap-3">
-          {BODY_TYPES.map(bt => {
-            const isSelected = selected === bt.id;
-            const isLocked   = locked === bt.id;
-            const isDisabled = !!locked && locked !== bt.id;
-            return (
-              <button
-                key={bt.id}
-                onClick={() => !isDisabled && setSelected(bt.id)}
-                className={`p-4 rounded-2xl border-2 text-left transition-all flex items-center justify-between
-                  ${isSelected ? `border-primary bg-primary/10 shadow-lg shadow-primary/10` : 'border-white/5 bg-zinc-900'}
-                  ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:border-white/20'}
-                `}
-              >
-                <div>
-                  <p className="text-sm font-black uppercase tracking-widest">{bt.label}</p>
-                  <p className="text-[10px] text-muted-foreground">{bt.desc}</p>
+          <div className="grid grid-cols-1 gap-6">
+            {BODY_TYPES.map(bt => {
+              const isSelected = selected === bt.id;
+              const isLocked   = locked === bt.id;
+              const isDisabled = !!locked && locked !== bt.id;
+              
+              return (
+                <div 
+                  key={bt.id}
+                  onClick={() => !isDisabled && setSelected(bt.id)}
+                  className={`relative rounded-[2rem] overflow-hidden border-2 transition-all duration-300
+                    ${isSelected ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02]' : 'border-white/10 opacity-70'}
+                    ${isDisabled ? 'opacity-30 cursor-not-allowed grayscale' : 'cursor-pointer hover:border-white/30 hover:opacity-100'}
+                  `}
+                >
+                  {/* Pro anatomical crop from the 3-in-1 chart */}
+                  <div className="h-64 relative bg-white">
+                    <Image 
+                      src={gender === 'male' ? '/images/male_body_types.png' : '/images/female_body_types.png'} 
+                      alt={bt.label}
+                      fill
+                      className={`object-cover ${bt.offset} scale-[1.3]`}
+                      sizes="700px"
+                    />
+                    {/* Overlay info */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                    
+                    <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                      <div>
+                        <Badge className="bg-primary text-white border-none font-black text-[10px] mb-2 uppercase tracking-tighter">ANATOMICAL REFERENCE: {bt.label}</Badge>
+                        <h3 className="text-2xl font-black">{bt.label}</h3>
+                        <p className="text-xs text-muted-foreground">{bt.desc}</p>
+                      </div>
+                      <Badge variant="secondary" className="mb-1 font-black">BF: {bt.bf}</Badge>
+                    </div>
+
+                    {isSelected && (
+                      <div className="absolute top-4 right-4 h-8 w-8 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                        <CheckCircle2 className="text-white h-5 w-5" />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {isSelected && <CheckCircle2 className="text-primary h-5 w-5" />}
-              </button>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {selected && !locked && (
-          <Button onClick={handleLock} className="w-full h-14 font-black rounded-2xl bg-primary">
-            <Lock className="mr-2 h-4 w-4" /> Lock Selection & Continue
+          <Button onClick={handleLock} className="w-full h-16 font-black rounded-2xl bg-primary text-lg shadow-xl shadow-primary/20">
+            <Lock className="mr-2 h-5 w-5" /> Confirm & Lock This Body Type
           </Button>
         )}
 
-        {/* Generate Button */}
         {(selected || locked) && (
-          <Button onClick={handleGenerate} disabled={isLoading} className="w-full h-16 rounded-3xl bg-zinc-900 border-2 border-primary/20 text-lg font-black">
+          <Button onClick={handleGenerate} disabled={isLoading} className="w-full h-16 rounded-2xl bg-zinc-900 border-2 border-primary/20 text-lg font-black hover:bg-zinc-800 transition-all">
             {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5 text-primary" />}
-            {isLoading ? "Calculating..." : "Generate AI Blueprint"}
+            {isLoading ? "Calculating Metabolic Path..." : "Generate AI Blueprint"}
           </Button>
         )}
 
-        {/* Plan Results */}
         {plan && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-             <div className="p-4 rounded-3xl bg-zinc-900 border border-white/5 space-y-6">
+             <div className="p-6 rounded-[2rem] bg-zinc-900 border border-white/5 space-y-6 shadow-2xl">
                 <div className="text-center">
                   <Badge variant="outline" className="text-primary border-primary/30 uppercase tracking-widest px-4">{plan.planTitle}</Badge>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{plan.planSummary}</p>
+                  <p className="text-sm text-muted-foreground mt-4 leading-relaxed">{plan.planSummary}</p>
                 </div>
 
                 {plan.dietPlan && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-                      <Flame className="h-5 w-5 text-orange-400 mx-auto mb-1" />
-                      <p className="text-xl font-black">{plan.dietPlan.dailyCalorieTarget}</p>
-                      <p className="text-[10px] uppercase text-muted-foreground">Calories</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                      <Flame className="h-6 w-6 text-orange-400 mx-auto mb-2" />
+                      <p className="text-2xl font-black">{plan.dietPlan.dailyCalorieTarget}</p>
+                      <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">Daily kcal</p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-                      <Dumbbell className="h-5 w-5 text-blue-400 mx-auto mb-1" />
-                      <p className="text-xl font-black">{plan.dietPlan.macronutrientSplit.proteinGrams}g</p>
-                      <p className="text-[10px] uppercase text-muted-foreground">Protein</p>
+                    <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                      <Dumbbell className="h-6 w-6 text-blue-400 mx-auto mb-2" />
+                      <p className="text-2xl font-black">{plan.dietPlan.macronutrientSplit.proteinGrams}g</p>
+                      <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">Protein</p>
                     </div>
                   </div>
                 )}
