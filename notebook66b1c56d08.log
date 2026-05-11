@@ -1,0 +1,710 @@
+13.1s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+13.1s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+13.1s 3 0.00s - to python to disable frozen modules.
+13.1s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+14.0s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+14.0s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+14.0s 7 0.00s - to python to disable frozen modules.
+14.0s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+36.8s 9 Device: cuda
+36.8s 10 Input: 256×256 → Heatmap: 64×64
+36.8s 11 Keypoints: 17 (COCO-17, same as MediaPipe subset)
+37.4s 12 
+37.4s 13 FitJourneyNet V2 architecture check:
+37.4s 14 Input:      torch.Size([1, 3, 256, 256])
+37.4s 15 Heatmaps:   torch.Size([1, 17, 64, 64])     ← same as V1, browser-compatible
+37.4s 16 Regression: torch.Size([1, 17, 3])  ← (B, 17, 3) x/y/conf
+37.4s 17 Parameters: 0.79M
+37.4s 18 Estimated ONNX size: ~3.2 MB
+37.4s 19 ============================================================
+37.4s 20 FitJourneyNet V2 — Training
+37.4s 21 ============================================================
+37.4s 22 Loading COCO train annotations...
+37.4s 23 /usr/local/lib/python3.12/dist-packages/albumentations/core/validation.py:114: UserWarning: ShiftScaleRotate is a special case of Affine transform. Please use Affine transform instead.
+37.4s 24 original_init(self, **validated_kwargs)
+37.4s 25 
+37.4s 26 /usr/local/lib/python3.12/dist-packages/albumentations/core/validation.py:114: UserWarning: ShiftScaleRotate is a special case of Affine transform. Please use Affine transform instead.
+37.4s 27 original_init(self, **validated_kwargs)
+50.7s 28 COCO train: 118859 valid person instances
+50.7s 29 Loading COCO val annotations...
+50.9s 30 COCO val: 5023 valid person instances
+50.9s 31 OCHuman not found ([Errno 2] No such file or directory: '/kaggle/input/ochuman/OCHuman/ochuman.json'), using COCO only
+51.1s 32 Using 2 GPUs
+51.1s 33 Parameters: 0.79M
+58.0s 34 Epoch 1 batch 0 loss 10.2867
+97.0s 35 Epoch 1 batch 50 loss 0.0406
+135.5s 36 Epoch 1 batch 100 loss 0.0345
+172.7s 37 Epoch 1 batch 150 loss 0.0353
+209.0s 38 Epoch 1 batch 200 loss 0.0365
+246.3s 39 Epoch 1 batch 250 loss 0.0369
+281.9s 40 Epoch 1 batch 300 loss 0.0339
+317.9s 41 Epoch 1 batch 350 loss 0.0361
+353.1s 42 Epoch 1 batch 400 loss 0.0357
+388.3s 43 Epoch 1 batch 450 loss 0.0360
+422.4s 44 Epoch 1 batch 500 loss 0.0346
+456.9s 45 Epoch 1 batch 550 loss 0.0346
+490.8s 46 Epoch 1 batch 600 loss 0.0346
+523.7s 47 Epoch 1 batch 650 loss 0.0355
+556.4s 48 Epoch 1 batch 700 loss 0.0338
+588.5s 49 Epoch 1 batch 750 loss 0.0338
+620.8s 50 Epoch 1 batch 800 loss 0.0357
+654.0s 51 Epoch 1 batch 850 loss 0.0368
+687.4s 52 Epoch 1 batch 900 loss 0.0325
+720.1s 53 Epoch 1 batch 950 loss 0.0347
+751.9s 54 Epoch 1 batch 1000 loss 0.0341
+783.3s 55 Epoch 1 batch 1050 loss 0.0343
+815.3s 56 Epoch 1 batch 1100 loss 0.0338
+846.6s 57 Epoch 1 batch 1150 loss 0.0339
+877.8s 58 Epoch 1 batch 1200 loss 0.0353
+909.3s 59 Epoch 1 batch 1250 loss 0.0330
+939.6s 60 Epoch 1 batch 1300 loss 0.0362
+970.1s 61 Epoch 1 batch 1350 loss 0.0366
+1000.4s 62 Epoch 1 batch 1400 loss 0.0319
+1030.4s 63 Epoch 1 batch 1450 loss 0.0330
+1060.1s 64 Epoch 1 batch 1500 loss 0.0337
+1090.6s 65 Epoch 1 batch 1550 loss 0.0343
+1120.4s 66 Epoch 1 batch 1600 loss 0.0342
+1150.7s 67 Epoch 1 batch 1650 loss 0.0337
+1180.3s 68 Epoch 1 batch 1700 loss 0.0326
+1209.9s 69 Epoch 1 batch 1750 loss 0.0334
+1239.3s 70 Epoch 1 batch 1800 loss 0.0359
+1269.0s 71 Epoch 1 batch 1850 loss 0.0317
+1317.2s 72 
+1317.2s 73 Epoch 1/100  Train Loss: 0.0520  Val Loss: 0.0335  Val PCKh: 25.5%  (1266s)
+1317.2s 74 
+1317.2s 75 ✓ New best model saved (PCKh=25.5%)
+1319.1s 76 Epoch 2 batch 0 loss 0.0335
+1346.9s 77 Epoch 2 batch 50 loss 0.0344
+1374.4s 78 Epoch 2 batch 100 loss 0.0343
+1401.6s 79 Epoch 2 batch 150 loss 0.0337
+1428.9s 80 Epoch 2 batch 200 loss 0.0341
+1456.4s 81 Epoch 2 batch 250 loss 0.0337
+1484.5s 82 Epoch 2 batch 300 loss 0.0338
+1512.8s 83 Epoch 2 batch 350 loss 0.0340
+1539.9s 84 Epoch 2 batch 400 loss 0.0311
+1567.4s 85 Epoch 2 batch 450 loss 0.0338
+1595.0s 86 Epoch 2 batch 500 loss 0.0338
+1622.1s 87 Epoch 2 batch 550 loss 0.0332
+1649.5s 88 Epoch 2 batch 600 loss 0.0336
+1676.9s 89 Epoch 2 batch 650 loss 0.0313
+1704.6s 90 Epoch 2 batch 700 loss 0.0318
+1732.2s 91 Epoch 2 batch 750 loss 0.0315
+1759.7s 92 Epoch 2 batch 800 loss 0.0302
+1787.1s 93 Epoch 2 batch 850 loss 0.0325
+1814.9s 94 Epoch 2 batch 900 loss 0.0342
+1842.6s 95 Epoch 2 batch 950 loss 0.0317
+1870.0s 96 Epoch 2 batch 1000 loss 0.0301
+1897.4s 97 Epoch 2 batch 1050 loss 0.0316
+1924.8s 98 Epoch 2 batch 1100 loss 0.0320
+1952.2s 99 Epoch 2 batch 1150 loss 0.0317
+1979.6s 100 Epoch 2 batch 1200 loss 0.0334
+2006.9s 101 Epoch 2 batch 1250 loss 0.0311
+2034.4s 102 Epoch 2 batch 1300 loss 0.0332
+2061.4s 103 Epoch 2 batch 1350 loss 0.0310
+2088.0s 104 Epoch 2 batch 1400 loss 0.0311
+2114.7s 105 Epoch 2 batch 1450 loss 0.0328
+2141.5s 106 Epoch 2 batch 1500 loss 0.0316
+2167.9s 107 Epoch 2 batch 1550 loss 0.0320
+2194.2s 108 Epoch 2 batch 1600 loss 0.0322
+2220.7s 109 Epoch 2 batch 1650 loss 0.0292
+2246.8s 110 Epoch 2 batch 1700 loss 0.0310
+2274.2s 111 Epoch 2 batch 1750 loss 0.0306
+2300.1s 112 Epoch 2 batch 1800 loss 0.0311
+2326.8s 113 Epoch 2 batch 1850 loss 0.0319
+2363.7s 114 
+2363.7s 115 Epoch 2/100  Train Loss: 0.0322  Val Loss: 0.0301  Val PCKh: 41.3%  (1046s)
+2363.7s 116 
+2363.7s 117 ✓ New best model saved (PCKh=41.3%)
+2365.6s 118 Epoch 3 batch 0 loss 0.0329
+2392.7s 119 Epoch 3 batch 50 loss 0.0337
+2419.4s 120 Epoch 3 batch 100 loss 0.0294
+2446.4s 121 Epoch 3 batch 150 loss 0.0309
+2473.1s 122 Epoch 3 batch 200 loss 0.0331
+2499.5s 123 Epoch 3 batch 250 loss 0.0306
+2525.8s 124 Epoch 3 batch 300 loss 0.0297
+2552.4s 125 Epoch 3 batch 350 loss 0.0328
+2579.2s 126 Epoch 3 batch 400 loss 0.0301
+2605.4s 127 Epoch 3 batch 450 loss 0.0307
+2631.7s 128 Epoch 3 batch 500 loss 0.0313
+2657.9s 129 Epoch 3 batch 550 loss 0.0310
+2685.1s 130 Epoch 3 batch 600 loss 0.0287
+2712.1s 131 Epoch 3 batch 650 loss 0.0316
+2739.1s 132 Epoch 3 batch 700 loss 0.0310
+2766.0s 133 Epoch 3 batch 750 loss 0.0304
+2792.9s 134 Epoch 3 batch 800 loss 0.0330
+2820.0s 135 Epoch 3 batch 850 loss 0.0316
+2847.3s 136 Epoch 3 batch 900 loss 0.0277
+2874.4s 137 Epoch 3 batch 950 loss 0.0289
+2900.7s 138 Epoch 3 batch 1000 loss 0.0298
+2927.4s 139 Epoch 3 batch 1050 loss 0.0301
+2954.5s 140 Epoch 3 batch 1100 loss 0.0283
+2981.2s 141 Epoch 3 batch 1150 loss 0.0300
+3008.2s 142 Epoch 3 batch 1200 loss 0.0295
+3035.0s 143 Epoch 3 batch 1250 loss 0.0302
+3062.1s 144 Epoch 3 batch 1300 loss 0.0291
+3089.0s 145 Epoch 3 batch 1350 loss 0.0306
+3116.2s 146 Epoch 3 batch 1400 loss 0.0312
+3143.3s 147 Epoch 3 batch 1450 loss 0.0295
+3170.3s 148 Epoch 3 batch 1500 loss 0.0302
+3197.3s 149 Epoch 3 batch 1550 loss 0.0299
+3224.2s 150 Epoch 3 batch 1600 loss 0.0284
+3251.3s 151 Epoch 3 batch 1650 loss 0.0281
+3278.4s 152 Epoch 3 batch 1700 loss 0.0293
+3305.3s 153 Epoch 3 batch 1750 loss 0.0270
+3331.8s 154 Epoch 3 batch 1800 loss 0.0296
+3357.9s 155 Epoch 3 batch 1850 loss 0.0296
+3395.0s 156 
+3395.0s 157 Epoch 3/100  Train Loss: 0.0300  Val Loss: 0.0276  Val PCKh: 48.6%  (1031s)
+3395.0s 158 
+3395.0s 159 ✓ New best model saved (PCKh=48.6%)
+3397.0s 160 Epoch 4 batch 0 loss 0.0289
+3423.5s 161 Epoch 4 batch 50 loss 0.0287
+3450.5s 162 Epoch 4 batch 100 loss 0.0283
+3477.8s 163 Epoch 4 batch 150 loss 0.0289
+3505.1s 164 Epoch 4 batch 200 loss 0.0267
+3532.1s 165 Epoch 4 batch 250 loss 0.0286
+3559.1s 166 Epoch 4 batch 300 loss 0.0305
+3586.2s 167 Epoch 4 batch 350 loss 0.0300
+3613.2s 168 Epoch 4 batch 400 loss 0.0289
+3640.3s 169 Epoch 4 batch 450 loss 0.0289
+3667.6s 170 Epoch 4 batch 500 loss 0.0293
+3694.7s 171 Epoch 4 batch 550 loss 0.0264
+3721.6s 172 Epoch 4 batch 600 loss 0.0301
+3748.7s 173 Epoch 4 batch 650 loss 0.0275
+3776.2s 174 Epoch 4 batch 700 loss 0.0302
+3803.7s 175 Epoch 4 batch 750 loss 0.0299
+3830.9s 176 Epoch 4 batch 800 loss 0.0268
+3858.2s 177 Epoch 4 batch 850 loss 0.0281
+3886.1s 178 Epoch 4 batch 900 loss 0.0291
+3913.5s 179 Epoch 4 batch 950 loss 0.0290
+3940.5s 180 Epoch 4 batch 1000 loss 0.0279
+3966.9s 181 Epoch 4 batch 1050 loss 0.0276
+3993.8s 182 Epoch 4 batch 1100 loss 0.0270
+4020.7s 183 Epoch 4 batch 1150 loss 0.0293
+4047.5s 184 Epoch 4 batch 1200 loss 0.0270
+4074.6s 185 Epoch 4 batch 1250 loss 0.0281
+4101.4s 186 Epoch 4 batch 1300 loss 0.0246
+4129.0s 187 Epoch 4 batch 1350 loss 0.0301
+4156.4s 188 Epoch 4 batch 1400 loss 0.0266
+4184.0s 189 Epoch 4 batch 1450 loss 0.0264
+4212.6s 190 Epoch 4 batch 1500 loss 0.0298
+4240.8s 191 Epoch 4 batch 1550 loss 0.0301
+4268.7s 192 Epoch 4 batch 1600 loss 0.0248
+4296.4s 193 Epoch 4 batch 1650 loss 0.0267
+4324.2s 194 Epoch 4 batch 1700 loss 0.0295
+4351.6s 195 Epoch 4 batch 1750 loss 0.0270
+4379.1s 196 Epoch 4 batch 1800 loss 0.0269
+4407.3s 197 Epoch 4 batch 1850 loss 0.0285
+4446.1s 198 
+4446.1s 199 Epoch 4/100  Train Loss: 0.0280  Val Loss: 0.0256  Val PCKh: 54.2%  (1051s)
+4446.1s 200 
+4446.1s 201 ✓ New best model saved (PCKh=54.2%)
+4448.2s 202 Epoch 5 batch 0 loss 0.0296
+4476.0s 203 Epoch 5 batch 50 loss 0.0311
+4503.9s 204 Epoch 5 batch 100 loss 0.0280
+4531.8s 205 Epoch 5 batch 150 loss 0.0270
+4559.7s 206 Epoch 5 batch 200 loss 0.0263
+4587.0s 207 Epoch 5 batch 250 loss 0.0289
+4614.8s 208 Epoch 5 batch 300 loss 0.0273
+4642.7s 209 Epoch 5 batch 350 loss 0.0281
+4670.5s 210 Epoch 5 batch 400 loss 0.0269
+4698.2s 211 Epoch 5 batch 450 loss 0.0264
+4726.0s 212 Epoch 5 batch 500 loss 0.0260
+4754.2s 213 Epoch 5 batch 550 loss 0.0302
+4782.1s 214 Epoch 5 batch 600 loss 0.0245
+4810.3s 215 Epoch 5 batch 650 loss 0.0280
+4838.5s 216 Epoch 5 batch 700 loss 0.0280
+4866.7s 217 Epoch 5 batch 750 loss 0.0278
+4895.0s 218 Epoch 5 batch 800 loss 0.0273
+4923.3s 219 Epoch 5 batch 850 loss 0.0265
+4951.0s 220 Epoch 5 batch 900 loss 0.0283
+4979.0s 221 Epoch 5 batch 950 loss 0.0263
+5007.3s 222 Epoch 5 batch 1000 loss 0.0265
+5035.2s 223 Epoch 5 batch 1050 loss 0.0254
+5063.0s 224 Epoch 5 batch 1100 loss 0.0272
+5091.9s 225 Epoch 5 batch 1150 loss 0.0270
+5120.1s 226 Epoch 5 batch 1200 loss 0.0277
+5148.1s 227 Epoch 5 batch 1250 loss 0.0263
+5176.5s 228 Epoch 5 batch 1300 loss 0.0265
+5204.9s 229 Epoch 5 batch 1350 loss 0.0272
+5233.0s 230 Epoch 5 batch 1400 loss 0.0266
+5261.5s 231 Epoch 5 batch 1450 loss 0.0254
+5289.9s 232 Epoch 5 batch 1500 loss 0.0288
+5317.4s 233 Epoch 5 batch 1550 loss 0.0257
+5345.3s 234 Epoch 5 batch 1600 loss 0.0269
+5374.0s 235 Epoch 5 batch 1650 loss 0.0254
+5403.1s 236 Epoch 5 batch 1700 loss 0.0277
+5431.8s 237 Epoch 5 batch 1750 loss 0.0266
+5459.8s 238 Epoch 5 batch 1800 loss 0.0240
+5488.2s 239 Epoch 5 batch 1850 loss 0.0255
+5528.1s 240 
+5528.1s 241 Epoch 5/100  Train Loss: 0.0269  Val Loss: 0.0250  Val PCKh: 58.1%  (1082s)
+5528.1s 242 
+5528.1s 243 ✓ New best model saved (PCKh=58.1%)
+5530.2s 244 Epoch 6 batch 0 loss 0.0266
+5559.0s 245 Epoch 6 batch 50 loss 0.0274
+5587.6s 246 Epoch 6 batch 100 loss 0.0277
+5615.9s 247 Epoch 6 batch 150 loss 0.0250
+5644.4s 248 Epoch 6 batch 200 loss 0.0275
+5672.9s 249 Epoch 6 batch 250 loss 0.0262
+5701.1s 250 Epoch 6 batch 300 loss 0.0258
+5728.8s 251 Epoch 6 batch 350 loss 0.0302
+5757.2s 252 Epoch 6 batch 400 loss 0.0274
+5785.4s 253 Epoch 6 batch 450 loss 0.0271
+5812.9s 254 Epoch 6 batch 500 loss 0.0277
+5840.8s 255 Epoch 6 batch 550 loss 0.0262
+5868.6s 256 Epoch 6 batch 600 loss 0.0271
+5896.4s 257 Epoch 6 batch 650 loss 0.0240
+5924.1s 258 Epoch 6 batch 700 loss 0.0278
+5951.5s 259 Epoch 6 batch 750 loss 0.0241
+5979.1s 260 Epoch 6 batch 800 loss 0.0259
+6006.5s 261 Epoch 6 batch 850 loss 0.0254
+6033.9s 262 Epoch 6 batch 900 loss 0.0252
+6061.6s 263 Epoch 6 batch 950 loss 0.0263
+6089.4s 264 Epoch 6 batch 1000 loss 0.0283
+6117.5s 265 Epoch 6 batch 1050 loss 0.0272
+6145.7s 266 Epoch 6 batch 1100 loss 0.0265
+6174.6s 267 Epoch 6 batch 1150 loss 0.0256
+6203.9s 268 Epoch 6 batch 1200 loss 0.0241
+6232.3s 269 Epoch 6 batch 1250 loss 0.0249
+6260.6s 270 Epoch 6 batch 1300 loss 0.0257
+6288.4s 271 Epoch 6 batch 1350 loss 0.0250
+6316.0s 272 Epoch 6 batch 1400 loss 0.0261
+6343.9s 273 Epoch 6 batch 1450 loss 0.0263
+6371.7s 274 Epoch 6 batch 1500 loss 0.0269
+6399.4s 275 Epoch 6 batch 1550 loss 0.0261
+6426.8s 276 Epoch 6 batch 1600 loss 0.0273
+6454.2s 277 Epoch 6 batch 1650 loss 0.0242
+6481.7s 278 Epoch 6 batch 1700 loss 0.0272
+6509.7s 279 Epoch 6 batch 1750 loss 0.0268
+6536.8s 280 Epoch 6 batch 1800 loss 0.0260
+6563.8s 281 Epoch 6 batch 1850 loss 0.0269
+6602.8s 282 
+6602.8s 283 Epoch 6/100  Train Loss: 0.0263  Val Loss: 0.0244  Val PCKh: 59.4%  (1075s)
+6602.8s 284 
+6602.8s 285 ✓ New best model saved (PCKh=59.4%)
+6604.9s 286 Epoch 7 batch 0 loss 0.0243
+6633.8s 287 Epoch 7 batch 50 loss 0.0274
+6661.0s 288 Epoch 7 batch 100 loss 0.0270
+6689.1s 289 Epoch 7 batch 150 loss 0.0246
+6717.0s 290 Epoch 7 batch 200 loss 0.0276
+6744.9s 291 Epoch 7 batch 250 loss 0.0260
+6773.0s 292 Epoch 7 batch 300 loss 0.0273
+6801.3s 293 Epoch 7 batch 350 loss 0.0238
+6830.4s 294 Epoch 7 batch 400 loss 0.0257
+6859.0s 295 Epoch 7 batch 450 loss 0.0251
+6887.6s 296 Epoch 7 batch 500 loss 0.0277
+6916.2s 297 Epoch 7 batch 550 loss 0.0242
+6944.7s 298 Epoch 7 batch 600 loss 0.0252
+6973.0s 299 Epoch 7 batch 650 loss 0.0259
+7001.2s 300 Epoch 7 batch 700 loss 0.0262
+7029.2s 301 Epoch 7 batch 750 loss 0.0258
+7057.1s 302 Epoch 7 batch 800 loss 0.0263
+7084.4s 303 Epoch 7 batch 850 loss 0.0273
+7112.6s 304 Epoch 7 batch 900 loss 0.0258
+7140.4s 305 Epoch 7 batch 950 loss 0.0248
+7168.3s 306 Epoch 7 batch 1000 loss 0.0271
+7196.6s 307 Epoch 7 batch 1050 loss 0.0247
+7225.0s 308 Epoch 7 batch 1100 loss 0.0247
+7253.3s 309 Epoch 7 batch 1150 loss 0.0256
+7281.7s 310 Epoch 7 batch 1200 loss 0.0256
+7310.1s 311 Epoch 7 batch 1250 loss 0.0299
+7337.9s 312 Epoch 7 batch 1300 loss 0.0254
+7366.0s 313 Epoch 7 batch 1350 loss 0.0255
+7394.2s 314 Epoch 7 batch 1400 loss 0.0270
+7422.6s 315 Epoch 7 batch 1450 loss 0.0250
+7450.3s 316 Epoch 7 batch 1500 loss 0.0251
+7478.4s 317 Epoch 7 batch 1550 loss 0.0261
+7506.1s 318 Epoch 7 batch 1600 loss 0.0278
+7533.5s 319 Epoch 7 batch 1650 loss 0.0273
+7560.2s 320 Epoch 7 batch 1700 loss 0.0243
+7587.5s 321 Epoch 7 batch 1750 loss 0.0269
+7614.8s 322 Epoch 7 batch 1800 loss 0.0252
+7642.3s 323 Epoch 7 batch 1850 loss 0.0243
+7682.6s 324 
+7682.6s 325 Epoch 7/100  Train Loss: 0.0258  Val Loss: 0.0240  Val PCKh: 56.8%  (1080s)
+7682.6s 326 
+7684.8s 327 Epoch 8 batch 0 loss 0.0264
+7712.9s 328 Epoch 8 batch 50 loss 0.0271
+7740.9s 329 Epoch 8 batch 100 loss 0.0269
+7768.2s 330 Epoch 8 batch 150 loss 0.0244
+7795.2s 331 Epoch 8 batch 200 loss 0.0233
+7822.1s 332 Epoch 8 batch 250 loss 0.0241
+7849.5s 333 Epoch 8 batch 300 loss 0.0257
+7877.3s 334 Epoch 8 batch 350 loss 0.0249
+7905.1s 335 Epoch 8 batch 400 loss 0.0268
+7933.3s 336 Epoch 8 batch 450 loss 0.0259
+7960.8s 337 Epoch 8 batch 500 loss 0.0244
+7988.9s 338 Epoch 8 batch 550 loss 0.0266
+8016.9s 339 Epoch 8 batch 600 loss 0.0240
+8044.6s 340 Epoch 8 batch 650 loss 0.0270
+8072.3s 341 Epoch 8 batch 700 loss 0.0281
+8099.5s 342 Epoch 8 batch 750 loss 0.0279
+8127.2s 343 Epoch 8 batch 800 loss 0.0265
+8154.7s 344 Epoch 8 batch 850 loss 0.0262
+8183.2s 345 Epoch 8 batch 900 loss 0.0284
+8212.4s 346 Epoch 8 batch 950 loss 0.0247
+8240.9s 347 Epoch 8 batch 1000 loss 0.0246
+8269.5s 348 Epoch 8 batch 1050 loss 0.0256
+8297.4s 349 Epoch 8 batch 1100 loss 0.0247
+8325.4s 350 Epoch 8 batch 1150 loss 0.0276
+8353.3s 351 Epoch 8 batch 1200 loss 0.0253
+8380.8s 352 Epoch 8 batch 1250 loss 0.0256
+8408.9s 353 Epoch 8 batch 1300 loss 0.0270
+8437.3s 354 Epoch 8 batch 1350 loss 0.0296
+8465.8s 355 Epoch 8 batch 1400 loss 0.0247
+8494.3s 356 Epoch 8 batch 1450 loss 0.0249
+8522.4s 357 Epoch 8 batch 1500 loss 0.0278
+8550.7s 358 Epoch 8 batch 1550 loss 0.0254
+8578.5s 359 Epoch 8 batch 1600 loss 0.0236
+8606.1s 360 Epoch 8 batch 1650 loss 0.0262
+8634.9s 361 Epoch 8 batch 1700 loss 0.0267
+8662.9s 362 Epoch 8 batch 1750 loss 0.0234
+8690.9s 363 Epoch 8 batch 1800 loss 0.0261
+8720.1s 364 Epoch 8 batch 1850 loss 0.0263
+8760.3s 365 
+8760.3s 366 Epoch 8/100  Train Loss: 0.0254  Val Loss: 0.0239  Val PCKh: 58.5%  (1078s)
+8760.3s 367 
+8762.6s 368 Epoch 9 batch 0 loss 0.0263
+8790.5s 369 Epoch 9 batch 50 loss 0.0241
+8818.3s 370 Epoch 9 batch 100 loss 0.0236
+8846.3s 371 Epoch 9 batch 150 loss 0.0226
+8874.8s 372 Epoch 9 batch 200 loss 0.0236
+8902.9s 373 Epoch 9 batch 250 loss 0.0264
+8931.5s 374 Epoch 9 batch 300 loss 0.0247
+8959.8s 375 Epoch 9 batch 350 loss 0.0251
+8987.7s 376 Epoch 9 batch 400 loss 0.0245
+9015.2s 377 Epoch 9 batch 450 loss 0.0259
+9042.9s 378 Epoch 9 batch 500 loss 0.0243
+9070.9s 379 Epoch 9 batch 550 loss 0.0273
+9099.3s 380 Epoch 9 batch 600 loss 0.0258
+9127.5s 381 Epoch 9 batch 650 loss 0.0234
+9156.0s 382 Epoch 9 batch 700 loss 0.0253
+9185.1s 383 Epoch 9 batch 750 loss 0.0259
+9214.1s 384 Epoch 9 batch 800 loss 0.0254
+9243.0s 385 Epoch 9 batch 850 loss 0.0245
+9271.9s 386 Epoch 9 batch 900 loss 0.0250
+9301.2s 387 Epoch 9 batch 950 loss 0.0250
+9331.1s 388 Epoch 9 batch 1000 loss 0.0248
+9360.0s 389 Epoch 9 batch 1050 loss 0.0265
+9389.1s 390 Epoch 9 batch 1100 loss 0.0246
+9419.2s 391 Epoch 9 batch 1150 loss 0.0237
+9447.7s 392 Epoch 9 batch 1200 loss 0.0239
+9476.5s 393 Epoch 9 batch 1250 loss 0.0254
+9505.4s 394 Epoch 9 batch 1300 loss 0.0257
+9534.7s 395 Epoch 9 batch 1350 loss 0.0253
+9563.5s 396 Epoch 9 batch 1400 loss 0.0236
+9592.5s 397 Epoch 9 batch 1450 loss 0.0249
+9621.8s 398 Epoch 9 batch 1500 loss 0.0276
+9649.9s 399 Epoch 9 batch 1550 loss 0.0257
+9678.6s 400 Epoch 9 batch 1600 loss 0.0238
+9707.4s 401 Epoch 9 batch 1650 loss 0.0267
+9736.3s 402 Epoch 9 batch 1700 loss 0.0245
+9765.2s 403 Epoch 9 batch 1750 loss 0.0245
+9793.8s 404 Epoch 9 batch 1800 loss 0.0237
+9822.5s 405 Epoch 9 batch 1850 loss 0.0264
+9863.6s 406 
+9863.6s 407 Epoch 9/100  Train Loss: 0.0251  Val Loss: 0.0234  Val PCKh: 59.0%  (1103s)
+9863.6s 408 
+9865.9s 409 Epoch 10 batch 0 loss 0.0257
+9894.6s 410 Epoch 10 batch 50 loss 0.0253
+9923.0s 411 Epoch 10 batch 100 loss 0.0250
+9951.3s 412 Epoch 10 batch 150 loss 0.0255
+9979.7s 413 Epoch 10 batch 200 loss 0.0268
+10008.7s 414 Epoch 10 batch 250 loss 0.0239
+10037.1s 415 Epoch 10 batch 300 loss 0.0258
+10065.4s 416 Epoch 10 batch 350 loss 0.0252
+10093.8s 417 Epoch 10 batch 400 loss 0.0245
+10122.6s 418 Epoch 10 batch 450 loss 0.0221
+10150.7s 419 Epoch 10 batch 500 loss 0.0257
+10179.0s 420 Epoch 10 batch 550 loss 0.0242
+10207.4s 421 Epoch 10 batch 600 loss 0.0241
+10236.0s 422 Epoch 10 batch 650 loss 0.0234
+10265.0s 423 Epoch 10 batch 700 loss 0.0280
+10293.9s 424 Epoch 10 batch 750 loss 0.0242
+10323.1s 425 Epoch 10 batch 800 loss 0.0276
+10353.0s 426 Epoch 10 batch 850 loss 0.0243
+10382.9s 427 Epoch 10 batch 900 loss 0.0257
+10413.8s 428 Epoch 10 batch 950 loss 0.0261
+10444.2s 429 Epoch 10 batch 1000 loss 0.0270
+10475.1s 430 Epoch 10 batch 1050 loss 0.0250
+10506.2s 431 Epoch 10 batch 1100 loss 0.0235
+10537.5s 432 Epoch 10 batch 1150 loss 0.0257
+10568.1s 433 Epoch 10 batch 1200 loss 0.0233
+10599.7s 434 Epoch 10 batch 1250 loss 0.0213
+10630.6s 435 Epoch 10 batch 1300 loss 0.0253
+10661.1s 436 Epoch 10 batch 1350 loss 0.0235
+10692.1s 437 Epoch 10 batch 1400 loss 0.0268
+10722.7s 438 Epoch 10 batch 1450 loss 0.0239
+10753.4s 439 Epoch 10 batch 1500 loss 0.0241
+10784.1s 440 Epoch 10 batch 1550 loss 0.0286
+10814.6s 441 Epoch 10 batch 1600 loss 0.0253
+10845.0s 442 Epoch 10 batch 1650 loss 0.0240
+10875.5s 443 Epoch 10 batch 1700 loss 0.0248
+10905.7s 444 Epoch 10 batch 1750 loss 0.0241
+10936.1s 445 Epoch 10 batch 1800 loss 0.0271
+10966.7s 446 Epoch 10 batch 1850 loss 0.0246
+11014.6s 447 
+11014.6s 448 Epoch 10/100  Train Loss: 0.0248  Val Loss: 0.0231  Val PCKh: 61.0%  (1151s)
+11014.6s 449 
+11014.6s 450 ✓ New best model saved (PCKh=61.0%)
+11017.0s 451 Epoch 11 batch 0 loss 0.0257
+11047.2s 452 Epoch 11 batch 50 loss 0.0254
+11077.3s 453 Epoch 11 batch 100 loss 0.0229
+11106.7s 454 Epoch 11 batch 150 loss 0.0256
+11136.3s 455 Epoch 11 batch 200 loss 0.0240
+11165.2s 456 Epoch 11 batch 250 loss 0.0245
+11193.6s 457 Epoch 11 batch 300 loss 0.0262
+11222.8s 458 Epoch 11 batch 350 loss 0.0239
+11254.5s 459 Epoch 11 batch 400 loss 0.0226
+11284.2s 460 Epoch 11 batch 450 loss 0.0244
+11313.7s 461 Epoch 11 batch 500 loss 0.0243
+11343.5s 462 Epoch 11 batch 550 loss 0.0261
+11373.0s 463 Epoch 11 batch 600 loss 0.0249
+11402.2s 464 Epoch 11 batch 650 loss 0.0253
+11431.4s 465 Epoch 11 batch 700 loss 0.0245
+11460.7s 466 Epoch 11 batch 750 loss 0.0264
+11489.8s 467 Epoch 11 batch 800 loss 0.0259
+11519.3s 468 Epoch 11 batch 850 loss 0.0249
+11549.3s 469 Epoch 11 batch 900 loss 0.0250
+11579.0s 470 Epoch 11 batch 950 loss 0.0245
+11609.0s 471 Epoch 11 batch 1000 loss 0.0236
+11639.6s 472 Epoch 11 batch 1050 loss 0.0257
+11670.5s 473 Epoch 11 batch 1100 loss 0.0258
+11701.7s 474 Epoch 11 batch 1150 loss 0.0227
+11732.5s 475 Epoch 11 batch 1200 loss 0.0239
+11764.4s 476 Epoch 11 batch 1250 loss 0.0239
+11797.1s 477 Epoch 11 batch 1300 loss 0.0222
+11828.8s 478 Epoch 11 batch 1350 loss 0.0263
+11860.6s 479 Epoch 11 batch 1400 loss 0.0239
+11893.4s 480 Epoch 11 batch 1450 loss 0.0260
+11926.6s 481 Epoch 11 batch 1500 loss 0.0237
+11960.7s 482 Epoch 11 batch 1550 loss 0.0266
+12003.4s 483 Epoch 11 batch 1600 loss 0.0257
+12042.3s 484 Epoch 11 batch 1650 loss 0.0232
+12079.5s 485 Epoch 11 batch 1700 loss 0.0242
+12113.8s 486 Epoch 11 batch 1750 loss 0.0264
+12147.5s 487 Epoch 11 batch 1800 loss 0.0215
+12180.8s 488 Epoch 11 batch 1850 loss 0.0233
+12223.9s 489 
+12223.9s 490 Epoch 11/100  Train Loss: 0.0245  Val Loss: 0.0228  Val PCKh: 58.2%  (1209s)
+12223.9s 491 
+12226.4s 492 Epoch 12 batch 0 loss 0.0264
+12256.9s 493 Epoch 12 batch 50 loss 0.0244
+12287.4s 494 Epoch 12 batch 100 loss 0.0227
+12318.1s 495 Epoch 12 batch 150 loss 0.0243
+12348.4s 496 Epoch 12 batch 200 loss 0.0265
+12378.6s 497 Epoch 12 batch 250 loss 0.0274
+12408.6s 498 Epoch 12 batch 300 loss 0.0258
+12439.0s 499 Epoch 12 batch 350 loss 0.0226
+12471.2s 500 Epoch 12 batch 400 loss 0.0243
+12502.4s 501 Epoch 12 batch 450 loss 0.0245
+12533.9s 502 Epoch 12 batch 500 loss 0.0259
+12565.8s 503 Epoch 12 batch 550 loss 0.0211
+12597.3s 504 Epoch 12 batch 600 loss 0.0242
+12628.5s 505 Epoch 12 batch 650 loss 0.0226
+12659.9s 506 Epoch 12 batch 700 loss 0.0235
+12691.2s 507 Epoch 12 batch 750 loss 0.0222
+12723.9s 508 Epoch 12 batch 800 loss 0.0272
+12757.5s 509 Epoch 12 batch 850 loss 0.0264
+12792.5s 510 Epoch 12 batch 900 loss 0.0228
+12825.7s 511 Epoch 12 batch 950 loss 0.0228
+12861.0s 512 Epoch 12 batch 1000 loss 0.0271
+12901.1s 513 Epoch 12 batch 1050 loss 0.0219
+12938.2s 514 Epoch 12 batch 1100 loss 0.0245
+12975.0s 515 Epoch 12 batch 1150 loss 0.0232
+13011.0s 516 Epoch 12 batch 1200 loss 0.0245
+13046.7s 517 Epoch 12 batch 1250 loss 0.0231
+13092.0s 518 Epoch 12 batch 1300 loss 0.0230
+13140.5s 519 Epoch 12 batch 1350 loss 0.0247
+13193.0s 520 Epoch 12 batch 1400 loss 0.0261
+13235.6s 521 Epoch 12 batch 1450 loss 0.0250
+13292.3s 522 Epoch 12 batch 1500 loss 0.0246
+13347.1s 523 Epoch 12 batch 1550 loss 0.0280
+13390.7s 524 Epoch 12 batch 1600 loss 0.0241
+13427.9s 525 Epoch 12 batch 1650 loss 0.0230
+13464.0s 526 Epoch 12 batch 1700 loss 0.0237
+13498.8s 527 Epoch 12 batch 1750 loss 0.0232
+13535.0s 528 Epoch 12 batch 1800 loss 0.0231
+13570.2s 529 Epoch 12 batch 1850 loss 0.0245
+13619.6s 530 
+13619.6s 531 Epoch 12/100  Train Loss: 0.0243  Val Loss: 0.0227  Val PCKh: 60.7%  (1396s)
+13619.6s 532 
+13622.4s 533 Epoch 13 batch 0 loss 0.0263
+13654.7s 534 Epoch 13 batch 50 loss 0.0234
+13686.1s 535 Epoch 13 batch 100 loss 0.0254
+13718.3s 536 Epoch 13 batch 150 loss 0.0220
+13749.8s 537 Epoch 13 batch 200 loss 0.0260
+13781.1s 538 Epoch 13 batch 250 loss 0.0245
+13815.8s 539 Epoch 13 batch 300 loss 0.0252
+13849.4s 540 Epoch 13 batch 350 loss 0.0242
+13882.4s 541 Epoch 13 batch 400 loss 0.0262
+13914.7s 542 Epoch 13 batch 450 loss 0.0231
+13947.5s 543 Epoch 13 batch 500 loss 0.0246
+13979.6s 544 Epoch 13 batch 550 loss 0.0236
+14012.2s 545 Epoch 13 batch 600 loss 0.0246
+14046.3s 546 Epoch 13 batch 650 loss 0.0266
+14080.0s 547 Epoch 13 batch 700 loss 0.0254
+14112.8s 548 Epoch 13 batch 750 loss 0.0251
+14145.5s 549 Epoch 13 batch 800 loss 0.0224
+14178.2s 550 Epoch 13 batch 850 loss 0.0251
+14210.6s 551 Epoch 13 batch 900 loss 0.0225
+14243.5s 552 Epoch 13 batch 950 loss 0.0239
+14275.8s 553 Epoch 13 batch 1000 loss 0.0239
+14307.7s 554 Epoch 13 batch 1050 loss 0.0227
+14340.7s 555 Epoch 13 batch 1100 loss 0.0214
+14374.3s 556 Epoch 13 batch 1150 loss 0.0251
+14407.9s 557 Epoch 13 batch 1200 loss 0.0228
+14440.5s 558 Epoch 13 batch 1250 loss 0.0240
+14473.0s 559 Epoch 13 batch 1300 loss 0.0260
+14505.6s 560 Epoch 13 batch 1350 loss 0.0227
+14537.7s 561 Epoch 13 batch 1400 loss 0.0234
+14570.4s 562 Epoch 13 batch 1450 loss 0.0234
+14602.8s 563 Epoch 13 batch 1500 loss 0.0260
+14635.8s 564 Epoch 13 batch 1550 loss 0.0234
+14669.7s 565 Epoch 13 batch 1600 loss 0.0233
+14703.6s 566 Epoch 13 batch 1650 loss 0.0223
+14737.9s 567 Epoch 13 batch 1700 loss 0.0236
+14772.6s 568 Epoch 13 batch 1750 loss 0.0243
+14805.5s 569 Epoch 13 batch 1800 loss 0.0242
+14838.5s 570 Epoch 13 batch 1850 loss 0.0233
+14887.4s 571 
+14887.4s 572 Epoch 13/100  Train Loss: 0.0241  Val Loss: 0.0224  Val PCKh: 61.4%  (1268s)
+14887.4s 573 
+14887.4s 574 ✓ New best model saved (PCKh=61.4%)
+14890.1s 575 Epoch 14 batch 0 loss 0.0258
+14922.4s 576 Epoch 14 batch 50 loss 0.0223
+14954.4s 577 Epoch 14 batch 100 loss 0.0214
+14987.7s 578 Epoch 14 batch 150 loss 0.0215
+15020.0s 579 Epoch 14 batch 200 loss 0.0233
+15052.1s 580 Epoch 14 batch 250 loss 0.0248
+15084.4s 581 Epoch 14 batch 300 loss 0.0240
+15117.5s 582 Epoch 14 batch 350 loss 0.0241
+15150.1s 583 Epoch 14 batch 400 loss 0.0245
+15182.8s 584 Epoch 14 batch 450 loss 0.0248
+15215.5s 585 Epoch 14 batch 500 loss 0.0236
+15249.1s 586 Epoch 14 batch 550 loss 0.0246
+15284.8s 587 Epoch 14 batch 600 loss 0.0276
+15319.0s 588 Epoch 14 batch 650 loss 0.0225
+15351.9s 589 Epoch 14 batch 700 loss 0.0227
+15384.8s 590 Epoch 14 batch 750 loss 0.0239
+15417.7s 591 Epoch 14 batch 800 loss 0.0250
+15450.5s 592 Epoch 14 batch 850 loss 0.0218
+15483.4s 593 Epoch 14 batch 900 loss 0.0220
+15516.7s 594 Epoch 14 batch 950 loss 0.0222
+15549.5s 595 Epoch 14 batch 1000 loss 0.0240
+15582.3s 596 Epoch 14 batch 1050 loss 0.0248
+15615.5s 597 Epoch 14 batch 1100 loss 0.0253
+15648.5s 598 Epoch 14 batch 1150 loss 0.0254
+15681.7s 599 Epoch 14 batch 1200 loss 0.0237
+15715.2s 600 Epoch 14 batch 1250 loss 0.0236
+15748.8s 601 Epoch 14 batch 1300 loss 0.0228
+15782.5s 602 Epoch 14 batch 1350 loss 0.0238
+15815.9s 603 Epoch 14 batch 1400 loss 0.0226
+15849.4s 604 Epoch 14 batch 1450 loss 0.0218
+15883.5s 605 Epoch 14 batch 1500 loss 0.0211
+15917.3s 606 Epoch 14 batch 1550 loss 0.0262
+15950.9s 607 Epoch 14 batch 1600 loss 0.0230
+15985.2s 608 Epoch 14 batch 1650 loss 0.0236
+16019.6s 609 Epoch 14 batch 1700 loss 0.0235
+16053.8s 610 Epoch 14 batch 1750 loss 0.0247
+16088.3s 611 Epoch 14 batch 1800 loss 0.0237
+16123.1s 612 Epoch 14 batch 1850 loss 0.0244
+16171.4s 613 
+16171.4s 614 Epoch 14/100  Train Loss: 0.0239  Val Loss: 0.0222  Val PCKh: 61.6%  (1284s)
+16171.4s 615 
+16171.4s 616 ✓ New best model saved (PCKh=61.6%)
+16174.3s 617 Epoch 15 batch 0 loss 0.0266
+16208.0s 618 Epoch 15 batch 50 loss 0.0243
+16241.7s 619 Epoch 15 batch 100 loss 0.0223
+16275.9s 620 Epoch 15 batch 150 loss 0.0237
+16310.6s 621 Epoch 15 batch 200 loss 0.0224
+16343.5s 622 Epoch 15 batch 250 loss 0.0230
+16377.6s 623 Epoch 15 batch 300 loss 0.0241
+16411.9s 624 Epoch 15 batch 350 loss 0.0227
+16447.5s 625 Epoch 15 batch 400 loss 0.0236
+16483.2s 626 Epoch 15 batch 450 loss 0.0226
+16519.4s 627 Epoch 15 batch 500 loss 0.0242
+16554.1s 628 Epoch 15 batch 550 loss 0.0229
+16588.4s 629 Epoch 15 batch 600 loss 0.0239
+16623.5s 630 Epoch 15 batch 650 loss 0.0231
+16658.5s 631 Epoch 15 batch 700 loss 0.0246
+16694.0s 632 Epoch 15 batch 750 loss 0.0254
+16729.4s 633 Epoch 15 batch 800 loss 0.0255
+16765.2s 634 Epoch 15 batch 850 loss 0.0244
+16801.6s 635 Epoch 15 batch 900 loss 0.0248
+16837.9s 636 Epoch 15 batch 950 loss 0.0229
+16874.3s 637 Epoch 15 batch 1000 loss 0.0265
+16910.3s 638 Epoch 15 batch 1050 loss 0.0234
+16947.1s 639 Epoch 15 batch 1100 loss 0.0247
+16983.1s 640 Epoch 15 batch 1150 loss 0.0245
+17019.6s 641 Epoch 15 batch 1200 loss 0.0224
+17055.7s 642 Epoch 15 batch 1250 loss 0.0250
+17092.1s 643 Epoch 15 batch 1300 loss 0.0230
+17129.5s 644 Epoch 15 batch 1350 loss 0.0233
+17167.1s 645 Epoch 15 batch 1400 loss 0.0253
+17205.6s 646 Epoch 15 batch 1450 loss 0.0250
+17244.5s 647 Epoch 15 batch 1500 loss 0.0252
+17284.5s 648 Epoch 15 batch 1550 loss 0.0243
+17323.3s 649 Epoch 15 batch 1600 loss 0.0251
+17362.3s 650 Epoch 15 batch 1650 loss 0.0233
+17401.0s 651 Epoch 15 batch 1700 loss 0.0224
+17439.5s 652 Epoch 15 batch 1750 loss 0.0221
+17478.5s 653 Epoch 15 batch 1800 loss 0.0239
+17500.6s 654 Kernel died while waiting for execute reply.
+17500.6s 655 [ColabKernelApp] WARNING | WARNING: attempted to send message from fork
+17500.6s 656 {'header': {'msg_id': '563db881-c452affa5adc041f3eeff5dc_54723_561', 'msg_type': 'error', 'username': 'username', 'session': '563db881-c452affa5adc041f3eeff5dc', 'date': datetime.datetime(2026, 5, 5, 12, 59, 3, 874103, tzinfo=datetime.timezone.utc), 'version': '5.3'}, 'msg_id': '563db881-c452affa5adc041f3eeff5dc_54723_561', 'msg_type': 'error', 'parent_header': {'msg_id': 'e3e0fd45-993c39ac5f6d3b4dff2b1e75_8_2', 'msg_type': 'execute_request', 'username': 'username', 'session': 'e3e0fd45-993c39ac5f6d3b4dff2b1e75', 'date': datetime.datetime(2026, 5, 5, 8, 7, 38, 784161, tzinfo=tzlocal()), 'version': '5.3'}, 'content': {'traceback': ['\x1b[0;31m---------------------------------------------------------------------------\x1b[0m', '\x1b[0;31mEOFError\x1b[0m                                  Traceback (most recent call last)', '\x1b[0;32m/usr/lib/python3.12/multiprocessing/resource_sharer.py\x1b[0m in \x1b[0;36m_serve\x1b[0;34m(self)\x1b[0m\n\x1b[1;32m    136\x1b[0m         \x1b[0;32mwhile\x1b[0m \x1b[0;36m1\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    137\x1b[0m             \x1b[0;32mtry\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0;32m--> 138\x1b[0;31m                 \x1b[0;32mwith\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_listener\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0maccept\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m)\x1b[0m \x1b[0;32mas\x1b[0m \x1b[0mconn\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0m\x1b[1;32m    139\x1b[0m                     \x1b[0mmsg\x1b[0m \x1b[0;34m=\x1b[0m \x1b[0mconn\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0mrecv\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    140\x1b[0m                     \x1b[0;32mif\x1b[0m \x1b[0mmsg\x1b[0m \x1b[0;32mis\x1b[0m \x1b[0;32mNone\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n', '\x1b[0;32m/usr/lib/python3.12/multiprocessing/connection.py\x1b[0m in \x1b[0;36maccept\x1b[0;34m(self)\x1b[0m\n\x1b[1;32m    480\x1b[0m         \x1b[0mc\x1b[0m \x1b[0;34m=\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_listener\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0maccept\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    481\x1b[0m         \x1b[0;32mif\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_authkey\x1b[0m \x1b[0;32mis\x1b[0m \x1b[0;32mnot\x1b[0m \x1b[0;32mNone\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0;32m--> 482\x1b[0;31m             \x1b[0mdeliver_challenge\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0mc\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_authkey\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0m\x1b[1;32m    483\x1b[0m             \x1b[0manswer_challenge\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0mc\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_authkey\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    484\x1b[0m         \x1b[0;32mreturn\x1b[0m \x1b[0mc\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n', '\x1b[0;32m/usr/lib/python3.12/multiprocessing/connection.py\x1b[0m in \x1b[0;36mdeliver_challenge\x1b[0;34m(connection, authkey, digest_name)\x1b[0m\n\x1b[1;32m    937\x1b[0m     \x1b[0;31m# respond to it with a raw HMAC-MD5.\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    938\x1b[0m     \x1b[0mconnection\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0msend_bytes\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0m_CHALLENGE\x1b[0m \x1b[0;34m+\x1b[0m \x1b[0mmessage\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0;32m--> 939\x1b[0;31m     \x1b[0mresponse\x1b[0m \x1b[0;34m=\x1b[0m \x1b[0mconnection\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0mrecv_bytes\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;36m256\x1b[0m\x1b[0;34m)\x1b[0m        \x1b[0;31m# reject large message\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0m\x1b[1;32m    940\x1b[0m     \x1b[0;32mtry\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    941\x1b[0m         \x1b[0m_verify_challenge\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0mauthkey\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0mmessage\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0mresponse\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n', '\x1b[0;32m/usr/lib/python3.12/multiprocessing/connection.py\x1b[0m in \x1b[0;36mrecv_bytes\x1b[0;34m(self, maxlength)\x1b[0m\n\x1b[1;32m    214\x1b[0m         \x1b[0;32mif\x1b[0m \x1b[0mmaxlength\x1b[0m \x1b[0;32mis\x1b[0m \x1b[0;32mnot\x1b[0m \x1b[0;32mNone\x1b[0m \x1b[0;32mand\x1b[0m \x1b[0mmaxlength\x1b[0m \x1b[0;34m<\x1b[0m \x1b[0;36m0\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    215\x1b[0m             \x1b[0;32mraise\x1b[0m \x1b[0mValueError\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m"negative maxlength"\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0;32m--> 216\x1b[0;31m         \x1b[0mbuf\x1b[0m \x1b[0;34m=\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_recv_bytes\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0mmaxlength\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0m\x1b[1;32m    217\x1b[0m         \x1b[0;32mif\x1b[0m \x1b[0mbuf\x1b[0m \x1b[0;32mis\x1b[0m \x1b[0;32mNone\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    218\x1b[0m             \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_bad_message_length\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n', '\x1b[0;32m/usr/lib/python3.12/multiprocessing/connection.py\x1b[0m in \x1b[0;36m_recv_bytes\x1b[0;34m(self, maxsize)\x1b[0m\n\x1b[1;32m    428\x1b[0m \x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    429\x1b[0m     \x1b[0;32mdef\x1b[0m \x1b[0m_recv_bytes\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0mself\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0mmaxsize\x1b[0m\x1b[0;34m=\x1b[0m\x1b[0;32mNone\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0;32m--> 430\x1b[0;31m         \x1b[0mbuf\x1b[0m \x1b[0;34m=\x1b[0m \x1b[0mself\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0m_recv\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;36m4\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0m\x1b[1;32m    431\x1b[0m         \x1b[0msize\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0;34m=\x1b[0m \x1b[0mstruct\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0munpack\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m"!i"\x1b[0m\x1b[0;34m,\x1b[0m \x1b[0mbuf\x1b[0m\x1b[0;34m.\x1b[0m\x1b[0mgetvalue\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    432\x1b[0m         \x1b[0;32mif\x1b[0m \x1b[0msize\x1b[0m \x1b[0;34m==\x1b[0m \x1b[0;34m-\x1b[0m\x1b[0;36m1\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n', '\x1b[0;32m/usr/lib/python3.12/multiprocessing/connection.py\x1b[0m in \x1b[0;36m_recv\x1b[0;34m(self, size, read)\x1b[0m\n\x1b[1;32m    397\x1b[0m             \x1b[0;32mif\x1b[0m \x1b[0mn\x1b[0m \x1b[0;34m==\x1b[0m \x1b[0;36m0\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    398\x1b[0m                 \x1b[0;32mif\x1b[0m \x1b[0mremaining\x1b[0m \x1b[0;34m==\x1b[0m \x1b[0msize\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0;32m--> 399\x1b[0;31m                     \x1b[0;32mraise\x1b[0m \x1b[0mEOFError\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[0m\x1b[1;32m    400\x1b[0m                 \x1b[0;32melse\x1b[0m\x1b[0;34m:\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n\x1b[1;32m    401\x1b[0m                     \x1b[0;32mraise\x1b[0m \x1b[0mOSError\x1b[0m\x1b[0;34m(\x1b[0m\x1b[0;34m"got end of file during message"\x1b[0m\x1b[0;34m)\x1b[0m\x1b[0;34m\x1b[0m\x1b[0;34m\x1b[0m\x1b[0m\n', '\x1b[0;31mEOFError\x1b[0m: '], 'ename': 'EOFError', 'evalue': ''}, 'metadata': {}}
+17500.8s 657 Traceback (most recent call last):
+17500.8s 658 File "/usr/local/lib/python3.12/dist-packages/nbclient/client.py", line 949, in async_execute_cell
+17500.9s 659 exec_reply = await self.task_poll_for_reply
+17500.9s 660 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 661 File "/usr/local/lib/python3.12/dist-packages/nbclient/client.py", line 730, in _async_poll_for_reply
+17500.9s 662 msg = await ensure_async(self.kc.shell_channel.get_msg(timeout=new_timeout))
+17500.9s 663 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 664 File "/usr/local/lib/python3.12/dist-packages/nbclient/util.py", line 96, in ensure_async
+17500.9s 665 result = await obj
+17500.9s 666 ^^^^^^^^^
+17500.9s 667 File "/usr/local/lib/python3.12/dist-packages/jupyter_client/channels.py", line 224, in get_msg
+17500.9s 668 ready = await self.socket.poll(timeout)
+17500.9s 669 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 670 asyncio.exceptions.CancelledError
+17500.9s 671 
+17500.9s 672 During handling of the above exception, another exception occurred:
+17500.9s 673 
+17500.9s 674 Traceback (most recent call last):
+17500.9s 675 File "<string>", line 1, in <module>
+17500.9s 676 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 116, in execute_notebook
+17500.9s 677 nb = papermill_engines.execute_notebook_with_engine(
+17500.9s 678 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 679 File "/usr/local/lib/python3.12/dist-packages/papermill/engines.py", line 49, in execute_notebook_with_engine
+17500.9s 680 return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
+17500.9s 681 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 682 File "/usr/local/lib/python3.12/dist-packages/papermill/engines.py", line 371, in execute_notebook
+17500.9s 683 cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
+17500.9s 684 File "/usr/local/lib/python3.12/dist-packages/papermill/engines.py", line 443, in execute_managed_notebook
+17500.9s 685 return PapermillNotebookClient(nb_man, **final_kwargs).execute()
+17500.9s 686 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 687 File "/usr/local/lib/python3.12/dist-packages/papermill/clientwrap.py", line 45, in execute
+17500.9s 688 self.papermill_execute_cells()
+17500.9s 689 File "/usr/local/lib/python3.12/dist-packages/papermill/clientwrap.py", line 72, in papermill_execute_cells
+17500.9s 690 self.execute_cell(cell, index)
+17500.9s 691 File "/usr/local/lib/python3.12/dist-packages/nbclient/util.py", line 84, in wrapped
+17500.9s 692 return just_run(coro(*args, **kwargs))
+17500.9s 693 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 694 File "/usr/local/lib/python3.12/dist-packages/nbclient/util.py", line 62, in just_run
+17500.9s 695 return loop.run_until_complete(coro)
+17500.9s 696 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17500.9s 697 File "/usr/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+17500.9s 698 return future.result()
+17500.9s 699 ^^^^^^^^^^^^^^^
+17500.9s 700 File "/usr/local/lib/python3.12/dist-packages/nbclient/client.py", line 953, in async_execute_cell
+17500.9s 701 raise DeadKernelError("Kernel died")
+17500.9s 702 nbclient.exceptions.DeadKernelError: Kernel died
+17507.1s 703 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+17507.1s 704 cells[i][c] = re.sub('\\\\\|', '|', cell)
+17507.7s 705 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+17507.7s 706 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+17511.0s 707 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+17511.5s 708 [NbConvertApp] Writing 77142 bytes to __notebook__.ipynb
+17514.5s 709 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+17516.4s 710 [NbConvertApp] Writing 479624 bytes to __results__.html
