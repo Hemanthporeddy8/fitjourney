@@ -16,9 +16,9 @@ const SESSIONS_KEY     = 'fitjourney_sessions_completed';
 const SESSIONS_NEEDED  = 5;
 
 const BODY_TYPES = [
-  { id: 'ectomorph', label: 'Ectomorph', bf: '8–12%', offset: 'object-left', desc: 'Naturally lean, long limbs, fast metabolism.' },
-  { id: 'mesomorph', label: 'Mesomorph', bf: '10–15%', offset: 'object-center', desc: 'Athletic build, broad shoulders, muscle definition.' },
-  { id: 'endomorph', label: 'Endomorph', bf: '18–25%', offset: 'object-right', desc: 'Stocky frame, naturally strong, stores fat easily.' }
+  { id: 'ectomorph', label: 'Ectomorph', bf: '8–12%', color: 'border-blue-500/50', bg: 'bg-blue-500', desc: 'Naturally lean, long limbs, fast metabolism.' },
+  { id: 'mesomorph', label: 'Mesomorph', bf: '10–15%', color: 'border-green-500/50', bg: 'bg-green-500', desc: 'Athletic build, broad shoulders, muscle definition.' },
+  { id: 'endomorph', label: 'Endomorph', bf: '18–25%', color: 'border-orange-500/50', bg: 'bg-orange-500', desc: 'Stocky frame, naturally strong, stores fat easily.' }
 ];
 
 export default function IdealBodyPage() {
@@ -147,11 +147,11 @@ export default function IdealBodyPage() {
                   {/* Pro anatomical crop from the 3-in-1 chart */}
                   <div className="h-64 relative bg-white">
                     <Image 
-                      src={gender === 'male' ? '/images/male_body_types.png' : '/images/female_body_types.png'} 
+                      src={`/images/${gender}_${bt.id}.png`}
                       alt={bt.label}
                       fill
-                      className={`object-cover ${bt.offset} scale-[1.3]`}
-                      sizes="700px"
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, 700px"
                     />
                     {/* Overlay info */}
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
