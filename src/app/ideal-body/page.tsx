@@ -12,50 +12,56 @@ import { aiEngine, type IdealBodyPlanResult } from '@/lib/ai-engine';
 const LOCAL_KEY        = 'fitjourney_latest_ideal_body_plan';
 const LOCK_KEY         = 'fitjourney_body_type_lock';
 const SESSIONS_KEY     = 'fitjourney_sessions_completed';
-const SESSIONS_NEEDED  = 5; // sessions required to unlock body type change
+const SESSIONS_NEEDED  = 5; 
 
 const BODY_TYPES = [
   {
     type:   'ectomorph',
     label:  'Ectomorph',
     emoji:  '🏃',
-    bf:     '8–12%',
-    image:  '/images/body_ectomorph.png',
+    bf_m:   '8–12%',
+    bf_f:   '15–20%',
+    image_m: '/images/body_m_ecto.png',
+    image_f: '/images/body_f_ecto.png',
     color:  'from-blue-600/30 to-blue-900/20',
     border: 'border-blue-500/50',
     glow:   'shadow-blue-500/30',
     accent: 'text-blue-400',
     bg:     'bg-blue-500',
-    desc:   'Naturally lean, long limbs, fast metabolism. Struggles to gain muscle mass.',
-    tips:   ['Eat every 3 hours', 'Heavy compound lifts', '4–6 meals/day', 'Limit cardio'],
+    desc:   'Naturally lean, long limbs, fast metabolism. Often called "hard gainers" for muscle mass.',
+    tips:   ['Eat every 3 hours', 'Heavy compound lifts', 'High carbohydrate intake', 'Limit high-intensity cardio'],
   },
   {
     type:   'mesomorph',
     label:  'Mesomorph',
     emoji:  '💪',
-    bf:     '10–15%',
-    image:  '/images/body_mesomorph.png',
+    bf_m:   '10–15%',
+    bf_f:   '18–24%',
+    image_m: '/images/body_m_meso.png',
+    image_f: '/images/body_f_meso.png',
     color:  'from-green-600/30 to-green-900/20',
     border: 'border-green-500/50',
     glow:   'shadow-green-500/30',
     accent: 'text-green-400',
     bg:     'bg-green-500',
-    desc:   'Athletic, V-shaped torso. Responds well to training. Gains muscle & loses fat easily.',
-    tips:   ['Balanced macros', 'Mix strength + cardio', 'Progressive overload', 'Great recovery'],
+    desc:   'Athletic, well-proportioned frame. Naturally gains muscle and loses fat with ease.',
+    tips:   ['Balanced macronutrients', 'Mix strength + cardio', 'Progressive overload focus', 'Prioritize recovery'],
   },
   {
     type:   'endomorph',
     label:  'Endomorph',
     emoji:  '🏋️',
-    bf:     '18–25%',
-    image:  '/images/body_endomorph.png',
+    bf_m:   '18–25%',
+    bf_f:   '25–32%',
+    image_m: '/images/body_m_endo.png',
+    image_f: '/images/body_endomorph.png', // Using the high-quality medical illustration
     color:  'from-orange-600/30 to-orange-900/20',
     border: 'border-orange-500/50',
     glow:   'shadow-orange-500/30',
     accent: 'text-orange-400',
     bg:     'bg-orange-500',
-    desc:   'Larger frame, stores fat easily. Excellent strength potential. Responds best to HIIT.',
-    tips:   ['Caloric deficit', 'HIIT 3×/week', 'Low glycemic carbs', 'High protein'],
+    desc:   'Larger bone structure, stores fat more easily. Excellent strength and power potential.',
+    tips:   ['Caloric deficit focus', 'HIIT 3× per week', 'Low-glycemic carbohydrates', 'High protein intake'],
   },
 ];
 
@@ -75,6 +81,7 @@ export default function IdealBodyPage() {
   const [plan, setPlan]                   = useState<IdealBodyPlanResult | null>(null);
   const [selected, setSelected]           = useState<string | null>(null);
   const [locked, setLocked]               = useState<string | null>(null);
+  const [gender, setGender]               = useState<'male' | 'female'>('male');
   const [sessionsLeft, setSessionsLeft]   = useState(0);
   const [expandedType, setExpandedType]   = useState<string | null>(null);
 
@@ -84,6 +91,11 @@ export default function IdealBodyPage() {
     const sessions  = parseInt(localStorage.getItem(SESSIONS_KEY) || '0');
 
     if (saved)    setPlan(JSON.parse(saved));
+    
+    // Check profile for initial gender
+    const profile = JSON.parse(localStorage.getItem('fitjourney_profile_data') || '{}');
+    if (profile.gender === 'female') setGender('female');
+
     if (lockData) {
       const { type, lockedAt } = JSON.parse(lockData);
       const sessionsAfterLock = Math.max(0, sessions - lockedAt);
@@ -92,14 +104,13 @@ export default function IdealBodyPage() {
         setSelected(type);
         setSessionsLeft(SESSIONS_NEEDED - sessionsAfterLock);
       } else {
-        // Enough sessions done — unlock
         localStorage.removeItem(LOCK_KEY);
       }
     }
   }, []);
 
   const handleSelect = (type: string) => {
-    if (locked) return; // locked — ignore taps
+    if (locked) return; 
     setSelected(type);
     setExpandedType(type);
   };
@@ -120,7 +131,7 @@ export default function IdealBodyPage() {
         weightKg:      parseFloat(profile.weightKg)      || 70,
         heightCm:      parseFloat(profile.heightCm)      || 175,
         age:           parseInt(profile.age)             || 28,
-        gender:        profile.gender === 'female' ? 'female' : 'male',
+        gender:        gender, // Use current toggle state
         goal:          profile.goal          || 'muscle_gain',
         activityLevel: profile.activityLevel || 'moderately_active',
       });
@@ -147,232 +158,200 @@ export default function IdealBodyPage() {
           <h1 className="text-lg font-black flex items-center gap-2">
             <Scale className="text-primary h-5 w-5" /> Ideal Body Plan
           </h1>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Select your body type to get started</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Select your body type blueprint</p>
         </div>
         {locked && (
           <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px]">
-            <Lock className="h-3 w-3 mr-1" /> Locked · {sessionsLeft} sessions left
+            <Lock className="h-3 w-3 mr-1" /> Locked · {sessionsLeft} left
           </Badge>
         )}
       </div>
 
-      <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+      <div className="px-4 py-6 max-w-2xl mx-auto space-y-8">
+
+        {/* Gender Toggle */}
+        {!locked && (
+          <div className="flex items-center justify-between bg-white/5 p-1 rounded-2xl border border-white/5">
+            <button 
+              onClick={() => setGender('male')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all font-bold text-sm ${gender === 'male' ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-white/5'}`}
+            >
+              ♂️ Male
+            </button>
+            <button 
+              onClick={() => setGender('female')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all font-bold text-sm ${gender === 'female' ? 'bg-pink-500 text-white' : 'text-muted-foreground hover:bg-white/5'}`}
+            >
+              ♀️ Female
+            </button>
+          </div>
+        )}
 
         {/* Step label */}
         <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black">1</div>
-          <p className="text-sm font-bold">Choose Your Body Type</p>
+          <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black shadow-lg shadow-primary/20">1</div>
+          <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Identify Your Build</p>
           {locked && <Lock className="h-4 w-4 text-amber-400 ml-auto" />}
         </div>
 
-        {/* 3 Body Type Cards with Images */}
-        <div className="space-y-4">
+        {/* 3 Body Type Cards */}
+        <div className="space-y-6">
           {BODY_TYPES.map(bt => {
             const isSelected = selected === bt.type;
             const isLocked   = locked === bt.type;
             const isDisabled = !!locked && locked !== bt.type;
+            const image = gender === 'male' ? bt.image_m : bt.image_f;
+            const bf = gender === 'male' ? bt.bf_m : bt.bf_f;
 
             return (
               <div
                 key={bt.type}
                 onClick={() => !isDisabled && handleSelect(bt.type)}
                 className={`rounded-3xl border-2 overflow-hidden transition-all duration-300
-                  ${isSelected ? `${bt.border} shadow-xl ${bt.glow}` : 'border-white/10'}
-                  ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-white/30'}
+                  ${isSelected ? `${bt.border} shadow-2xl ${bt.glow} scale-[1.02]` : 'border-white/10 opacity-70'}
+                  ${isDisabled ? 'opacity-30 cursor-not-allowed grayscale-[0.5]' : 'cursor-pointer hover:border-white/30 hover:opacity-100'}
                   bg-gradient-to-br ${bt.color}
                 `}
               >
-                {/* Image */}
-                <div className="relative">
+                {/* Medical Illustration */}
+                <div className="relative aspect-[1.5/1]">
                   <Image
-                    src={bt.image}
-                    alt={bt.label}
-                    width={700}
-                    height={400}
-                    className="w-full object-cover"
+                    src={image}
+                    alt={`${gender} ${bt.label}`}
+                    fill
+                    className="object-cover"
                   />
-                  {/* Top overlay badge */}
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <Badge className={`${bt.bg} text-white border-none text-xs font-black px-3`}>
+                  {/* Overlays */}
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    <Badge className={`${bt.bg} text-white border-none text-[10px] font-black px-3 py-1 uppercase tracking-widest`}>
                       {bt.emoji} {bt.label}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs">BF: {bt.bf}</Badge>
                   </div>
-                  {/* Selected check */}
-                  {isSelected && (
-                    <div className="absolute top-3 right-3">
-                      <CheckCircle2 className={`h-7 w-7 ${bt.accent}`} />
-                    </div>
-                  )}
-                  {/* Locked badge */}
+                  
+                  <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
+                    <Badge variant="outline" className="bg-black/50 backdrop-blur-md text-[10px] border-white/20">BF: {bf}</Badge>
+                    {isSelected && <CheckCircle2 className={`h-8 w-8 ${bt.accent} drop-shadow-lg`} />}
+                  </div>
+
                   {isLocked && (
-                    <div className="absolute bottom-3 right-3">
-                      <Badge className="bg-amber-500 text-black font-black text-xs">
-                        <Lock className="h-3 w-3 mr-1" /> YOUR TYPE
+                    <div className="absolute bottom-4 right-4">
+                      <Badge className="bg-amber-500 text-black font-black text-[10px] px-3 py-1 shadow-lg">
+                        <Lock className="h-3 w-3 mr-1" /> CURRENT STATUS
                       </Badge>
                     </div>
                   )}
                 </div>
 
-                {/* Expandable info */}
-                <button
-                  className="w-full flex items-center justify-between px-4 py-3"
-                  onClick={e => { e.stopPropagation(); setExpandedType(expandedType === bt.type ? null : bt.type); }}
-                >
-                  <p className="text-sm text-muted-foreground">{bt.desc}</p>
-                  {expandedType === bt.type
-                    ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />
-                    : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />}
-                </button>
+                {/* Content */}
+                <div className="p-5 space-y-4">
+                   <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground leading-relaxed flex-1">{bt.desc}</p>
+                      <button
+                        className={`ml-4 p-2 rounded-full bg-white/5 transition-colors ${isSelected ? bt.accent : 'text-white'}`}
+                        onClick={e => { e.stopPropagation(); setExpandedType(expandedType === bt.type ? null : bt.type); }}
+                      >
+                        {expandedType === bt.type ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
+                   </div>
 
-                {expandedType === bt.type && (
-                  <div className="px-4 pb-4 flex flex-wrap gap-2">
-                    {bt.tips.map(tip => (
-                      <Badge key={tip} variant="secondary" className="text-xs">{tip}</Badge>
-                    ))}
-                  </div>
-                )}
+                  {expandedType === bt.type && (
+                    <div className="pt-4 border-t border-white/10 flex flex-wrap gap-2">
+                      {bt.tips.map(tip => (
+                        <Badge key={tip} variant="secondary" className="text-[10px] bg-white/5 border-white/10 text-white font-medium">{tip}</Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
 
-        {/* Lock CTA */}
+        {/* Lock Mechanism */}
         {selected && !locked && (
-          <div className={`rounded-2xl border-2 ${selectedInfo?.border} p-4 bg-gradient-to-r ${selectedInfo?.color} space-y-3`}>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{selectedInfo?.emoji}</span>
+          <div className={`rounded-3xl border-2 ${selectedInfo?.border} p-6 bg-zinc-900 shadow-2xl space-y-4`}>
+            <div className="flex items-center gap-4">
+              <div className={`h-12 w-12 rounded-2xl ${selectedInfo?.bg} flex items-center justify-center text-2xl shadow-lg`}>
+                {selectedInfo?.emoji}
+              </div>
               <div>
-                <p className="font-black">{selectedInfo?.label} Selected</p>
-                <p className="text-xs text-muted-foreground">Lock this body type to get your personalised plan</p>
+                <p className="text-lg font-black">{selectedInfo?.label} Selected</p>
+                <p className="text-xs text-muted-foreground">Finalize this blueprint to unlock your routine</p>
               </div>
             </div>
-            <Button onClick={handleLock} className={`w-full h-12 font-black rounded-xl ${selectedInfo?.bg} hover:opacity-90 text-white border-none`}>
-              <Lock className="mr-2 h-4 w-4" /> Lock My Body Type & Continue
+            <Button onClick={handleLock} className={`w-full h-14 font-black rounded-2xl ${selectedInfo?.bg} hover:opacity-90 text-white border-none text-md shadow-xl`}>
+              <Lock className="mr-2 h-5 w-5" /> Lock Status & Generate Plan
             </Button>
-            <p className="text-[10px] text-muted-foreground text-center">
-              ⚠️ Once locked, you cannot change your body type until you complete {SESSIONS_NEEDED} workout sessions.
+            <p className="text-[10px] text-muted-foreground text-center font-medium leading-relaxed">
+              ⚠️ Warning: Your metabolic math will be locked to this body type for {SESSIONS_NEEDED} workout sessions.
             </p>
           </div>
         )}
 
-        {/* Locked notice */}
+        {/* Generation & Results (Same as before but cleaned up) */}
         {locked && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
-            <Lock className="h-5 w-5 text-amber-400 shrink-0" />
-            <div>
-              <p className="text-sm font-black text-amber-400">Body Type Locked</p>
-              <p className="text-xs text-muted-foreground">
-                Complete {sessionsLeft} more workout session{sessionsLeft !== 1 ? 's' : ''} to unlock your body type selection.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2 — Generate Plan */}
-        {(selected || locked) && (
-          <>
-            <div className="flex items-center gap-3">
-              <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black">2</div>
-              <p className="text-sm font-bold">Generate Your Blueprint</p>
+          <div className="space-y-6 pt-4 border-t border-white/5">
+             <div className="flex items-center gap-3">
+              <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black shadow-lg shadow-primary/20">2</div>
+              <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Blueprint Generation</p>
             </div>
 
             <Button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="w-full h-16 rounded-2xl text-lg font-black bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20"
+              className="w-full h-16 rounded-2xl text-lg font-black bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/30 transition-transform active:scale-95"
             >
               {isLoading
-                ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Calculating...</>
-                : <><Sparkles className="mr-2 h-5 w-5" /> Generate My Ideal Body Plan</>}
+                ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Analyzing Metrics...</>
+                : <><Sparkles className="mr-2 h-5 w-5" /> Calculate Ideal Body Plan</>}
             </Button>
-          </>
-        )}
 
-        {/* Plan Results */}
-        {plan && (
-          <div className="space-y-4">
-            <div className="text-center py-2">
-              <Badge className="text-xs px-3 py-1 bg-primary/20 text-primary border-primary/30">{plan.planTitle}</Badge>
-              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{plan.planSummary}</p>
-            </div>
-
-            {plan.dietPlan && (
-              <>
-                <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black">3</div>
-                  <p className="text-sm font-bold">Daily Nutrition Targets</p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <StatCard label="Daily Calories" value={`${plan.dietPlan.dailyCalorieTarget} kcal`} icon={<Flame className="h-5 w-5" />} color="text-orange-400" />
-                  <StatCard label="Protein" value={`${plan.dietPlan.macronutrientSplit.proteinGrams}g`} icon={<Dumbbell className="h-5 w-5" />} color="text-blue-400" />
-                  <StatCard label="Carbs" value={`${plan.dietPlan.macronutrientSplit.carbsGrams}g`} icon={<Droplets className="h-5 w-5" />} color="text-yellow-400" />
-                  <StatCard label="Fats" value={`${plan.dietPlan.macronutrientSplit.fatsGrams}g`} icon={<Moon className="h-5 w-5" />} color="text-purple-400" />
+            {plan && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="text-center space-y-2">
+                  <Badge className="text-[10px] px-4 py-1.5 bg-primary/20 text-primary border-primary/40 uppercase font-black tracking-widest">{plan.planTitle}</Badge>
+                  <p className="text-sm text-muted-foreground leading-relaxed italic">"{plan.planSummary}"</p>
                 </div>
 
-                <Card className="bg-zinc-900 border-white/5">
-                  <CardHeader className="pb-2 pt-4 px-4">
-                    <CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Macro Split</CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-4 pb-4 space-y-3">
-                    {[
-                      { label: 'Protein', grams: plan.dietPlan.macronutrientSplit.proteinGrams, color: 'bg-blue-500',   cal: plan.dietPlan.macronutrientSplit.proteinGrams * 4 },
-                      { label: 'Carbs',   grams: plan.dietPlan.macronutrientSplit.carbsGrams,   color: 'bg-yellow-500', cal: plan.dietPlan.macronutrientSplit.carbsGrams * 4 },
-                      { label: 'Fats',    grams: plan.dietPlan.macronutrientSplit.fatsGrams,    color: 'bg-purple-500', cal: plan.dietPlan.macronutrientSplit.fatsGrams * 9 },
-                    ].map(m => {
-                      const pct = Math.round((m.cal / plan.dietPlan!.dailyCalorieTarget) * 100);
-                      return (
-                        <div key={m.label} className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className="font-bold">{m.label}</span>
-                            <span className="text-muted-foreground">{m.grams}g · {pct}%</span>
-                          </div>
-                          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                            <div className={`h-full ${m.color} rounded-full`} style={{ width: `${pct}%` }} />
-                          </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <StatCard label="Daily Goal" value={`${plan.dietPlan?.dailyCalorieTarget} kcal`} icon={<Flame className="h-5 w-5" />} color="text-orange-400" />
+                  <StatCard label="Protein" value={`${plan.dietPlan?.macronutrientSplit.proteinGrams}g`} icon={<Dumbbell className="h-5 w-5" />} color="text-blue-400" />
+                  <StatCard label="Carbohydrates" value={`${plan.dietPlan?.macronutrientSplit.carbsGrams}g`} icon={<Droplets className="h-5 w-5" />} color="text-yellow-400" />
+                  <StatCard label="Healthy Fats" value={`${plan.dietPlan?.macronutrientSplit.fatsGrams}g`} icon={<Moon className="h-5 w-5" />} color="text-purple-400" />
+                </div>
+
+                <div className="space-y-4">
+                   <div className="flex items-center gap-3">
+                    <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black shadow-lg shadow-primary/20">3</div>
+                    <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Training Routine</p>
+                  </div>
+                  <Card className="bg-zinc-900 border-white/10 rounded-[2rem] overflow-hidden">
+                    <CardContent className="p-6 space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white/5 rounded-2xl p-4 text-center border border-white/5">
+                          <p className="text-3xl font-black text-primary">{plan.workoutPlan?.frequencyPerWeek}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-2">Sessions / Week</p>
                         </div>
-                      );
-                    })}
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {plan.workoutPlan && (
-              <>
-                <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-xs font-black">4</div>
-                  <p className="text-sm font-bold">Training Blueprint</p>
-                </div>
-                <Card className="bg-zinc-900 border-white/5">
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex gap-3">
-                      <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                        <p className="text-2xl font-black text-primary">{plan.workoutPlan.frequencyPerWeek}</p>
-                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Sessions/Week</p>
-                      </div>
-                      <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                        <p className="text-sm font-black text-primary">{plan.workoutPlan.focus}</p>
-                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Focus</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-xs font-black text-muted-foreground uppercase">Recommended Exercises</p>
-                      {plan.workoutPlan.sampleExercises.map((ex, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
-                          <span className="text-primary font-black text-sm">{i + 1}</span>
-                          <span className="text-sm">{ex}</span>
+                        <div className="bg-white/5 rounded-2xl p-4 text-center border border-white/5 flex flex-col justify-center">
+                          <p className="text-sm font-black text-primary leading-tight">{plan.workoutPlan?.focus}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-2">Core Focus</p>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Protocol Highlights</p>
+                        {plan.workoutPlan?.sampleExercises.map((ex, i) => (
+                          <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
+                            <div className="h-8 w-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center font-black text-sm">{i + 1}</div>
+                            <span className="text-sm font-medium">{ex}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             )}
-
-            <p className="text-[10px] text-muted-foreground text-center px-4 leading-relaxed">
-              ⚕️ Calculated via Mifflin-St Jeor formula. Consult a healthcare professional before starting any new diet or training program.
-            </p>
           </div>
         )}
       </div>
