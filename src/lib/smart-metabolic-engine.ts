@@ -117,7 +117,12 @@ export const smartMetabolicEngine = {
         frequencyPerWeek: bodyType === 'endomorph' ? '5-6 sessions' : '4-5 sessions',
         focus: bodyType === 'ectomorph' ? 'Hypertrophy / Low Cardio' : 'Recomposition',
         sampleExercises: focusAreas
-      }
+      },
+      lifestyleTips: [
+        'Prioritize 7-8 hours of sleep for recovery',
+        'Drink at least 3L of water daily',
+        'Aim for 8,000+ daily steps for active recovery'
+      ]
     };
   }
 };
