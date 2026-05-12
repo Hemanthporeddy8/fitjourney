@@ -7,7 +7,8 @@ import { ArrowLeft, Sparkles, Loader2, Scale, Flame, Dumbbell, Lock, CheckCircle
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { aiEngine, type IdealBodyPlanResult } from '@/lib/ai-engine';
+import { type IdealBodyPlanResult } from '@/lib/ai-engine';
+import { smartMetabolicEngine } from '@/lib/smart-metabolic-engine';
 import { idealCompareEngine, type ComparisonResult } from '@/lib/idealcompare-engine';
 
 const LOCAL_KEY        = 'fitjourney_latest_ideal_body_plan';
@@ -57,9 +58,7 @@ export default function IdealBodyPage() {
   const handleGenerate = async () => {
     setIsLoading(true);
     try {
-      const result = await aiEngine.calculateIdealBodyPlan({
-        weightKg: 70, heightCm: 175, age: 28, gender, goal: 'muscle_gain', activityLevel: 'moderately_active',
-      });
+      const result = await smartMetabolicEngine.generateAdaptivePlan();
       setPlan(result);
       localStorage.setItem(LOCAL_KEY, JSON.stringify(result));
     } finally {
@@ -74,6 +73,7 @@ export default function IdealBodyPage() {
     try {
       const res = await idealCompareEngine.analyzeProgress(file, locked);
       setComparison(res);
+      localStorage.setItem('fitjourney_latest_comparison', JSON.stringify(res));
     } finally {
       setIsComparing(false);
     }
