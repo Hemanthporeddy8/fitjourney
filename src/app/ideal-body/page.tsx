@@ -147,7 +147,7 @@ export default function IdealBodyPage() {
                   {/* Pro anatomical crop from the 3-in-1 chart */}
                   <div className="h-64 relative bg-white">
                     <Image 
-                      src={`/images/${gender}_${bt.id}.png`}
+                      src={`/images/${gender}_${bt.id}.${gender === 'male' ? 'jpg' : 'png'}`}
                       alt={bt.label}
                       fill
                       className="object-contain"
