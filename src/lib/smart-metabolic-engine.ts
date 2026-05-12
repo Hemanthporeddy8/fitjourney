@@ -106,7 +106,12 @@ export const smartMetabolicEngine = {
       planSummary,
       dietPlan: {
         dailyCalorieTarget: targetCalories,
-        macronutrientSplit: { proteinGrams, carbsGrams, fatsGrams }
+        macronutrientSplit: { proteinGrams, carbsGrams, fatsGrams },
+        mealSuggestions: bodyType === 'ectomorph' 
+          ? ['High-calorie shakes', 'Oats with peanut butter', 'Lean steak and rice']
+          : bodyType === 'endomorph'
+          ? ['Grilled chicken salad', 'Egg whites and spinach', 'White fish and asparagus']
+          : ['Chicken breast and sweet potato', 'Greek yogurt and berries', 'Salmon and quinoa']
       },
       workoutPlan: {
         frequencyPerWeek: bodyType === 'endomorph' ? '5-6 sessions' : '4-5 sessions',
