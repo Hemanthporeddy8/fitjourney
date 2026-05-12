@@ -90,8 +90,8 @@ export default function IdealBodyPage() {
           <h1 className="text-lg font-black flex items-center gap-2"><Scale className="text-primary h-5 w-5" /> Ideal Body Plan</h1>
         </div>
         <div className="flex gap-2">
-          <Button disabled={!!locked} size="sm" variant={gender === 'male' ? 'default' : 'outline'} className={`h-7 px-3 text-[10px] rounded-full ${locked ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={() => !locked && setGender('male')}>MALE</Button>
-          <Button disabled={!!locked} size="sm" variant={gender === 'female' ? 'default' : 'outline'} className={`h-7 px-3 text-[10px] rounded-full ${locked ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={() => !locked && setGender('female')}>FEMALE</Button>
+          <Button disabled={!!locked} size="sm" className={`h-8 px-4 text-[10px] font-black tracking-widest rounded-full transition-all ${locked ? 'opacity-50 cursor-not-allowed' : ''} ${gender === 'male' ? 'bg-primary text-zinc-950' : 'bg-white/10 text-white hover:bg-white/20'}`} onClick={() => !locked && setGender('male')}>MALE</Button>
+          <Button disabled={!!locked} size="sm" className={`h-8 px-4 text-[10px] font-black tracking-widest rounded-full transition-all ${locked ? 'opacity-50 cursor-not-allowed' : ''} ${gender === 'female' ? 'bg-primary text-zinc-950' : 'bg-white/10 text-white hover:bg-white/20'}`} onClick={() => !locked && setGender('female')}>FEMALE</Button>
         </div>
       </div>
 
