@@ -5,16 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, Pause, ChevronRight, BrainCircuit, AlertTriangle } from 'lucide-react';
 import { suggestedExercises, type Exercise } from '@/lib/exercise-data';
-import { runPoseInference, loadWorkoutModel, CONNECTING_LINES } from '@/lib/workout-engine';
-
-const WN = {
-  NOSE: 0, L_SHOULDER: 5, R_SHOULDER: 6,
-  L_ELBOW: 7,  R_ELBOW: 8,
-  L_WRIST: 9,  R_WRIST: 10,
-  L_HIP: 11,   R_HIP: 12,
-  L_KNEE: 13,  R_KNEE: 14,
-  L_ANKLE: 15, R_ANKLE: 16,
-};
+import { runPoseInference, loadWorkoutModel, CONNECTING_LINES, ExerciseCounter, PoseResult } from '@/lib/workout-engine';
 
 type AiStatus = 'idle' | 'loading-model' | 'loading-camera' | 'ready' | 'error';
 
@@ -39,7 +30,9 @@ function WorkoutClientContent() {
   const [skeletonQuality, setSkeletonQuality] = useState<'none' | 'partial' | 'ready'>('none');
   const [detectedParts, setDetectedParts] = useState({ arms: false, core: false, legs: false });
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [liveFeedback, setLiveFeedback]         = useState<string>('Stand in frame to begin');
 
+  const counterRef     = useRef<ExerciseCounter | null>(null);
   const videoRef       = useRef<HTMLVideoElement | null>(null);
   const canvasRef      = useRef<HTMLCanvasElement | null>(null);
   const demoVideoRef   = useRef<HTMLVideoElement | null>(null);
@@ -92,6 +85,8 @@ function WorkoutClientContent() {
       // Reset counters for the new exercise
       repRef.current = 0;
       setRepCount(0);
+      setLiveFeedback('Stand in frame to begin');
+      counterRef.current = new ExerciseCounter(parseInt(ex.id));
       poseStateRef.current = 'top';
     }
   }, [exerciseId]);
@@ -254,10 +249,17 @@ function WorkoutClientContent() {
             canvas.width  = vid.videoWidth  || 640;
             canvas.height = vid.videoHeight || 480;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const quality = getSkeletonQuality(res.keypoints, exRef.current?.id || '');
+            
+            const quality = getSkeletonQuality(res);
             setSkeletonQuality(quality);
-            drawSkeleton(ctx, res.keypoints, canvas.width, canvas.height, quality);
-            countReps(res.keypoints);
+            
+            res.draw(ctx, canvas.width, canvas.height, quality);
+            
+            if (counterRef.current) {
+              const counterRes = counterRef.current.update(res);
+              setRepCount(counterRes.reps);
+              setLiveFeedback(counterRes.feedback);
+            }
           }
         }
 
@@ -284,228 +286,22 @@ function WorkoutClientContent() {
   }, []); // no deps — uses refs for everything mutable
 
   // ── Skeleton quality check ───────────────────────────────────
-  // Returns 'ready' if all critical keypoints visible, 'partial' if some, 'none' if too few
-  function getSkeletonQuality(kp: any[], exId: string): 'ready' | 'partial' | 'none' {
-    const conf = 0.6; // Stricter CONF to prevent face-hallucinations
-    const ok = (i: number) => (kp[i]?.confidence || 0) > conf;
-    const hasUpperBody = ok(WN.L_SHOULDER) && ok(WN.R_SHOULDER);
-    const hasHips      = ok(WN.L_HIP) || ok(WN.R_HIP);
-    const hasKnees     = ok(WN.L_KNEE) || ok(WN.R_KNEE);
-    const hasWrists    = ok(WN.L_WRIST) || ok(WN.R_WRIST);
+  function getSkeletonQuality(res: PoseResult): 'ready' | 'partial' | 'none' {
+    const exId = exRef.current?.id || '';
+    const isLegExercise = ['2', '3', '5', '7', '9'].includes(exId); // High Knees, Squats, Burpees, Lunges, Mountain Climbers
 
-    // Per-exercise: what's the minimum for accurate counting?
-    if (exId === '1') { // Jumping Jacks — needs shoulders + wrists
-      if (hasUpperBody && hasWrists) return 'ready';
-      if (hasUpperBody) return 'partial';
+    if (isLegExercise) {
+      if (res.legsVisible) return 'ready';
+      if (res.hipsVisible) return 'partial';
       return 'none';
     }
-    if (['3','7','5'].includes(exId)) { // Squats/Lunges/Burpees — need hips + knees
-      if (hasHips && hasKnees) return 'ready';
-      if (hasUpperBody) return 'partial';
-      return 'none';
-    }
-    if (exId === '4') { // Push-ups — needs shoulders + elbows
-      if (hasUpperBody && ok(WN.L_ELBOW)) return 'ready';
-      if (hasUpperBody) return 'partial';
-      return 'none';
-    }
-    if (['2','9'].includes(exId)) { // High Knees / Mountain Climbers
-      if (hasHips && hasKnees) return 'ready';
-      if (hasUpperBody) return 'partial';
-      return 'none';
-    }
-    if (exId === '8') { // Crunches
-      if (hasUpperBody && hasHips) return 'ready';
-      if (hasUpperBody) return 'partial';
-      return 'none';
-    }
-    return hasUpperBody ? 'partial' : 'none';
-  }
 
-  // ── Skeleton drawing (color = green when ready, orange when partial) ──
-  function drawSkeleton(ctx: CanvasRenderingContext2D, kp: any[], W: number, H: number, quality: 'ready' | 'partial' | 'none') {
-    const conf = 0.5; // Raised from 0.35 so floating low-confidence legs aren't drawn
-    const lineColor = quality === 'ready' ? '#22c55e' : '#F49B33'; // green or orange
-    const dotColor  = quality === 'ready' ? '#86efac' : '#ffffff';
-    ctx.strokeStyle = lineColor;
-    ctx.lineWidth   = quality === 'ready' ? 4 : 3;
-    for (const [a, b] of CONNECTING_LINES) {
-      if ((kp[a]?.confidence || 0) > conf && (kp[b]?.confidence || 0) > conf) {
-        ctx.beginPath();
-        ctx.moveTo(kp[a].x * W, kp[a].y * H);
-        ctx.lineTo(kp[b].x * W, kp[b].y * H);
-        ctx.stroke();
-      }
-    }
-    ctx.fillStyle = dotColor;
-    for (const pt of kp) {
-      if ((pt.confidence || 0) > conf) {
-        ctx.beginPath();
-        ctx.arc(pt.x * W, pt.y * H, quality === 'ready' ? 6 : 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
+    const ls = res.kp('left_shoulder');
+    const rs = res.kp('right_shoulder');
+    const hasUpperBody = (ls?.visible && rs?.visible) || false;
 
-  // ── Adaptive rep counting (debounced + frame-gated) ─────────
-  // conf=0.5: only count when AI is highly confident (sigmoid output)
-  // MIN_REP_MS: no two reps faster than 600ms (stops noise spikes)
-  // FRAMES_REQUIRED: condition must hold for 3 frames (stops single-frame glitches)
-  function countReps(kp: any[]) {
-    const ex = exRef.current; if (!ex) return;
-    const CONF = 0.45; // Lowered from 0.5 to make counting more responsive
-    const ok = (i: number) => (kp[i]?.confidence || 0) > CONF;
-
-    const lShoulder = kp[WN.L_SHOULDER], rShoulder = kp[WN.R_SHOULDER];
-    const lElbow    = kp[WN.L_ELBOW];
-    const lWrist    = kp[WN.L_WRIST],    rWrist    = kp[WN.R_WRIST];
-    const lHip      = kp[WN.L_HIP],      rHip      = kp[WN.R_HIP];
-    const lKnee     = kp[WN.L_KNEE],     rKnee     = kp[WN.R_KNEE];
-    const nose      = kp[WN.NOSE];
-
-    // Helper: called when condition for "top" position is met.
-    // Requires N consecutive frames + debounce before counting.
-    const registerUp = () => {
-      if (poseStateRef.current !== 'bottom') return;
-      const now = Date.now();
-      if (now - lastRepTimeRef.current < MIN_REP_MS) return; // debounce
-      frameCountRef.current++;
-      if (frameCountRef.current >= FRAMES_REQUIRED) {
-        poseStateRef.current = 'top';
-        repRef.current++;
-        setRepCount(repRef.current);
-        lastRepTimeRef.current = now;
-        frameCountRef.current = 0;
-      }
-    };
-    const registerDown = () => {
-      if (poseStateRef.current !== 'top') return;
-      frameCountRef.current++;
-      if (frameCountRef.current >= FRAMES_REQUIRED) {
-        poseStateRef.current = 'bottom';
-        frameCountRef.current = 0;
-      }
-    };
-    const resetFrames = () => { frameCountRef.current = 0; };
-
-    // ── 1. Jumping Jacks ─ wrists above shoulders ────────────────
-    if (ex.id === '1') {
-      const wristOk   = ok(WN.L_WRIST) || ok(WN.R_WRIST);
-      const shoulderOk = ok(WN.L_SHOULDER) || ok(WN.R_SHOULDER);
-      if (!wristOk || !shoulderOk) { resetFrames(); return; }
-      const wristY    = ok(WN.L_WRIST)    ? lWrist.y    : rWrist.y;
-      const shoulderY = ok(WN.L_SHOULDER) ? lShoulder.y : rShoulder.y;
-      if (wristY < shoulderY - 0.05) registerDown();
-      else if (wristY > shoulderY + 0.05) registerUp();
-      else resetFrames();
-    }
-
-    // ── 2. High Knees ─ knee above hip ───────────────────────────
-    else if (ex.id === '2') {
-      if (ok(WN.L_KNEE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
-        const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
-        if (lKnee.y < hipY - 0.04) registerDown();
-        else if (lKnee.y > hipY)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER)) {
-        // ADAPTIVE FALLBACK: Shoulders bounce up and down rapidly
-        if (lShoulder.y > 0.55) registerDown();
-        else if (lShoulder.y < 0.45) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
-
-    // ── 3. Squats ─ hip below knee level ─────────────────────────
-    else if (ex.id === '3') {
-      if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
-        if (lHip.y > lKnee.y + 0.04) registerDown(); // squatting
-        else if (lHip.y < lKnee.y)   registerUp();   // standing
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER)) {
-        // ADAPTIVE FALLBACK: Shoulders drop significantly
-        if (lShoulder.y > 0.7) registerDown();
-        else if (lShoulder.y < 0.5) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
-
-    // ── 4. Push-ups ─ shoulder above/below elbow ─────────────────
-    else if (ex.id === '4') {
-      if (ok(WN.L_SHOULDER) && ok(WN.L_ELBOW)) {
-        if (lShoulder.y > lElbow.y + 0.03) registerDown();
-        else if (lShoulder.y < lElbow.y)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER)) {
-        // ADAPTIVE FALLBACK: Shoulders go down toward the floor
-        // Based on video, shoulders move from ~0.2 (up) to ~0.5 (down)
-        if (lShoulder.y > 0.45) registerDown();
-        else if (lShoulder.y < 0.35) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
-
-    // ── 5. Burpees ───────────────────────────────────────────────
-    else if (ex.id === '5') {
-      if (ok(WN.L_HIP) && ok(WN.L_KNEE)) {
-        if (lHip.y > lKnee.y + 0.04) registerDown();
-        else if (lHip.y < lKnee.y)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER)) {
-        if (lShoulder.y > 0.75) registerDown();
-        else if (lShoulder.y < 0.4) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
-
-    // ── 7. Lunges ─────────────────────────────────────────────────
-    else if (ex.id === '7') {
-      const hasHip  = ok(WN.L_HIP) || ok(WN.R_HIP);
-      const hasKnee = ok(WN.L_KNEE) || ok(WN.R_KNEE);
-      if (hasHip && hasKnee) {
-        const hipY  = ok(WN.L_HIP)  ? lHip.y  : rHip.y;
-        const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
-        if (hipY > kneeY + 0.04) registerDown();
-        else if (hipY < kneeY)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER)) {
-        if (lShoulder.y > 0.65) registerDown();
-        else if (lShoulder.y < 0.5) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
-
-    // ── 8. Crunches ───────────────────────────────────────────────
-    else if (ex.id === '8') {
-      if (ok(WN.NOSE) && (ok(WN.L_HIP) || ok(WN.R_HIP))) {
-        const hipY = ok(WN.L_HIP) ? lHip.y : rHip.y;
-        if (nose.y < hipY - 0.05) registerDown();
-        else if (nose.y > hipY)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.NOSE)) {
-        // ADAPTIVE FALLBACK: Nose moves up and down
-        if (nose.y > 0.6) registerDown();
-        else if (nose.y < 0.4) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
-
-    // ── 9. Mountain Climbers ──────────────────────────────────────
-    else if (ex.id === '9') {
-      const hasKnee = ok(WN.L_KNEE) || ok(WN.R_KNEE);
-      const hasHip  = ok(WN.L_HIP)  || ok(WN.R_HIP);
-      if (hasKnee && hasHip) {
-        const hipY  = ok(WN.L_HIP)  ? lHip.y  : rHip.y;
-        const kneeY = ok(WN.L_KNEE) ? lKnee.y : rKnee.y;
-        if (kneeY < hipY - 0.04) registerDown();
-        else if (kneeY > hipY)   registerUp();
-        else resetFrames();
-      } else if (ok(WN.L_SHOULDER)) {
-        // ADAPTIVE FALLBACK: Shoulders rock slightly
-        if (lShoulder.y > 0.6) registerDown();
-        else if (lShoulder.y < 0.5) registerUp();
-        else resetFrames();
-      } else resetFrames();
-    }
+    if (hasUpperBody) return 'ready';
+    return 'none';
   }
 
   // ── AI lifecycle ────────────────────────────────────────────
@@ -766,6 +562,12 @@ function WorkoutClientContent() {
           <div className="text-center border-x border-white/10"><p className="text-3xl font-black">{exercise.reps}</p><p className="text-[10px] uppercase font-bold text-white/40">Reps</p></div>
           <div className="text-center"><p className="text-3xl font-black">{Math.round(exercise.durationMinutes)}m</p><p className="text-[10px] uppercase font-bold text-white/40">Time</p></div>
         </div>
+        {aiEnabled && isAiReady && (
+          <div className="bg-accent/5 border border-accent/20 rounded-2xl p-4 text-center max-w-md mx-auto shadow-lg">
+            <p className="text-[9px] font-black tracking-widest text-accent uppercase mb-1">Live Coaching Feedback</p>
+            <p className="text-base font-black text-white uppercase tracking-wide">{liveFeedback}</p>
+          </div>
+        )}
         <p className="text-center text-white/60 text-sm italic px-6">&quot;{exercise.description}&quot;</p>
         <div className="grid grid-cols-2 gap-4">
           {exerciseTime === exercise.durationMinutes * 60 && isPaused ? (
