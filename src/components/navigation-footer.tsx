@@ -17,7 +17,6 @@ export function NavigationFooter() {
     { href: '/progress', icon: LineChart, label: 'Progress' },
     { href: '/track', icon: Dumbbell, label: 'Track' },
     { type: 'popover' }, // Camera popover
-    { href: '/buddy', icon: Zap, label: 'Buddy' },
     { href: '/ideal-body', icon: Scale, label: 'Ideal Body' },
     { href: '/face-timelapse', icon: Smile, label: 'Face' },
     { href: '/healmap', icon: Map, label: 'HealMap' },

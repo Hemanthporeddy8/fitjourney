@@ -5,7 +5,6 @@ import { PwaInstaller } from '@/components/pwa-installer';
 import { 
     ScanLine, 
     Footprints, 
-    Users, 
     CalendarDays, 
     Map, 
     Scale, 
@@ -87,12 +86,6 @@ export default function Home() {
                         icon={<Footprints className="h-6 w-6 text-primary" />}
                         title="Activity Tracker"
                         description="Log your walks, runs, and guided exercise sessions."
-                    />
-                    <FeatureCard
-                        href="/buddy"
-                        icon={<Users className="h-6 w-6 text-primary" />}
-                        title="Buddy Challenge"
-                        description="Take on fun activities to burn calories and stay motivated."
                     />
                     <FeatureCard
                         href="/progress"
