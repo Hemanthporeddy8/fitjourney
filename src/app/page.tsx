@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PwaInstaller } from '@/components/pwa-installer';
 import { 
     ScanLine, 
     Footprints, 
@@ -52,6 +53,8 @@ export default function Home() {
                         Ready to continue your FitJourney?
                     </p>
                 </div>
+                
+                <PwaInstaller />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <FeatureCard

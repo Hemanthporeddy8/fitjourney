@@ -9,6 +9,12 @@ import { NavigationFooter } from "@/components/navigation-footer";
 export const metadata: Metadata = {
   title: 'FitJourney',
   description: 'Track your fitness progress and achieve your goals with FitJourney.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'FitJourney',
+  },
 };
 
 export default function RootLayout({
