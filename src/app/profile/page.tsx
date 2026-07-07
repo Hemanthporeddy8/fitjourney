@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, UserCircle, Utensils, BarChart3, Footprints, Lock, Edit3, Save, UploadCloud, BrainCircuit, Download } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { format, differenceInYears, parseISO, isValid } from 'date-fns'; 
+import { exportDatabaseBackup, importDatabaseBackup } from '@/lib/db';
 
 interface UserProfileData {
   name: string;
@@ -82,6 +83,7 @@ export default function ProfilePage() {
   const [calculatedAge, setCalculatedAge] = useState<number | null>(calculateAge(profileData.dob));
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profileData.avatarUrl);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const backupInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -209,6 +211,45 @@ export default function ProfilePage() {
       toast({ variant: 'destructive', title: 'Export Failed', description: 'Could not assemble dataset.' });
     }
   };
+
+  const handleExportBackup = async () => {
+    try {
+      const dataStr = await exportDatabaseBackup();
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fitjourney_local_backup_${format(new Date(), 'yyyyMMdd_HHmmss')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: "Backup Successful", description: "Your local database has been downloaded." });
+    } catch (err) {
+      console.error(err);
+      toast({ variant: 'destructive', title: 'Backup Failed', description: 'Could not create backup.' });
+    }
+  };
+
+  const handleImportBackup = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const text = event.target?.result as string;
+        await importDatabaseBackup(text);
+        toast({ title: "Restore Successful", description: "Your local database has been restored." });
+        // Reload page to reflect changes
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        toast({ variant: 'destructive', title: 'Restore Failed', description: 'Invalid backup file format.' });
+      }
+    };
+    reader.readAsText(file);
+  };
   
   return (
     <div className="flex flex-col min-h-screen bg-background p-4 pb-20">
@@ -326,6 +367,37 @@ export default function ProfilePage() {
               <div className="flex justify-between text-sm"><span>Steps Today:</span><span className="font-medium">{stepsData.current} / {stepsData.goal}</span></div>
               <Progress value={(stepsData.current / stepsData.goal) * 100} className="h-2" />
               <div className="flex justify-between text-sm pt-1"><span>Last Workout:</span><span className="text-xs">{stepsData.workout}</span></div>
+            </CardContent>
+          </Card>
+
+          {/* DATABASE BACKUP & RESTORE */}
+          <Card className="shadow-lg border-primary/20 bg-primary/5 col-span-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-primary font-bold">
+                <Save className="h-5 w-5" /> Database Backup &amp; Restore
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Back up your entire meal history, progress photos, and workouts to a local file on your phone.
+                If you reinstall the app or reset your browser cache, you can restore your progress instantly.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Button onClick={handleExportBackup} variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
+                  <Download className="mr-2 h-4 w-4" /> Download Backup File (.JSON)
+                </Button>
+                
+                <Button onClick={() => backupInputRef.current?.click()} variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
+                  <UploadCloud className="mr-2 h-4 w-4" /> Restore From Backup
+                </Button>
+                <input 
+                  ref={backupInputRef}
+                  type="file" 
+                  accept="application/json" 
+                  className="hidden" 
+                  onChange={handleImportBackup} 
+                />
+              </div>
             </CardContent>
           </Card>
 

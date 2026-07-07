@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { getMeals } from '@/lib/db';
 
 interface SavedMeal {
   foodName: string;
@@ -66,16 +67,25 @@ export default function ProgressPage() {
   const daysInWeek = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    async function loadData() {
       try {
-        const savedMealsRaw = localStorage.getItem('fitjourney_saved_meals');
-        setAllMeals(savedMealsRaw ? JSON.parse(savedMealsRaw) : []);
+        const savedMeals = await getMeals();
+        // Map the DB structure back to UI expectation if needed
+        const mappedMeals = savedMeals.map((m: any) => ({
+          foodName: m.foodName,
+          calories: m.calories,
+          protein: m.nutrients?.protein || 0,
+          timestamp: m.timestamp,
+          imageUrl: m.imageUrl
+        }));
+        setAllMeals(mappedMeals);
       } catch (error) {
-        console.error('Error loading meals:', error);
+        console.error('Error loading meals from IndexedDB:', error);
       } finally {
         setIsLoading(false);
       }
     }
+    loadData();
   }, []);
 
   const weekMeals = useMemo(() => {

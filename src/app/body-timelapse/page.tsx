@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { format, parseISO, isSameDay, differenceInDays } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { getBodyPhotos } from '@/lib/db';
 
 type ScanMode = 'front_view' | 'side_view' | 'back_view' | 'upper_body';
 
@@ -56,18 +57,20 @@ export default function BodyTimelapsePage() {
 
   // Load photos
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    async function loadData() {
       try {
-        const saved = JSON.parse(localStorage.getItem('fitjourney_body_photos') || '[]') as PhotoEntry[];
-        const sorted = saved.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const saved = await getBodyPhotos();
+        // Sort ascending (oldest first) for the timelapse frames
+        const sorted = [...saved].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         setPhotos(sorted);
         setTimelapseFrames(sorted);
       } catch (error) {
-        console.error('Error loading photos:', error);
+        console.error('Error loading photos from IndexedDB:', error);
       } finally {
         setIsLoading(false);
       }
     }
+    loadData();
   }, []);
 
   // Playback engine

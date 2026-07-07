@@ -1,4 +1,4 @@
-﻿
+
 'use client';
 
 import React, { useState, useEffect, ChangeEvent, useRef, useCallback, useMemo } from 'react';
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Smile, ArrowLeft, Film, Camera as CameraIcon, Sparkles, Loader2, Trash2, AlertCircle, CalendarDays, RotateCcw, TimerIcon, FastForward, Play, Pause, SkipBack, SkipForward, RefreshCcw, Upload, Repeat } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
+import { addFacePhoto, getFacePhotos, deleteFacePhoto } from '@/lib/db';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format, parseISO, startOfDay, isSameDay, endOfWeek, isAfter, isBefore, isValid, startOfWeek as dateFnsStartOfWeek } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -86,23 +87,16 @@ export default function FaceTimelapsePage() {
   }, [selectedDate]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    async function loadData() {
       try {
-        const savedPhotosRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
-        const loadedPhotos: FacePhoto[] = savedPhotosRaw ? JSON.parse(savedPhotosRaw) : [];
-        const validPhotos = loadedPhotos.filter(p => {
-          try {
-            parseISO(p.date); return true;
-          } catch (e) {
-            return false;
-          }
-        });
-        validPhotos.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setPhotos(validPhotos);
+        const saved = await getFacePhotos();
+        const sorted = [...saved].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setPhotos(sorted);
       } catch (error) {
-        console.error('Error loading face photos:', error);
+        console.error('Error loading face photos from IndexedDB:', error);
       }
     }
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -191,34 +185,58 @@ export default function FaceTimelapsePage() {
       return;
     }
     setIsSaving(true);
-    const normalizedDate = startOfDay(selectedDate);
-    const newPhoto: FacePhoto = {
-      id: normalizedDate.toISOString(),
-      date: normalizedDate.toISOString(),
-      url: previewUrl,
-    };
-    setPhotos(prevPhotos => {
-      const updatedPhotos = prevPhotos.filter(p => p.id !== newPhoto.id);
-      updatedPhotos.push(newPhoto);
-      updatedPhotos.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedPhotos));
-      return updatedPhotos;
-    });
-    setPhotoForSelectedDate(newPhoto);
-    setPreviewUrl(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    toast({ title: "Face Photo Saved", description: `Photo for ${format(normalizedDate, 'PPP')} stored.` });
-    setIsSaving(false);
+    try {
+      const normalizedDate = startOfDay(selectedDate);
+      
+      // Delete existing photo on the same day to replace it
+      const existing = photos.find(p => isSameDay(parseISO(p.date), normalizedDate));
+      if (existing && existing.id) {
+        await deleteFacePhoto(Number(existing.id) || (existing.id as any));
+      }
+
+      const newPhoto: FacePhoto = {
+        id: normalizedDate.toISOString(),
+        date: normalizedDate.toISOString(),
+        url: previewUrl,
+      };
+
+      await addFacePhoto(newPhoto);
+
+      // Reload from local IndexedDB database to sync UI state
+      const saved = await getFacePhotos();
+      const sorted = [...saved].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setPhotos(sorted);
+      setPhotoForSelectedDate(newPhoto);
+      setPreviewUrl(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      toast({ title: "Face Photo Saved", description: `Photo for ${format(normalizedDate, 'PPP')} stored.` });
+    } catch (error) {
+      console.error('Error saving face photo to IndexedDB:', error);
+      toast({ title: "Save Failed", description: "Failed to write photo to local database.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleDeletePhoto = (photoId: string) => {
-    setPhotos(prevPhotos => {
-      const updatedPhotos = prevPhotos.filter(p => p.id !== photoId);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedPhotos));
+  const handleDeletePhoto = async (photoId: string) => {
+    try {
+      // Find photo by ID/date string
+      const photoToDelete = photos.find(p => p.id === photoId);
+      if (photoToDelete && photoToDelete.id) {
+        await deleteFacePhoto(Number(photoToDelete.id) || (photoToDelete.id as any));
+      }
+      
+      // Reload
+      const saved = await getFacePhotos();
+      const sorted = [...saved].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setPhotos(sorted);
+
       if (photoForSelectedDate?.id === photoId) setPhotoForSelectedDate(null);
       toast({ title: "Photo Deleted", description: "The face photo has been removed." });
-      return updatedPhotos;
-    });
+    } catch (error) {
+      console.error('Error deleting face photo from IndexedDB:', error);
+      toast({ title: "Delete Failed", description: "Failed to remove photo.", variant: "destructive" });
+    }
   };
 
   useEffect(() => {

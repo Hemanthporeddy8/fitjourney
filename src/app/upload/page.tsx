@@ -19,6 +19,7 @@ import {
   ChevronRight, Info, BrainCircuit
 } from 'lucide-react';
 import { format, parseISO, isSameDay } from 'date-fns';
+import { addBodyPhoto, getBodyPhotos, deleteBodyPhoto } from '@/lib/db';
 
 const Calendar = dynamic(
   () => import('@/components/ui/calendar').then(m => m.Calendar),
@@ -245,13 +246,20 @@ export default function UploadPhotoPage() {
 
   //  LOAD 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('fitjourney_body_photos') || '[]') as PhotoEntry[];
-      setPhotos(saved.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-      setScanHistory(loadAllScans());
-      setWeeklyStats(getWeeklyStats());
-      setGoalProgress(getGoalProgress(goalBf));
-    } finally { setIsLoading(false); }
+    async function loadData() {
+      try {
+        const saved = await getBodyPhotos();
+        setPhotos(saved);
+        setScanHistory(loadAllScans());
+        setWeeklyStats(getWeeklyStats());
+        setGoalProgress(getGoalProgress(goalBf));
+      } catch (error) {
+        console.error('Error loading body photos from IndexedDB:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
   }, [goalBf]);
 
   useEffect(() => {
@@ -312,17 +320,25 @@ export default function UploadPhotoPage() {
       setWeeklyStats(getWeeklyStats());
       setGoalProgress(getGoalProgress(goalBf));
 
+      // Check if photo exists on the same day and delete it first (so we replace it)
+      const existingOnDay = photos.find(p => isSameDay(parseISO(p.date), selectedDate));
+      if (existingOnDay && existingOnDay.id) {
+        await deleteBodyPhoto(Number(existingOnDay.id) || (existingOnDay.id as any));
+      }
+
       const newPhoto: PhotoEntry = {
-        id: Date.now().toString(), date: selectedDate.toISOString(),
-        url: previewUrl, scanResult: result,
+        id: Date.now().toString(), 
+        date: selectedDate.toISOString(),
+        url: previewUrl, 
+        scanResult: result,
       };
-      const updated = [
-        ...photos.filter(p => !isSameDay(parseISO(p.date), selectedDate)),
-        newPhoto,
-      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setPhotos(updated);
+
+      await addBodyPhoto(newPhoto);
+
+      // Reload from local IndexedDB database to sync UI state
+      const saved = await getBodyPhotos();
+      setPhotos(saved);
       setPhotoForDate(newPhoto);
-      localStorage.setItem('fitjourney_body_photos', JSON.stringify(updated));
 
       toast({
         title: `${result.bf}% Body Fat  ${result.category}`,
@@ -333,38 +349,56 @@ export default function UploadPhotoPage() {
     } finally { setIsAnalyzing(false); setModelLoading(false); }
   };
 
-  const handleSaveWithoutProgress = () => {
+  const handleSaveWithoutProgress = async () => {
     if (!previewUrl) return;
 
-    const newPhoto: PhotoEntry = {
-      id: Date.now().toString(),
-      date: selectedDate.toISOString(),
-      url: previewUrl,
-      // No scanResult
-    };
+    try {
+      const existingOnDay = photos.find(p => isSameDay(parseISO(p.date), selectedDate));
+      if (existingOnDay && existingOnDay.id) {
+        await deleteBodyPhoto(Number(existingOnDay.id) || (existingOnDay.id as any));
+      }
 
-    const updated = [
-      ...photos.filter(p => !isSameDay(parseISO(p.date), selectedDate)),
-      newPhoto,
-    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const newPhoto: PhotoEntry = {
+        id: Date.now().toString(),
+        date: selectedDate.toISOString(),
+        url: previewUrl,
+      };
 
-    setPhotos(updated);
-    setPhotoForDate(newPhoto);
-    localStorage.setItem('fitjourney_body_photos', JSON.stringify(updated));
+      await addBodyPhoto(newPhoto);
 
-    toast({
-      title: "Saved to History",
-      description: "Photo added without AI scan (Timelapse mode).",
-    });
+      const saved = await getBodyPhotos();
+      setPhotos(saved);
+      setPhotoForDate(newPhoto);
 
-    setPreviewUrl(null);
+      toast({
+        title: "Saved to History",
+        description: "Photo added without AI scan (Timelapse mode).",
+      });
+
+      setPreviewUrl(null);
+    } catch (error) {
+      console.error('Error saving progress photo to IndexedDB:', error);
+      toast({ variant: 'destructive', title: 'Save Failed', description: 'Failed to write photo to database.' });
+    }
   };
 
-  const handleDelete = () => {
-    const updated = photos.filter(p => !isSameDay(parseISO(p.date), selectedDate));
-    setPhotos(updated); setPhotoForDate(null); setScanResult(null); setPreviewUrl(null);
-    localStorage.setItem('fitjourney_body_photos', JSON.stringify(updated));
-    toast({ title: 'Photo deleted' });
+  const handleDelete = async () => {
+    try {
+      const existingOnDay = photos.find(p => isSameDay(parseISO(p.date), selectedDate));
+      if (existingOnDay && existingOnDay.id) {
+        await deleteBodyPhoto(Number(existingOnDay.id) || (existingOnDay.id as any));
+      }
+      
+      const saved = await getBodyPhotos();
+      setPhotos(saved); 
+      setPhotoForDate(null); 
+      setScanResult(null); 
+      setPreviewUrl(null);
+      toast({ title: 'Photo deleted' });
+    } catch (error) {
+      console.error('Error deleting progress photo from IndexedDB:', error);
+      toast({ variant: 'destructive', title: 'Delete Failed', description: 'Failed to remove photo.' });
+    }
   };
 
   //  RENDER 

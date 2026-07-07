@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Camera, Upload, Sparkles, ArrowLeft, CircleDot, Utensils, Scale, Package, Save, RefreshCcw, Info, Edit3, CheckCircle, CalendarDays, Dumbbell, ListChecks, Trash2, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { runFoodInference, loadFoodModel, FoodInferenceResult } from '@/lib/food-engine';
+import { addMeal } from '@/lib/db';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
 import { format, parseISO, startOfDay, subDays, isWithinInterval } from 'date-fns';
@@ -193,40 +194,47 @@ export default function CalorieScannerPage() {
     }
   };
 
-  const handleSaveMeal = () => {
+  const handleSaveMeal = async () => {
     if (!nutritionInfo) return;
     const multiplier = portionSize === 'small' ? 0.5 : portionSize === 'large' ? 1.5 : 1.0;
     const totalCal = Math.round(editableIngredients.reduce((s, i) => s + (i.calories || 0), 0) * multiplier);
     
     const saved = { 
-      ...nutritionInfo, 
       foodName: editableFoodName, 
       calories: totalCal, 
       timestamp: new Date().toISOString(), 
-      imageUrl: previewUrl,
-      portionSize
+      imageUrl: previewUrl || undefined,
+      portionSize: portionSize as 'small' | 'regular' | 'large',
+      ingredientsBreakdown: editableIngredients,
+      dietaryClassification: (nutritionInfo.protein > 20) ? ['High Protein'] : ['Standard'],
+      healthSummary: nutritionInfo.healthSummary,
+      nutritionalScore: nutritionInfo.nutritionalScore
     };
     
-    // 1. Save to regular meal history
-    const prevMeals = JSON.parse(localStorage.getItem('fitjourney_saved_meals') || '[]');
-    localStorage.setItem('fitjourney_saved_meals', JSON.stringify([saved, ...prevMeals]));
-    
-    // 2. SILENT TRAINING: Log the correction for future model fine-tuning
-    const trainingEntry = {
-      timestamp: new Date().toISOString(),
-      originalPredictions: topPredictions.map(p => ({ name: p.className, conf: p.confidence })),
-      userCorrection: editableFoodName,
-      wasOther: isOtherSelected,
-      portion: portionSize,
-      imageRef: previewUrl?.substring(0, 50) + '...' // Data URI is too big for log, just a ref
-    };
-    const prevTraining = JSON.parse(localStorage.getItem('fitjourney_training_data') || '[]');
-    localStorage.setItem('fitjourney_training_data', JSON.stringify([trainingEntry, ...prevTraining]));
+    try {
+      // 1. Save to local IndexedDB database
+      await addMeal(saved);
+      
+      // 2. SILENT TRAINING: Log the correction for future model fine-tuning
+      const trainingEntry = {
+        timestamp: new Date().toISOString(),
+        originalPredictions: topPredictions.map(p => ({ name: p.className, conf: p.confidence })),
+        userCorrection: editableFoodName,
+        wasOther: isOtherSelected,
+        portion: portionSize,
+        imageRef: previewUrl?.substring(0, 50) + '...' // Data URI is too big for log, just a ref
+      };
+      const prevTraining = JSON.parse(localStorage.getItem('fitjourney_training_data') || '[]');
+      localStorage.setItem('fitjourney_training_data', JSON.stringify([trainingEntry, ...prevTraining]));
 
-    toast({ title: 'Meal Saved!', description: 'Your progress has been recorded.' });
-    setNutritionInfo(null); 
-    setPreviewUrl(null);
-    setTopPredictions([]);
+      toast({ title: 'Meal Saved!', description: 'Your progress has been recorded in local database.' });
+      setNutritionInfo(null); 
+      setPreviewUrl(null);
+      setTopPredictions([]);
+    } catch (err) {
+      console.error('Error saving meal to IndexedDB:', err);
+      toast({ variant: 'destructive', title: 'Database Error', description: 'Failed to write meal to local database.' });
+    }
   };
 
   const selectPrediction = (index: number) => {
