@@ -50,7 +50,7 @@ export async function loadModels(
   });
 
   onProgress?.('Loading background removal model...', 70);
-  sessionTargetB = await ort.InferenceSession.create('/models/manthnet_nexus_v2_int8.onnx', {
+  sessionTargetB = await ort.InferenceSession.create('/models/manthnet_nexus_v2_merged.onnx', {
     executionProviders: ['wasm'],
     graphOptimizationLevel: 'all',
   });
