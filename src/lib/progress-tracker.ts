@@ -122,7 +122,7 @@ export function getWeeklyStats(): WeeklyStats | null {
 
 export function getGoalProgress(goalBf: number): number {
   const all   = loadAllScans();
-  if (all.length === 0) return 0;
+  if (all.length < 2) return 0;
   const startBf   = all[all.length - 1].bf;  // first scan ever
   const currentBf = all[0].bf;               // latest scan
   const total     = startBf - goalBf;

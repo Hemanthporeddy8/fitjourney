@@ -398,7 +398,7 @@ function calibrateConfidence(
 
   // Combined display score (0-100%)
   const display = Math.round(
-    (coverageScore * 0.4 + bodyPenalty * 0.35 + confScore * 0.25) * 100
+    (coverageScore * 0.25 + bodyPenalty * 0.25 + confScore * 0.50) * 100
   );
 
   let label: string;
@@ -468,9 +468,16 @@ export async function scanBody(
   const rawCanvas = await loadImageToCanvas(imageDataUrl);
   console.log(`[Scan] Image: ${rawCanvas.width}${rawCanvas.height}`);
 
-  // Step 1: Background analysis (Bypass mode)
-  onProgress?.('Analyzing image structure...');
-  const r = buildBypassMask(rawCanvas);
+  // Step 1: Background analysis (Try AI Segmentation, fallback to Bypass if it fails)
+  onProgress?.('Segmenting body outline...');
+  let r: { composited: HTMLCanvasElement; mCanvas: HTMLCanvasElement };
+  try {
+    r = await runTargetB(rawCanvas);
+    console.log('[Scan] AI segmentation successful.');
+  } catch (err) {
+    console.warn('[Scan] AI segmentation failed, falling back to bypass mask:', err);
+    r = buildBypassMask(rawCanvas);
+  }
   const composited = r.composited; 
   const mCanvas = r.mCanvas;
 
