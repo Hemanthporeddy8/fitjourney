@@ -290,3 +290,4 @@ export async function importDatabaseBackup(jsonString: string): Promise<void> {
   await importStore('body_photos', backup.bodyPhotos);
   await importStore('face_photos', backup.facePhotos);
 }
+// End of database helper script. Triggering new deployment.
