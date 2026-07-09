@@ -26,6 +26,7 @@ export interface AlignmentTransform {
   };
   outputWidth?: number;
   outputHeight?: number;
+  scanMode?: 'torso' | 'full_body';
 }
 
 let poseSession: ort.InferenceSession | null = null;
@@ -136,16 +137,19 @@ export function computeAlignmentTransform(
 
   const lShoulder = getKp('left_shoulder');
   const rShoulder = getKp('right_shoulder');
+  const lHip = getKp('left_hip');
+  const rHip = getKp('right_hip');
   const lAnkle = getKp('left_ankle');
   const rAnkle = getKp('right_ankle');
 
   const thresh = 0.25;
 
   const shouldersVisible = lShoulder && rShoulder && lShoulder.confidence >= thresh && rShoulder.confidence >= thresh;
+  const hipsVisible = lHip && rHip && lHip.confidence >= thresh && rHip.confidence >= thresh;
   const anklesVisible = lAnkle && rAnkle && lAnkle.confidence >= thresh && rAnkle.confidence >= thresh;
 
-  // Graceful degradation: shoulders are mandatory for initial framing
-  if (!shouldersVisible) {
+  // Failure Condition: shoulders are always mandatory, and we need either hips OR ankles
+  if (!shouldersVisible || (!hipsVisible && !anklesVisible)) {
     return { aligned: false, reason: 'low_confidence' };
   }
 
@@ -154,31 +158,32 @@ export function computeAlignmentTransform(
   const ay = (lShoulder.y + rShoulder.y) / 2;
   const A = { x: ax, y: ay };
 
-  const dx_sh = rShoulder.x - lShoulder.x;
-  const dy_sh = rShoulder.y - lShoulder.y;
-  const L_sh = Math.sqrt(dx_sh * dx_sh + dy_sh * dy_sh);
-  const theta_sh = Math.atan2(dy_sh, dx_sh);
-
-  // Anchor Point B: Ankle Midpoint (with Torso fallback estimation if ankles are cut off)
   let B: { x: number; y: number };
-  if (anklesVisible) {
-    const bx = (lAnkle.x + rAnkle.x) / 2;
-    const by = (lAnkle.y + rAnkle.y) / 2;
-    B = { x: bx, y: by };
-  } else {
-    // Fallback: estimate ankle point along the downward perpendicular of the shoulder line
-    const perpAngle = theta_sh + Math.PI / 2;
-    B = {
-      x: A.x + Math.cos(perpAngle) * (L_sh * 4.5),
-      y: A.y + Math.sin(perpAngle) * (L_sh * 4.5)
-    };
-  }
+  let scanMode: 'torso' | 'full_body';
+  let TA: { x: number; y: number };
+  let TB: { x: number; y: number };
 
-  // Canonical Target coordinates
   const outputWidth = 600;
   const outputHeight = 800;
-  const TA = { x: 300, y: 200 }; // 50% width, 25% height
-  const TB = { x: 300, y: 720 }; // 50% width, 90% height
+
+  // Target Anchor A: Shoulder midpoint at 50% width / 20% height
+  TA = { x: 300, y: 160 };
+
+  if (anklesVisible) {
+    // Full body scan is preferred if ankles are present (longer baseline)
+    const bx = (lAnkle!.x + rAnkle!.x) / 2;
+    const by = (lAnkle!.y + rAnkle!.y) / 2;
+    B = { x: bx, y: by };
+    TB = { x: 300, y: 720 }; // Ankle midpoint at 50% width / 90% height
+    scanMode = 'full_body';
+  } else {
+    // Torso scan using hips as the anchor
+    const bx = (lHip!.x + rHip!.x) / 2;
+    const by = (lHip!.y + rHip!.y) / 2;
+    B = { x: bx, y: by };
+    TB = { x: 300, y: 520 }; // Hip midpoint at 50% width / 65% height
+    scanMode = 'torso';
+  }
 
   // Solve transform equations
   const srcVec = { x: B.x - A.x, y: B.y - A.y };
@@ -213,7 +218,8 @@ export function computeAlignmentTransform(
     aligned: true,
     matrix: { a, b, c, d, e, f },
     outputWidth,
-    outputHeight
+    outputHeight,
+    scanMode
   };
 }
 

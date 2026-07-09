@@ -27,6 +27,7 @@ export interface ScanResult {
   confLabel:     string;
   bodyType:      BodyType;
   bodyTypeLabel: string;
+  scanMode?:     'torso' | 'full_body';
   isolatedUrl?:  string;
   normalizedUrl?: string;
   timestamp:     number;
@@ -402,10 +403,13 @@ function calibrateConfidence(
   );
 
   let label: string;
-  if (display >= 65) label = 'High accuracy scan';
-  else if (display >= 45) label = 'Good scan quality';
-  else if (display >= 30) label = 'Fair  full body improves accuracy';
-  else label = 'Low  try plain background, full body';
+  if (display >= 70) {
+    label = 'Good scan quality';
+  } else if (display >= 40) {
+    label = 'Fair — retake for best accuracy';
+  } else {
+    label = 'Low confidence — please retake with even lighting and the full torso visible';
+  }
 
   return { display, label };
 }
@@ -460,13 +464,14 @@ export async function scanBody(
   imageDataUrl: string,
   isMale: boolean,
   weightKg: number,
-  onProgress?: (msg: string) => void
+  onProgress?: (msg: string) => void,
+  scanMode: 'torso' | 'full_body' = 'full_body'
 ): Promise<ScanResult> {
   if (!sessionA) await loadModels();
 
   onProgress?.('Loading image...');
   const rawCanvas = await loadImageToCanvas(imageDataUrl);
-  console.log(`[Scan] Image: ${rawCanvas.width}${rawCanvas.height}`);
+  console.log(`[Scan] Image: ${rawCanvas.width}x${rawCanvas.height}`);
 
   // Step 1: Background analysis (Try AI Segmentation, fallback to Bypass if it fails)
   onProgress?.('Segmenting body outline...');
@@ -481,29 +486,18 @@ export async function scanBody(
   const composited = r.composited; 
   const mCanvas = r.mCanvas;
 
-  // Step 2: Detect body type BEFORE zooming
+  // Step 2: Detect body type using scanMode from alignment step
   onProgress?.('Detecting body framing...');
-  const { bodyType, label: bodyTypeLabel } = detectBodyType(mCanvas);
+  const bodyType: BodyType = scanMode === 'torso' ? 'upper_body' : 'full_body';
+  const bodyTypeLabel = scanMode === 'torso' ? 'Torso scan' : 'Full body scan';
 
-  // Step 3: Smart zoom to person's bounding box
-  onProgress?.('Optimizing focus area...');
-  const bounds = getMaskBounds(mCanvas);
-
-  const zoomedImg = document.createElement('canvas');
-  zoomedImg.width = bounds.w; zoomedImg.height = bounds.h;
-  zoomedImg.getContext('2d')!.drawImage(composited, bounds.x, bounds.y, bounds.w, bounds.h, 0, 0, bounds.w, bounds.h);
-
-  const zoomedMask = document.createElement('canvas');
-  zoomedMask.width = bounds.w; zoomedMask.height = bounds.h;
-  zoomedMask.getContext('2d')!.drawImage(mCanvas, bounds.x, bounds.y, bounds.w, bounds.h, 0, 0, bounds.w, bounds.h);
-
-  // Step 4: Normalize  pad  resize to 224
+  // Step 3: Skip zoom crop (fix double-crop bug). directly normalize, pad, and resize the already-aligned canvas to 224
   onProgress?.('Normalizing image...');
-  const normalized = autoNormalizeLighting(zoomedImg);
+  const normalized = autoNormalizeLighting(composited);
   const squared    = padToSquare(normalized, 215);
   const canvas224  = resizeTo(squared, 224);
 
-  const mSquared = padToSquare(zoomedMask, 0);
+  const mSquared = padToSquare(mCanvas, 0);
   const m224c    = resizeTo(mSquared, 224);
   const m224idat = m224c.getContext('2d')!.getImageData(0, 0, 224, 224);
   const mask224  = new Float32Array(224 * 224);
@@ -531,6 +525,7 @@ export async function scanBody(
   return {
     bf, shape, bmi, conf, confDisplay, fatMass, leanMass,
     coverage, category, confLabel, bodyType, bodyTypeLabel,
+    scanMode,
     isolatedUrl:   composited.toDataURL('image/webp', 0.6),
     normalizedUrl: canvas224.toDataURL('image/webp', 0.6),
     timestamp: Date.now(),

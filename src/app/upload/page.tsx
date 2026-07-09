@@ -350,7 +350,9 @@ export default function UploadPhotoPage() {
 
       setAnalysisMsg('Starting scan...');
       const result = await scanBody(alignedDataUrl, isMale, weightKg,
-        (msg) => setAnalysisMsg(msg));
+        (msg) => setAnalysisMsg(msg),
+        transform.scanMode
+      );
       setScanResult(result);
 
       const recs = recommend(result.bf, goalBf, isMale);
@@ -719,6 +721,11 @@ export default function UploadPhotoPage() {
                 <Badge variant="outline" className="text-xs">
                   {getBodyTypeIcon(scanResult.bodyType)} {scanResult.bodyTypeLabel}
                 </Badge>
+                {scanResult.scanMode && (
+                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                    {scanResult.scanMode === 'torso' ? 'Torso Scan' : 'Full Body Scan'}
+                  </Badge>
+                )}
                 <Badge variant="outline" className={`text-xs ${getConfidenceColor(scanResult.confDisplay)}`}>
                   {scanResult.confDisplay}% confidence
                 </Badge>
