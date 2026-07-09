@@ -20,6 +20,14 @@ import {
 } from 'lucide-react';
 import { format, parseISO, isSameDay } from 'date-fns';
 import { addBodyPhoto, getBodyPhotos, deleteBodyPhoto } from '@/lib/db';
+import { 
+  loadPoseModel, 
+  detectAlignmentKeypoints, 
+  computeAlignmentTransform, 
+  alignPhoto, 
+  drawPoseDebug, 
+  loadImageToCanvas 
+} from '@/lib/pose-align';
 
 const Calendar = dynamic(
   () => import('@/components/ui/calendar').then(m => m.Calendar),
@@ -212,6 +220,7 @@ export default function UploadPhotoPage() {
   const [isLoading, setIsLoading]       = useState(true);
 
   const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
+  const [debugOverlayUrl, setDebugOverlayUrl] = useState<string | null>(null);
   const [showCamera, setShowCamera]     = useState(false);
   const [stream, setStream]             = useState<MediaStream | null>(null);
   const [scanMode, setScanMode]         = useState<ScanMode>('front_view');
@@ -267,6 +276,7 @@ export default function UploadPhotoPage() {
     setPhotoForDate(found ?? null);
     setScanResult(found?.scanResult ?? null);
     setPreviewUrl(null);
+    setDebugOverlayUrl(null);
   }, [selectedDate, photos]);
 
   //  CAMERA 
@@ -302,14 +312,44 @@ export default function UploadPhotoPage() {
   const handleScan = async () => {
     if (!previewUrl) return;
     setIsAnalyzing(true);
+    setDebugOverlayUrl(null);
     try {
       if (!modelsLoaded()) {
         setModelLoading(true);
         await loadModels((msg) => setAnalysisMsg(msg));
         setModelLoading(false);
       }
+
+      setAnalysisMsg('Checking body pose alignment...');
+      const rawCanvas = await loadImageToCanvas(previewUrl);
+      const keypoints = await detectAlignmentKeypoints(rawCanvas);
+      const transform = computeAlignmentTransform(keypoints);
+
+      // Lightweight dev-only debug overlay logic (controlled by env / env-fallback)
+      const showDebug = process.env.NEXT_PUBLIC_POSE_DEBUG === 'true' || process.env.NODE_ENV !== 'production';
+      if (showDebug) {
+        const debugCanvas = drawPoseDebug(rawCanvas, keypoints);
+        setDebugOverlayUrl(debugCanvas.toDataURL('image/jpeg'));
+        console.log('[PoseAlign] Detected keypoints:', keypoints);
+        console.log('[PoseAlign] Transform matrix:', transform);
+      }
+
+      if (!transform.aligned) {
+        toast({
+          variant: 'destructive',
+          title: 'Alignment Failed',
+          description: "Couldn't detect your pose clearly — please retake with your full body visible and good lighting."
+        });
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setAnalysisMsg('Aligning photo...');
+      const alignedCanvas = alignPhoto(rawCanvas, transform);
+      const alignedDataUrl = alignedCanvas.toDataURL('image/jpeg', 0.95);
+
       setAnalysisMsg('Starting scan...');
-      const result = await scanBody(previewUrl, isMale, weightKg,
+      const result = await scanBody(alignedDataUrl, isMale, weightKg,
         (msg) => setAnalysisMsg(msg));
       setScanResult(result);
 
@@ -329,7 +369,7 @@ export default function UploadPhotoPage() {
       const newPhoto: PhotoEntry = {
         id: Date.now().toString(), 
         date: selectedDate.toISOString(),
-        url: previewUrl, 
+        url: previewUrl, // Store raw photo for display as requested
         scanResult: result,
       };
 
@@ -376,6 +416,7 @@ export default function UploadPhotoPage() {
       });
 
       setPreviewUrl(null);
+      setDebugOverlayUrl(null);
     } catch (error) {
       console.error('Error saving progress photo to IndexedDB:', error);
       toast({ variant: 'destructive', title: 'Save Failed', description: 'Failed to write photo to database.' });
@@ -394,6 +435,7 @@ export default function UploadPhotoPage() {
       setPhotoForDate(null); 
       setScanResult(null); 
       setPreviewUrl(null);
+      setDebugOverlayUrl(null);
       toast({ title: 'Photo deleted' });
     } catch (error) {
       console.error('Error deleting progress photo from IndexedDB:', error);
@@ -572,7 +614,7 @@ export default function UploadPhotoPage() {
             {(previewUrl || photoForDate?.url) && !showCamera && (
               <div className="relative rounded-xl overflow-hidden">
                 <Image
-                  src={previewUrl ?? photoForDate!.url}
+                  src={debugOverlayUrl ?? previewUrl ?? photoForDate!.url}
                   alt="Body photo"
                   width={400} height={600}
                   className="w-full rounded-xl object-cover max-h-80"
@@ -605,7 +647,10 @@ export default function UploadPhotoPage() {
                 const f = e.target.files?.[0];
                 if (!f) return;
                 const r = new FileReader();
-                r.onloadend = () => setPreviewUrl(r.result as string);
+                r.onloadend = () => {
+                  setPreviewUrl(r.result as string);
+                  setDebugOverlayUrl(null);
+                };
                 r.readAsDataURL(f);
               }} />
 
@@ -649,7 +694,7 @@ export default function UploadPhotoPage() {
             {/* Retake */}
             {scanResult && (
               <Button
-                onClick={() => { setPreviewUrl(null); setScanResult(null); setRecommendations([]); }}
+                onClick={() => { setPreviewUrl(null); setScanResult(null); setRecommendations([]); setDebugOverlayUrl(null); }}
                 variant="outline" className="w-full"
               >
                 <RotateCcw className="h-4 w-4 mr-2" /> Retake Photo
